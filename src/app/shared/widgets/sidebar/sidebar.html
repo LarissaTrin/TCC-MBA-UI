@@ -1,1 +1,17 @@
-<p>sidebar works!</p>
+<!-- <mat-drawer-container class="example-container">
+  <mat-drawer mode="side" opened [style.width.px]="drawerWidth"
+    ><button (click)="toggleDrawer()">Toggle Drawer Size</button></mat-drawer
+  >
+  <mat-drawer-content><router-outlet /></mat-drawer-content>
+</mat-drawer-container> -->
+
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" opened [style.width.px]="drawerWidth" mode="side">
+    <p>Auto-resizing sidenav</p>
+    <button type="button" matButton (click)="toggleDrawer()">Toggle sidenav</button>
+  </mat-drawer>
+
+  <div class="example-sidenav-content">
+    <router-outlet />
+  </div>
+</mat-drawer-container>

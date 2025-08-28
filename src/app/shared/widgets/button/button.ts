@@ -1,11 +1,18 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { MatButtonAppearance, MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-button',
-  imports: [],
+  standalone: true,
+  imports: [MatButtonModule],
   templateUrl: './button.html',
-  styleUrl: './button.css'
+  styleUrls: ['./button.css'],
 })
-export class Button {
-
+export class ButtonComponent {
+  @Input() label: string = 'Button';
+  @Input() appearance: MatButtonAppearance = 'text';
+  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
+  @Input() disabled: boolean = false;
+  @Input() onClick: () => void = () => {};
 }

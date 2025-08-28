@@ -1,1 +1,3 @@
-<p>button works!</p>
+<button [matButton]="appearance" [disabled]="disabled" (click)="!disabled && onClick()">
+  {{ label }}
+</button>

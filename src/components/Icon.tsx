@@ -2,7 +2,8 @@
 import { useState } from "react";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
-import { GenericalIconProps } from "@/common/model/components/Icon";
+import { GenericIconProps } from "@/common/model/components";
+import { iconSizeMap } from "@/common/styles";
 
 /**
  * Generic Material Symbols icon component with customizable size, weight, fill, and hover behavior.
@@ -26,7 +27,7 @@ import { GenericalIconProps } from "@/common/model/components/Icon";
  *
  * Example usage:
  * ```tsx
- * <GenericalIcon
+ * <GenericIcon
  *   icon="photo_camera"
  *   size={GeneralSize.Large}
  *   weight={700}
@@ -37,7 +38,7 @@ import { GenericalIconProps } from "@/common/model/components/Icon";
  * />
  * ```
  */
-export function GenericalIcon({
+export function GenericIcon({
   icon,
   size = GeneralSize.Medium,
   weight = 400,
@@ -47,16 +48,10 @@ export function GenericalIcon({
   color = GeneralColor.Primary,
   onClick,
   sx = {},
-}: GenericalIconProps) {
+}: GenericIconProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const sizeMap = {
-    [GeneralSize.Small]: 16,
-    [GeneralSize.Medium]: 20,
-    [GeneralSize.Large]: 28,
-  };
-
-  const fontSize = typeof size === "number" ? size : sizeMap[size];
+  const fontSize = typeof size === "number" ? size : iconSizeMap[size];
 
   function getCurrentFill(): 0 | 1 {
     let currentFill = isFill ? 1 : 0;

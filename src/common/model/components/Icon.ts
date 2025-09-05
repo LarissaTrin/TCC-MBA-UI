@@ -2,7 +2,7 @@ import { MaterialSymbol } from "material-symbols";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
 
-export interface GenericalIconProps {
+export interface GenericIconProps {
   /**
    * Name of the Material Symbols icon to display.
    * See: https://fonts.google.com/icons

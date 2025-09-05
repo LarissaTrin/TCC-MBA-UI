@@ -30,7 +30,7 @@ import { GenericButtonProps } from "@/common/model";
  * />
  * ```
  */
-function BdtButton({
+function GenericButton({
   label,
   size,
   color = GeneralColor.Primary,
@@ -51,4 +51,4 @@ function BdtButton({
   );
 }
 
-export default BdtButton;
+export default GenericButton;

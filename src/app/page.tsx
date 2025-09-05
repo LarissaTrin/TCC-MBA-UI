@@ -1,8 +1,8 @@
 "use client";
 
 import { GeneralSize } from "@/common/enum";
-import { GenericalIcon } from "@/components";
+import { GenericIcon } from "@/components";
 
 export default function Home() {
-  return <GenericalIcon icon={"home"} size={GeneralSize.Large}/>;
+  return <GenericIcon icon={"home"} size={GeneralSize.Large}/>;
 }

@@ -1,3 +1,3 @@
-﻿export * from "./ButtonColor";
-export * from "./ButtonSize";
+﻿export * from "./GeneralColor";
+export * from "./GeneralSize";
 export * from "./ButtonVariant";

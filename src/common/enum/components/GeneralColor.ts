@@ -1,4 +1,5 @@
-﻿export enum ButtonColor {
+﻿export enum GeneralColor {
+  Inherit = "inherit",
   Primary = "primary",
   Secondary = "secondary",
   Success = "success",

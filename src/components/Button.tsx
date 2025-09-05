@@ -1,6 +1,6 @@
 ﻿import { Button } from "@mui/material";
 
-import { ButtonColor, ButtonVariant } from "@/common/enum";
+import { GeneralColor, ButtonVariant } from "@/common/enum";
 import { GenericButtonProps } from "@/common/model";
 
 /**
@@ -13,7 +13,7 @@ import { GenericButtonProps } from "@/common/model";
  * Props:
  * @param label - Text shown on the button.
  * @param size - Optional. Button size, from ButtonSize enum.
- * @param color - Optional. Button color, from ButtonColor enum.
+ * @param color - Optional. Button color, from GeneralColor enum.
  * @param variant - Optional. Button type, from ButtonVariant enum.
  * @param onClick - Optional. Function to call when the button is clicked.
  * @param ...props - All other native Material UI Button props.
@@ -23,7 +23,7 @@ import { GenericButtonProps } from "@/common/model";
  * <GenericButton
  *   label="Save"
  *   size={ButtonSize.Large}
- *   color={ButtonColor.Primary}
+ *   color={GeneralColor.Primary}
  *   variant={ButtonVariant.Contained}
  *   onClick={() => console.log("Button clicked")}
  *   disabled={false} // from ButtonProps
@@ -33,7 +33,7 @@ import { GenericButtonProps } from "@/common/model";
 function BdtButton({
   label,
   size,
-  color = ButtonColor.Primary,
+  color = GeneralColor.Primary,
   variant = ButtonVariant.Contained,
   onClick,
   ...props

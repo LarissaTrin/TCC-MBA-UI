@@ -3,14 +3,44 @@ import { ButtonProps } from "@mui/material";
 import { GeneralColor, GeneralSize, ButtonVariant } from "@/common/enum";
 
 export interface GenericButtonProps extends ButtonProps {
-  /** Text displayed inside the button */
+  /**
+   * Text displayed inside the button.
+   */
   label: string;
-  /** Button size. Uses the GeneralSize enum: Small, Medium, Large */
+
+  /**
+   * Button size. Uses the GeneralSize enum.
+   * - Small
+   * - Medium
+   * - Large
+   * @default GeneralSize.Medium
+   */
   size?: GeneralSize;
-  /** Button color. Uses the GeneralColor enum: Primary, Secondary, Success, Error, Info, Warning */
+
+  /**
+   * Button color. Uses the GeneralColor enum.
+   * - Inherit
+   * - Primary
+   * - Secondary
+   * - Success
+   * - Error
+   * - Info
+   * - Warning
+   * @default GeneralColor.Primary
+   */
   color?: GeneralColor;
-  /** Button click handler */
+
+  /**
+   * Button click handler.
+   */
   onClick?: () => void;
-  /** Button variant. Uses the ButtonVariant enum: Contained, Outlined, Text */
+
+  /**
+   * Button variant. Uses the ButtonVariant enum.
+   * - Contained
+   * - Outlined
+   * - Text
+   * @default ButtonVariant.Text
+   */
   variant?: ButtonVariant;
 }

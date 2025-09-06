@@ -28,7 +28,7 @@ export interface GenericAlertProps {
    *
    * @default AlertPosition.TopRight
    */
-  anchorOrigin: AlertPosition;
+  anchorOrigin?: AlertPosition;
 
   /**
    * Severity level of the Alert. Uses the SeverityColor enum.

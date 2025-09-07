@@ -1,6 +1,11 @@
 import { ButtonProps } from "@mui/material";
 
-import { GeneralColor, GeneralSize, ButtonVariant } from "@/common/enum";
+import {
+  GeneralColor,
+  GeneralSize,
+  ButtonVariant,
+  LargeSize,
+} from "@/common/enum";
 
 export interface GenericButtonProps extends ButtonProps {
   /**
@@ -15,7 +20,7 @@ export interface GenericButtonProps extends ButtonProps {
    * - Large
    * @default GeneralSize.Medium
    */
-  size?: GeneralSize;
+  size?: GeneralSize | LargeSize;
 
   /**
    * Button color. Uses the GeneralColor enum.

@@ -1,6 +1,6 @@
 import { MaterialSymbol } from "material-symbols";
 
-import { GeneralColor, GeneralSize } from "@/common/enum";
+import { GeneralColor, GeneralSize, LargeSize } from "@/common/enum";
 
 export interface GenericIconProps {
   /**
@@ -18,7 +18,7 @@ export interface GenericIconProps {
    *
    * @default GeneralSize.Medium
    */
-  size?: GeneralSize | number;
+  size?: GeneralSize | LargeSize | number;
 
   /**
    * Icon weight (`wght` axis).

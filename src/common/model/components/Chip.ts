@@ -1,4 +1,4 @@
-import { GeneralColor, DefaultColor, GeneralSize } from "@/common/enum";
+import { GeneralColor, GeneralSize } from "@/common/enum";
 import { MaterialSymbol } from "material-symbols";
 
 export interface GenericChipProps {

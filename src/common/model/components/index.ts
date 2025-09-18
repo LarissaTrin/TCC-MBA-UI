@@ -4,4 +4,6 @@ export * from "./Badge";
 export * from "./Button";
 export * from "./Chip";
 export * from "./Drawer";
+export * from "./Header";
 export * from "./Icon";
+export * from "./Menu";

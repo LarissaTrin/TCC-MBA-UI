@@ -8,3 +8,4 @@ export * from "./HeaderNavbar";
 export * from "./Icon";
 export * from "./Loading";
 export * from "./Menu";
+export * from "./Modal";

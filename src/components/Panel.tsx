@@ -1,41 +1,33 @@
-﻿import { Box, Modal, Typography } from "@mui/material";
-import { GenericModalProps, GenericPanelProps } from "@/common/model";
+﻿import { Box } from "@mui/material";
+import { GenericPanelProps } from "@/common/model";
 
 /**
- * GenericModal - A reusable and flexible modal component built on top of Material UI's Modal.
+ * GenericPanel - A reusable container component with a rounded border.
  *
- * This component provides a standardized way to display modal dialogs with an optional title
- * and customizable content.
+ * This component provides a standardized way to wrap content inside
+ * a bordered and rounded panel, useful for grouping related information.
  *
- * @param {string} [title]
- *   Optional title to be displayed at the top of the modal.
- *
- * @param {boolean} open
- *   Controls whether the modal is visible or not.
- *
- * @param {() => void} handleClose
- *   Callback function triggered when the modal requests to be closed
- *   (e.g., by clicking outside or pressing the ESC key).
+ * @param {string} [id]
+ *   Optional ID for the panel element.
  *
  * @param {React.ReactNode} children
- *   The content to be rendered inside the modal.
+ *   The content to be displayed inside the panel.
  *
  * @example
- * <GenericModal
- *   title="User Info"
- *   open={isOpen}
- *   handleClose={() => setIsOpen(false)}
- * >
- *   <div>User details go here...</div>
- * </GenericModal>
+ * <GenericPanel>
+ *   <p>This is inside a panel</p>
+ * </GenericPanel>
  *
  * @remarks
- * - If a `title` is provided, it will be rendered using Material UI's Typography with `h6` variant.
- * - Accessibility attributes (`aria-labelledby`, `aria-describedby`) are automatically set.
+ * - Uses Material UI's `Box` as the base element.
+ * - Comes with a default border, rounded corners, and padding.
+ * - Accepts all valid MUI `Box` props for further customization.
  */
 function GenericPanel({ id, children }: GenericPanelProps) {
   return (
-    <Box sx={{ border: "1px solid", borderRadius: 2, p: 2 }}>{children}</Box>
+    <Box sx={{ border: "1px solid", borderRadius: 2, p: 2 }} id={id}>
+      {children}
+    </Box>
   );
 }
 

@@ -1,11 +1,11 @@
 import { PropsWithChildren } from "react";
 
 /**
- * Props for the GenericModal component.
+ * Props for the GenericPanel component.
  */
 export interface GenericPanelProps extends PropsWithChildren {
   /**
-   * Optional title to be displayed at the top of the modal.
+   * Optional ID to be applied to the panel container.
    */
   id?: string;
 }

@@ -8,3 +8,4 @@ export * from "./Header";
 export * from "./Icon";
 export * from "./Menu";
 export * from "./Modal";
+export * from "./Panel";

@@ -7,6 +7,7 @@ import GenericButton from "@/components/Button";
 import GenericHeader from "@/components/HeaderNavbar";
 import GenericMenu from "@/components/Menu";
 import GenericModal from "@/components/Modal";
+import GenericPanel from "@/components/Panel";
 import { SnackbarCloseReason } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 
@@ -15,8 +16,9 @@ export default function Home() {
   return (
     <>
       <GenericHeader />
+      <GenericPanel>
       <button onClick={() => setOpen(true)}>⚙️ Abrir Modal</button>
-
+</GenericPanel>
       <GenericModal open={open} handleClose={() => setOpen(false)} title="title">
         <p>testeeeeeeeeeeeeeeeeeeee</p>
         <GenericMenu

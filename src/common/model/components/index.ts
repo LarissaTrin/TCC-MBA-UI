@@ -12,4 +12,5 @@ export * from "./Panel";
 export * from "./Popover";
 export * from "./Switch";
 export * from "./Tabs";
+export * from "./TextField";
 export * from "./Tooltip";

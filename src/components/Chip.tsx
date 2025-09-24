@@ -19,7 +19,7 @@ import { GenericChipProps } from "@/common/model";
  * @param {MaterialSymbol} [endIcon] - An icon to display at the end of the chip. This icon is typically used with the `onDelete` handler.
  * @param {() => void} [onDelete] - A callback function triggered when the delete icon is clicked.
  */
-function GenericBadge({
+function GenericChip({
   label,
   color = GeneralColor.Primary,
   variant = "filled",
@@ -41,4 +41,4 @@ function GenericBadge({
   );
 }
 
-export default GenericBadge;
+export default GenericChip;

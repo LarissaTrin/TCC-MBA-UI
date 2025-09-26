@@ -14,6 +14,9 @@ export interface GenericListProps {
    * @default false
    */
   loading?: boolean;
+
+  /** If true, hides item labels and shows only icons (collapsed mode) */
+  collapsed?: boolean;
 }
 
 /**

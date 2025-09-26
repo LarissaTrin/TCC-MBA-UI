@@ -23,9 +23,19 @@ import { GenericPanelProps } from "@/common/model";
  * - Comes with a default border, rounded corners, and padding.
  * - Accepts all valid MUI `Box` props for further customization.
  */
-function GenericPanel({ id, children }: GenericPanelProps) {
+function GenericPanel({ id, sx, children }: GenericPanelProps) {
   return (
-    <Box sx={{ border: "1px solid", borderRadius: 2, p: 2 }} id={id}>
+    <Box
+      sx={{
+        border: "1px solid",
+        borderRadius: 2,
+        p: 2,
+        width: "100%",
+        height: "100%",
+        ...sx,
+      }}
+      id={id}
+    >
       {children}
     </Box>
   );

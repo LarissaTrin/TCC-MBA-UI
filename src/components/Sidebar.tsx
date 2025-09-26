@@ -22,7 +22,7 @@ import { GenericIcon } from "./Icon";
  */
 function GenericSidebar({ id }: GenericSidebarProps) {
   const [expanded, setExpanded] = useState(true);
-  const drawerWidth = expanded ? 240 : 64;
+  const drawerWidth = expanded ? 240 : 80;
 
   return (
     <GenericDrawer
@@ -43,19 +43,29 @@ function GenericSidebar({ id }: GenericSidebarProps) {
     >
       <Box>
         <GenericList
+          collapsed={!expanded}
           items={[
             { label: "Inbox", icon: "box" },
             { label: "Drafts", icon: "troubleshoot", dividerBelow: true },
-            { label: "Trash", onClick: () => console.log("Trash clicked") },
-            { label: "Spam", href: "#simple-list" },
+            {
+              label: "Trash",
+              icon: !expanded ? "box" : undefined,
+              onClick: () => console.log("Trash clicked"),
+            },
+            {
+              label: "Spam",
+              icon: !expanded ? "box" : undefined,
+              href: "#simple-list",
+            },
           ]}
         />
       </Box>
 
       <Box textAlign="end" p={1}>
-        <IconButton onClick={() => setExpanded(!expanded)}>
-          <GenericIcon icon={expanded ? "chevron_left" : "chevron_right"} />
-        </IconButton>
+        <GenericIcon
+          icon={expanded ? "chevron_left" : "chevron_right"}
+          onClick={() => setExpanded(!expanded)}
+        />
       </Box>
     </GenericDrawer>
   );

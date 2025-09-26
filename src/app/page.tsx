@@ -2,6 +2,7 @@
 
 import { AlertPosition, GeneralSize } from "@/common/enum";
 import { GenericIcon } from "@/components";
+import GenericAccordion from "@/components/Accordion";
 import GenericAlert from "@/components/Alert";
 import GenericButton from "@/components/Button";
 import GenericHeader from "@/components/HeaderNavbar";
@@ -15,41 +16,23 @@ import { SyntheticEvent, useState } from "react";
 export default function Home() {
   const [open, setOpen] = useState(false);
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <GenericHeader />
-      <GenericSidebar />
-      <Box id="test" sx={{ flexGrow: 1, p: 3, marginTop: "64px" }}>
+      <Box id="test" sx={{ flexGrow: 1}}>
         <p>testeeeeeeeeeeeeeeeeeeee</p>
         <p>testeeeeeeeeeeeeeeeeeeee</p>
         <p>testeeeeeeeeeeeeeeeeeeee</p>
         <p>testeeeeeeeeeeeeeeeeeeee</p>
-        <GenericPanel>
-          <button onClick={() => setOpen(true)}>⚙️ Abrir Modal</button>
-        </GenericPanel>
-        <GenericModal
-          open={open}
-          handleClose={() => setOpen(false)}
-          title="title"
+        <GenericAccordion
+          orientation="horizontal"
+          header="Horizontal Accordion"
+          height={'500px'}
+          
         >
-          <p>testeeeeeeeeeeeeeeeeeeee</p>
-          <GenericMenu
-            items={[
-              {
-                name: "Profile",
-                onClick: () => console.log("Profile clicked"),
-              },
-              {
-                name: "My account",
-                onClick: () => console.log("Account clicked"),
-              },
-              { name: "Logout", onClick: () => console.log("Logout clicked") },
-            ]}
-          >
-            <button>⚙️ Abrir Menu</button>
-          </GenericMenu>
-        </GenericModal>
+          <Box width={200}>Esse é o conteúdo lateral (horizontal)</Box>
+        </GenericAccordion>
+        <GenericAccordion orientation="vertical" header="Vertical Accordion"defaultExpanded
+          disableCollapse>
+          <Box width={200}>Esse é o conteúdo lateral (vertical)</Box>
+        </GenericAccordion>
       </Box>
-    </Box>
   );
 }

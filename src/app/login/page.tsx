@@ -3,19 +3,16 @@
 import { useState } from "react";
 import {
   Box,
-  TextField,
   Typography,
-  Paper,
   Stack,
   Link,
-  Container,
 } from "@mui/material";
 import GenericButton from "@/components/Button";
 import GenericTextField from "@/components/TextField";
 import { GeneralSize } from "@/common/enum";
 import GenericPanel from "@/components/Panel";
 
-export default function LoginCardBasic() {
+export default function LoginCardFullScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,9 +28,15 @@ export default function LoginCardBasic() {
   const handleRegister = () => console.log("Register clicked");
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 8 }}>
-      <GenericPanel>
-        <Box display="flex" flexDirection="column" alignItems="center">
+    <Box
+      minHeight="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={2}
+    >
+      <GenericPanel sx={{ width: 360, p: 4 }}>
+        <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
           <Typography
             variant="h5"
             component="h1"
@@ -42,7 +45,7 @@ export default function LoginCardBasic() {
           >
             Login
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
             Sign in to your account
           </Typography>
         </Box>
@@ -66,7 +69,7 @@ export default function LoginCardBasic() {
               type="password"
               required
               value={password}
-              onChangeValue={(value) => setEmail(value)}
+              onChangeValue={(value) => setPassword(value)}
               size={GeneralSize.Small}
             />
 
@@ -75,6 +78,7 @@ export default function LoginCardBasic() {
                 Forgot password?
               </Link>
             </Box>
+
             <GenericButton
               type="submit"
               label={loading ? "Signing..." : "Sign In"}
@@ -107,6 +111,6 @@ export default function LoginCardBasic() {
           </Stack>
         </Box>
       </GenericPanel>
-    </Container>
+    </Box>
   );
 }

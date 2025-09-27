@@ -3,6 +3,7 @@
 import GenericHeader from "@/components/HeaderNavbar";
 import GenericSidebar from "@/components/Sidebar";
 import { Box, CssBaseline } from "@mui/material";
+import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 interface BaseLayoutProps {
@@ -10,6 +11,18 @@ interface BaseLayoutProps {
 }
 
 export default function BaseLayout({ children }: BaseLayoutProps) {
+  const pathname = usePathname();
+  const isLoginPage = pathname.startsWith("/login");
+
+  if (isLoginPage) {
+    return (
+      <>
+        <CssBaseline />
+        {children}
+      </>
+    );
+  }
+
   return (
     <Box display="flex" height="100vh">
       <CssBaseline />

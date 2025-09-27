@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Path, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -37,21 +37,31 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const [loading, setLoading] = useState(false);
+  const formFields: {
+    name: Path<RegisterFormData>;
+    label: string;
+    type?: React.HTMLInputTypeAttribute;
+  }[] = [
+    { name: "firstName", label: "First Name" },
+    { name: "lastName", label: "Last Name" },
+    { name: "username", label: "Username" },
+    { name: "email", label: "Email", type: "email" },
+    { name: "password", label: "Password", type: "password" },
+    { name: "confirmPassword", label: "Confirm Password", type: "password" },
+  ];
 
   const {
     control,
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    setLoading(true);
+  const onSubmit = async (data: RegisterFormData) => {
     console.log("Register data:", data);
-    setTimeout(() => setLoading(false), 1000);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
   return (
@@ -63,9 +73,11 @@ export default function RegisterPage() {
       p={2}
     >
       <GenericPanel sx={{ width: 400, p: 4 }}>
-        <Typography variant="h5" fontWeight="bold" mb={2}>
-          Create Account
-        </Typography>
+        <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+          <Typography variant="h5" fontWeight="bold" mb={2}>
+            Create Account
+          </Typography>
+        </Box>
 
         <Box
           component="form"
@@ -73,62 +85,16 @@ export default function RegisterPage() {
           sx={{ width: "100%" }}
         >
           <Stack spacing={2}>
-            <GenericTextField
-              name={"firstName"}
-              control={control}
-              label="First Name"
-              size={GeneralSize.Small}
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-            />
-
-            <GenericTextField
-              name="lastName"
-              control={control}
-              label="Last Name"
-              size={GeneralSize.Small}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-            />
-
-            <GenericTextField
-              name="username"
-              control={control}
-              label="Username"
-              size={GeneralSize.Small}
-              error={!!errors.username}
-              helperText={errors.username?.message}
-            />
-
-            <GenericTextField
-              name="email"
-              control={control}
-              label="Email"
-              type="email"
-              size={GeneralSize.Small}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-
-            <GenericTextField
-              name="password"
-              control={control}
-              label="Password"
-              type="password"
-              size={GeneralSize.Small}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-
-            <GenericTextField
-              name="confirmPassword"
-              control={control}
-              label="Confirm Password"
-              type="password"
-              size={GeneralSize.Small}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword?.message}
-            />
+            {formFields.map((field) => (
+              <GenericTextField
+                key={field.name}
+                name={field.name}
+                control={control}
+                label={field.label}
+                type={field.type}
+                size={GeneralSize.Small}
+              />
+            ))}
 
             <FormControlLabel
               control={<Checkbox {...register("terms")} />}
@@ -154,8 +120,8 @@ export default function RegisterPage() {
 
             <GenericButton
               type="submit"
-              label={loading ? "Registering..." : "Create Account"}
-              disabled={loading}
+              label={isSubmitting ? "Registering..." : "Create Account"}
+              disabled={isSubmitting}
             />
           </Stack>
         </Box>

@@ -22,7 +22,6 @@ export default function LoginCardFullScreen() {
   const {
     control,
     handleSubmit,
-    getValues,
     formState: { isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -39,8 +38,7 @@ export default function LoginCardFullScreen() {
   };
 
   const handleForgot = () => {
-    const currentEmail = getValues("email");
-    console.log("Forgot password clicked:", currentEmail);
+    router.push("/login/forgot-password");
   };
 
   const handleRegister = () => router.push("/login/register");

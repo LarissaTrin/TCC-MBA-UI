@@ -1,7 +1,10 @@
 ﻿"use client";
 
-import { Project } from "@/common/model";
-import { projectService } from "@/common/services";
+import { GeneralColor, GeneralSize } from "@/common/enum";
+import { Card, Project } from "@/common/model";
+import { cardService, projectService } from "@/common/services";
+import GenericChip from "@/components/Chip";
+import GenericList from "@/components/List";
 import GenericLoading from "@/components/Loading";
 import { GenericPage } from "@/components/Page";
 import GenericPanel from "@/components/Panel";
@@ -11,7 +14,9 @@ import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [cardsByUser, setCardsByUser] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingByCard, setLoadingByCard] = useState(true);
 
   function renderProjectBox(project: Project) {
     return (
@@ -33,21 +38,57 @@ export default function HomePage() {
     );
   }
 
+  function renderCardLabel(card: Card) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        gap={1}
+      >
+        <Typography variant="body2" fontWeight="bold">
+          {card.name}
+        </Typography>
+        <GenericChip
+          label={card.status}
+          size={GeneralSize.Small}
+          color={
+            card.status === "pending"
+              ? GeneralColor.Warning
+              : card.status === "in_progress"
+              ? GeneralColor.Info
+              : GeneralColor.Success
+          }
+        />
+      </Box>
+    );
+  }
+
+  function renderCardList(cards: Card[]) {
+    const items = cards.map((card) => ({
+      label: renderCardLabel(card),
+      onClick: () => console.log("Card clicked:", card.id),
+      secondary: card.status,
+    }));
+
+    return <GenericList items={items} loading={false} collapsed={false} />;
+  }
+
   useEffect(() => {
     projectService
       .getAll()
       .then((data) => setProjects(data))
       .finally(() => setLoading(false));
+
+    cardService
+      .getAll()
+      .then((data) => setCardsByUser(data))
+      .finally(() => setLoadingByCard(false));
   }, []);
 
   return (
     <GenericPage sx={{ height: "100%" }}>
-      <Box
-        display="flex"
-        flexDirection="column"
-        gap={3}
-        height="100%"
-      >
+      <Box display="flex" flexDirection="column" gap={3} height="100%">
         <GenericPanel
           sx={{
             display: "flex",
@@ -68,11 +109,7 @@ export default function HomePage() {
           minHeight={300}
         >
           <GenericPanel sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-            {loading ? (
-              <GenericLoading />
-            ) : (
-              <Typography>{projects[0]?.projectName}</Typography>
-            )}
+            {loadingByCard ? <GenericLoading /> : renderCardList(cardsByUser)}
           </GenericPanel>
 
           <GenericPanel sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>

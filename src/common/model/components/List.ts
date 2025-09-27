@@ -1,4 +1,5 @@
 import { MaterialSymbol } from "material-symbols";
+import { ReactNode } from "react";
 
 /**
  * Props for the `GenericList` component.
@@ -26,7 +27,7 @@ export interface GenericListItem {
   /**
    * Text displayed as the item label.
    */
-  label: string;
+  label: string | ReactNode;
 
   /**
    * Optional icon displayed next to the label.

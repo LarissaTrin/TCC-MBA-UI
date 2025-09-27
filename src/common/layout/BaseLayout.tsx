@@ -11,21 +11,23 @@ interface BaseLayoutProps {
 
 export default function BaseLayout({ children }: BaseLayoutProps) {
   return (
-    <Box sx={{ display: "flex" }}>
+     <Box display="flex" height="100vh">
       <CssBaseline />
       <GenericHeader />
-      <GenericSidebar />
+
+      {/* Sidebar + Conteúdo */}
       <Box
-        id="test"
-        sx={{
-          flexGrow: 1,
-          pt: "88px",
-          px: "24px",
-          pb: "24px",
-          height: "100vh",
-        }}
+        display="flex"
+        flex={1}
+        marginTop="64px"
       >
-        {children}
+        {/* Sidebar */}
+        <GenericSidebar />
+
+        {/* Conteúdo */}
+        <Box flex={1} overflow="auto">
+          {children}
+        </Box>
       </Box>
     </Box>
   );

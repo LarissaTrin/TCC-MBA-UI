@@ -33,7 +33,7 @@ import { GenericModalProps } from "@/common/model";
  * - If a `title` is provided, it will be rendered using Material UI's Typography with `h6` variant.
  * - Accessibility attributes (`aria-labelledby`, `aria-describedby`) are automatically set.
  */
-function GenericModal({
+export function GenericModal({
   title,
   open,
   handleClose,
@@ -69,5 +69,3 @@ function GenericModal({
     </Modal>
   );
 }
-
-export default GenericModal;

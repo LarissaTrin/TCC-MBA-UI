@@ -7,10 +7,9 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { GenericIcon } from "./Icon";
-import GenericLoading from "./Loading";
+import { GenericIcon, GenericLoading } from "./";
 
-function GenericList({ items, loading, collapsed }: GenericListProps) {
+export function GenericList({ items, loading, collapsed }: GenericListProps) {
   return (
     <List>
       {loading && (
@@ -47,5 +46,3 @@ function GenericList({ items, loading, collapsed }: GenericListProps) {
     </List>
   );
 }
-
-export default GenericList;

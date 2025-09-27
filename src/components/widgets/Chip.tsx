@@ -1,7 +1,7 @@
 ﻿import { Chip } from "@mui/material";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
-import { GenericIcon } from "./Icon";
+import { GenericIcon } from "./";
 import { GenericChipProps } from "@/common/model";
 
 /**
@@ -19,7 +19,7 @@ import { GenericChipProps } from "@/common/model";
  * @param {MaterialSymbol} [endIcon] - An icon to display at the end of the chip. This icon is typically used with the `onDelete` handler.
  * @param {() => void} [onDelete] - A callback function triggered when the delete icon is clicked.
  */
-function GenericChip({
+export function GenericChip({
   label,
   color = GeneralColor.Primary,
   variant = "filled",
@@ -40,5 +40,3 @@ function GenericChip({
     />
   );
 }
-
-export default GenericChip;

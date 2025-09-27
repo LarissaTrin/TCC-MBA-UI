@@ -12,7 +12,7 @@ import { GenericTooltipProps } from "@/common/model";
  * @param {string} title - The text to display inside the tooltip.
  * @param {Placement} [placement="bottom"] - The placement of the tooltip.
  */
-function GenericTooltip({
+export function GenericTooltip({
   children,
   title,
   placement = "bottom",
@@ -23,5 +23,3 @@ function GenericTooltip({
     </Tooltip>
   );
 }
-
-export default GenericTooltip;

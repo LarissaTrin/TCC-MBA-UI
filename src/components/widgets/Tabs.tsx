@@ -12,7 +12,7 @@ import { GenericTabsProps } from "@/common/model";
  * @param {"horizontal" | "vertical"} [orientation="horizontal"] - The orientation of the tabs.
  * @param {GenericTabItem[]} tabsList - The list of tabs to be rendered, each with a label and value.
  */
-function GenericTabs({
+export function GenericTabs({
   selectedTab,
   orientation = "horizontal",
   tabsList,
@@ -31,5 +31,3 @@ function GenericTabs({
     </Tabs>
   );
 }
-
-export default GenericTabs;

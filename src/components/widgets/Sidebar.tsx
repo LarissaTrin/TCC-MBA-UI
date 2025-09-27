@@ -1,9 +1,7 @@
 ﻿import { useState } from "react";
-import { IconButton, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import { GenericSidebarProps } from "@/common/model";
-import GenericDrawer from "./Drawer";
-import GenericList from "./List";
-import { GenericIcon } from "./Icon";
+import { GenericDrawer, GenericIcon, GenericList } from "./";
 
 /**
  * Generic and reusable sidebar component based on Material UI's Drawer.
@@ -20,7 +18,7 @@ import { GenericIcon } from "./Icon";
  *
  * @param {string} id - The unique identifier for the sidebar.
  */
-function GenericSidebar({ id }: GenericSidebarProps) {
+export function GenericSidebar({ id }: GenericSidebarProps) {
   const [expanded, setExpanded] = useState(true);
   const drawerWidth = expanded ? 240 : 80;
 
@@ -70,5 +68,3 @@ function GenericSidebar({ id }: GenericSidebarProps) {
     </GenericDrawer>
   );
 }
-
-export default GenericSidebar;

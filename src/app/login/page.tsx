@@ -1,31 +1,49 @@
 ﻿"use client";
 
-import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  Link,
-} from "@mui/material";
-import GenericButton from "@/components/Button";
-import GenericTextField from "@/components/TextField";
+import { Box, Typography, Stack, Link } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 import { GeneralSize } from "@/common/enum";
-import GenericPanel from "@/components/Panel";
+import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+
+const loginSchema = z.object({
+  email: z.string().email("Por favor, insira um email válido."),
+  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginCardFullScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    console.log("Login submit", { email, password });
-    setTimeout(() => setLoading(false), 700);
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Login submit", data);
+    // Ex: router.push("/dashboard");
   };
 
-  const handleForgot = () => console.log("Forgot password clicked:", email);
-  const handleRegister = () => console.log("Register clicked");
+  const handleForgot = () => {
+    const currentEmail = getValues("email");
+    console.log("Forgot password clicked:", currentEmail);
+  };
+
+  const handleRegister = () => router.push("/login/register");
 
   return (
     <Box
@@ -50,26 +68,26 @@ export default function LoginCardFullScreen() {
           </Typography>
         </Box>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{ width: "100%" }}
+        >
           <Stack spacing={2}>
             <GenericTextField
-              id="email"
+              name="email"
+              control={control}
               label="Email Address"
               type="email"
-              required
-              value={email}
-              onChangeValue={(value) => setEmail(value)}
               autoFocus
               size={GeneralSize.Small}
             />
 
             <GenericTextField
-              id="password"
+              name="password"
+              control={control}
               label="Password"
               type="password"
-              required
-              value={password}
-              onChangeValue={(value) => setPassword(value)}
               size={GeneralSize.Small}
             />
 
@@ -81,8 +99,8 @@ export default function LoginCardFullScreen() {
 
             <GenericButton
               type="submit"
-              label={loading ? "Signing..." : "Sign In"}
-              disabled={loading}
+              label={isSubmitting ? "Signing..." : "Sign In"}
+              disabled={isSubmitting}
             />
 
             <Box

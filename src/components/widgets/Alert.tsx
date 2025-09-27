@@ -40,7 +40,7 @@ import { Alert, Snackbar } from "@mui/material";
  * />
  * ```
  */
-function GenericAlert({
+export function GenericAlert({
   open,
   content,
   anchorOrigin = AlertPosition.TopRight,
@@ -58,5 +58,3 @@ function GenericAlert({
     </Snackbar>
   );
 }
-
-export default GenericAlert;

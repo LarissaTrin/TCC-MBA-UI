@@ -16,7 +16,7 @@ import { GenericSwitchProps } from "@/common/model";
  * @param {GeneralSize} [size='medium'] - The size of the switch. Maps to 'small' or 'medium'.
  * @param {boolean} [disabled] - If `true`, the switch will be disabled.
  */
-function GenericSwitch({
+export function GenericSwitch({
   label,
   defaultChecked,
   checked,
@@ -37,5 +37,3 @@ function GenericSwitch({
     />
   );
 }
-
-export default GenericSwitch;

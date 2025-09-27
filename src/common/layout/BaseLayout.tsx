@@ -1,16 +1,16 @@
 "use client";
 
-import GenericHeader from "@/components/HeaderNavbar";
-import GenericSidebar from "@/components/Sidebar";
 import { Box, CssBaseline } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
+
+import { GenericHeader, GenericSidebar } from "@/components";
 
 interface BaseLayoutProps {
   children: ReactNode;
 }
 
-export default function BaseLayout({ children }: BaseLayoutProps) {
+export function BaseLayout({ children }: BaseLayoutProps) {
   const pathname = usePathname();
   const isLoginPage = pathname.startsWith("/login");
 

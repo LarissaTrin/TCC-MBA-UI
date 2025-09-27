@@ -15,7 +15,7 @@ import { GenericDrawerProps } from "@/common/model";
  * @param {React.ReactNode} children - The content to be rendered inside the Drawer.
  * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
  */
-function GenericDrawer({
+export function GenericDrawer({
   open,
   anchor = "left",
   variant = "temporary",
@@ -35,5 +35,3 @@ function GenericDrawer({
     </Drawer>
   );
 }
-
-export default GenericDrawer;

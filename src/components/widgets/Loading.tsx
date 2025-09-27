@@ -1,7 +1,5 @@
 ﻿import { CircularProgress } from "@mui/material";
 
-function GenericLoading() {
+export function GenericLoading() {
   return <CircularProgress />;
 }
-
-export default GenericLoading;

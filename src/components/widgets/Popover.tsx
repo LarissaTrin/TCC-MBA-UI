@@ -31,7 +31,7 @@ import { GenericPopoverProps } from "@/common/model";
  * - The `reactOpenPopover` element's original `onClick` handler will be preserved and executed before opening the popover.
  * - The component automatically manages open/close state.
  */
-function GenericPopover({
+export function GenericPopover({
   reactOpenPopover,
   children,
   ...props
@@ -72,5 +72,3 @@ function GenericPopover({
     </div>
   );
 }
-
-export default GenericPopover;

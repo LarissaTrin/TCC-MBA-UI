@@ -8,8 +8,7 @@
 } from "@mui/material";
 
 import { GenericHeaderProps } from "@/common/model";
-import GenericAvatar from "./Avatar";
-import GenericMenu from "./Menu";
+import { GenericAvatar, GenericMenu } from "./";
 
 /**
  * A generic and reusable Drawer component, based on Material UI's Drawer.
@@ -24,7 +23,7 @@ import GenericMenu from "./Menu";
  * @param {React.ReactNode} children - The content to be rendered inside the Drawer.
  * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
  */
-function GenericHeader({ ...props }: GenericHeaderProps) {
+export function GenericHeader({ ...props }: GenericHeaderProps) {
   const settings = [
     { name: "Profile", onClick: () => console.log("Profile clicked") },
     { name: "Account", onClick: () => console.log("Account clicked") },
@@ -33,7 +32,10 @@ function GenericHeader({ ...props }: GenericHeaderProps) {
   ];
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar
+      position="fixed"
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
       <Toolbar
         style={{
           display: "flex",
@@ -71,5 +73,3 @@ function GenericHeader({ ...props }: GenericHeaderProps) {
     </AppBar>
   );
 }
-
-export default GenericHeader;

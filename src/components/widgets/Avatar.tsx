@@ -19,7 +19,7 @@ import { GenericAvatarProps } from "@/common/model";
  * />
  * ```
  */
-function GenericAvatar({ fullName, size = 40 }: GenericAvatarProps) {
+export function GenericAvatar({ fullName, size = 40 }: GenericAvatarProps) {
   function stringToColor(string: string) {
     let hash = 0;
     let i;
@@ -51,5 +51,3 @@ function GenericAvatar({ fullName, size = 40 }: GenericAvatarProps) {
     <Avatar {...stringAvatar(fullName)} sx={{ width: size, height: size }} />
   );
 }
-
-export default GenericAvatar;

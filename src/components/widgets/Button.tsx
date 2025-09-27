@@ -30,7 +30,7 @@ import { GenericButtonProps } from "@/common/model";
  * />
  * ```
  */
-function GenericButton({
+export function GenericButton({
   label,
   size,
   color = GeneralColor.Primary,
@@ -50,5 +50,3 @@ function GenericButton({
     </Button>
   );
 }
-
-export default GenericButton;

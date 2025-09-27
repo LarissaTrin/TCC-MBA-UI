@@ -22,7 +22,7 @@ import { GeneralColor } from "@/common/enum";
  * </GenericBadge>
  * ```
  */
-function GenericBadge({
+export function GenericBadge({
   count = 0,
   color = GeneralColor.Primary,
   variant = "standard",
@@ -34,5 +34,3 @@ function GenericBadge({
     </Badge>
   );
 }
-
-export default GenericBadge;

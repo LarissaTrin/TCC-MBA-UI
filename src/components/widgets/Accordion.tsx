@@ -23,7 +23,7 @@ export interface GenericAccordionProps {
   disableCollapse?: boolean;
 }
 
-export default function GenericAccordion({
+export function GenericAccordion({
   orientation = "vertical",
   header,
   children,

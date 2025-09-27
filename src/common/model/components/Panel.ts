@@ -1,13 +1,8 @@
-import { SxProps, Theme } from "@mui/system";
-import { PropsWithChildren } from "react";
+import { BoxProps } from "@mui/material";
 
 /**
  * Props for the GenericPanel component.
+ * It extends all props from the Material-UI Box component,
+ * allowing for full customization.
  */
-export interface GenericPanelProps extends PropsWithChildren {
-  /**
-   * Optional ID to be applied to the panel container.
-   */
-  id?: string;
-  sx?: SxProps<Theme>;
-}
+export type GenericPanelProps = BoxProps

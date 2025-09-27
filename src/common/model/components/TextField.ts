@@ -1,3 +1,4 @@
+import { GeneralSize } from "@/common/enum";
 import { HTMLInputTypeAttribute } from "react";
 
 /**
@@ -38,6 +39,11 @@ export interface GenericTextFieldProps {
 
   /** Number of rows for multiline input */
   rows?: number;
+  /** Number of rows for multiline input
+   * @default GeneralSize.Medium
+   */
+  size?: GeneralSize;
+  autoFocus?: boolean;
 
   /** Callback when the input value changes */
   onChangeValue: (value: string) => void;

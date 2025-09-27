@@ -32,6 +32,8 @@ function GenericTextField({
   error = false,
   helperText,
   rows,
+  size,
+  autoFocus,
   onChangeValue,
 }: GenericTextFieldProps) {
   return (
@@ -52,6 +54,8 @@ function GenericTextField({
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         onChangeValue(event.target.value);
       }}
+      size={size}
+      autoFocus={autoFocus}
     />
   );
 }

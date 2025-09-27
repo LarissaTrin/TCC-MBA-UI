@@ -1,8 +1,14 @@
 "use client";
 
-import { Box, CssBaseline } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  Theme,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 import { GenericHeader, GenericSidebar } from "@/components";
 
@@ -13,6 +19,15 @@ interface BaseLayoutProps {
 export function BaseLayout({ children }: BaseLayoutProps) {
   const pathname = usePathname();
   const isLoginPage = pathname.startsWith("/login");
+
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down("md")
+  );
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   if (isLoginPage) {
     return (
@@ -26,11 +41,15 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   return (
     <Box display="flex" height="100vh">
       <CssBaseline />
-      <GenericHeader />
+      <GenericHeader onMenuClick={handleSidebarToggle} />
+
+      <GenericSidebar
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? isSidebarOpen : true}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       <Box display="flex" flex={1} marginTop="64px">
-        <GenericSidebar />
-
         <Box flex={1} overflow="auto">
           {children}
         </Box>

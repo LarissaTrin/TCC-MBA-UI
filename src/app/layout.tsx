@@ -4,6 +4,7 @@ import "./globals.css";
 import "material-symbols/outlined.css";
 
 import { BaseLayout } from "@/common/layout";
+import { ThemeProvider } from "@/common/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <BaseLayout>{children}</BaseLayout>
+        <ThemeProvider>
+          <BaseLayout>{children}</BaseLayout>
+        </ThemeProvider>
       </body>
     </html>
   );

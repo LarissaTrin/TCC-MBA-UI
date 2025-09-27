@@ -18,19 +18,25 @@ import { GenericDrawer, GenericIcon, GenericList } from "./";
  *
  * @param {string} id - The unique identifier for the sidebar.
  */
-export function GenericSidebar({ id }: GenericSidebarProps) {
+export function GenericSidebar({
+  open,
+  variant,
+  onClose,
+}: GenericSidebarProps) {
   const [expanded, setExpanded] = useState(true);
   const drawerWidth = expanded ? 240 : 80;
 
   return (
     <GenericDrawer
-      open
-      variant="permanent"
+      open={open}
+      variant={variant}
+      onClose={onClose}
       sx={{
-        width: drawerWidth,
+        width: variant === "permanent" ? drawerWidth : "auto",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {
-          width: drawerWidth,
+          width:
+            variant === "permanent" ? drawerWidth : "-webkit-fill-available",
           paddingTop: "64px",
           boxSizing: "border-box",
           display: "flex",
@@ -60,10 +66,12 @@ export function GenericSidebar({ id }: GenericSidebarProps) {
       </Box>
 
       <Box textAlign="end" p={1}>
-        <GenericIcon
-          icon={expanded ? "chevron_left" : "chevron_right"}
-          onClick={() => setExpanded(!expanded)}
-        />
+        {variant === "permanent" && (
+          <GenericIcon
+            icon={expanded ? "chevron_left" : "chevron_right"}
+            onClick={() => setExpanded(!expanded)}
+          />
+        )}
       </Box>
     </GenericDrawer>
   );

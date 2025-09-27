@@ -8,7 +8,7 @@
 } from "@mui/material";
 
 import { GenericHeaderProps } from "@/common/model";
-import { GenericAvatar, GenericMenu } from "./";
+import { GenericAvatar, GenericIcon, GenericMenu } from "./";
 
 /**
  * A generic and reusable Drawer component, based on Material UI's Drawer.
@@ -23,11 +23,9 @@ import { GenericAvatar, GenericMenu } from "./";
  * @param {React.ReactNode} children - The content to be rendered inside the Drawer.
  * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
  */
-export function GenericHeader({ ...props }: GenericHeaderProps) {
+export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
   const settings = [
     { name: "Profile", onClick: () => console.log("Profile clicked") },
-    { name: "Account", onClick: () => console.log("Account clicked") },
-    { name: "Dashboard", onClick: () => console.log("Dashboard clicked") },
     { name: "Logout", onClick: () => console.log("Logout clicked") },
   ];
 
@@ -43,6 +41,14 @@ export function GenericHeader({ ...props }: GenericHeaderProps) {
           justifyContent: "space-between",
         }}
       >
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          sx={{ mr: 2, display: { md: "none" } }}
+        >
+          <GenericIcon icon="menu" onClick={onMenuClick} />
+        </IconButton>
         <Typography
           variant="h6"
           noWrap

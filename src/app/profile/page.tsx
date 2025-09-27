@@ -14,7 +14,7 @@ import { z } from "zod";
 
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { UserProfile } from "@/common/model";
-import { getProfile } from "@/common/services/userService";
+import { getProfile, updatePassword } from "@/common/services/userService";
 
 const passwordSchema = z
   .object({
@@ -138,11 +138,4 @@ export default function ProfilePage() {
       </GenericPanel>
     </Box>
   );
-}
-
-function updatePassword(data: {
-  password?: string | undefined;
-  confirmPassword?: string | undefined;
-}) {
-  throw new Error("Function not implemented.");
 }

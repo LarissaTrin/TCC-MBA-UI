@@ -92,6 +92,7 @@ export default function HomePage() {
         <GenericPanel
           sx={{
             display: "flex",
+            flexDirection: 'column',
             alignItems: "center",
             justifyContent: "center",
             minHeight: 100,
@@ -108,18 +109,70 @@ export default function HomePage() {
           flex={1}
           minHeight={300}
         >
-          <GenericPanel sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-            {loadingByCard ? <GenericLoading /> : renderCardList(cardsByUser)}
+          {/* Cards */}
+          <GenericPanel
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Título fixo */}
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 1,
+                px: 1,
+                py: 1,
+                bgcolor: "background.paper",
+                zIndex: 10,
+              }}
+            >
+              Assigned to Me
+            </Typography>
+
+            {/* Box scrollável */}
+            <Box sx={{ overflowY: "auto", flex: 1 }}>
+              {loadingByCard ? <GenericLoading /> : renderCardList(cardsByUser)}
+            </Box>
           </GenericPanel>
 
-          <GenericPanel sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-            {loading ? (
-              <GenericLoading />
-            ) : (
-              <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={1}>
-                {projects.map((project) => renderProjectBox(project))}
-              </Box>
-            )}
+          {/* Projects */}
+          <GenericPanel
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 1,
+                px: 1,
+                py: 1,
+                bgcolor: "background.paper",
+                zIndex: 10,
+              }}
+            >
+              Projects to Me
+            </Typography>
+
+            <Box sx={{ overflowY: "auto", flex: 1 }}>
+              {loading ? (
+                <GenericLoading />
+              ) : (
+                <Box
+                  display="grid"
+                  gridTemplateColumns="repeat(3, 1fr)"
+                  gap={1}
+                >
+                  {projects.map((project) => renderProjectBox(project))}
+                </Box>
+              )}
+            </Box>
           </GenericPanel>
         </Box>
 

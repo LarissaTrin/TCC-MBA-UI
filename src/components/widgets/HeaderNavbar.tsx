@@ -9,6 +9,7 @@
 
 import { GenericHeaderProps } from "@/common/model";
 import { GenericAvatar, GenericIcon, GenericMenu } from "./";
+import { useRouter } from "next/navigation";
 
 /**
  * A generic and reusable Drawer component, based on Material UI's Drawer.
@@ -24,9 +25,11 @@ import { GenericAvatar, GenericIcon, GenericMenu } from "./";
  * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
  */
 export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
+  const router = useRouter();
+
   const settings = [
-    { name: "Profile", onClick: () => console.log("Profile clicked") },
-    { name: "Logout", onClick: () => console.log("Logout clicked") },
+    { name: "Profile", onClick: () => router.push("/profile") },
+    { name: "Logout", onClick: () => router.push("/login") },
   ];
 
   return (

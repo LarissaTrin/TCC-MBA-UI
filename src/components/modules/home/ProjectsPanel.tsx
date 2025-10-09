@@ -1,16 +1,22 @@
 import { Box, Typography } from "@mui/material";
 
 import { Project } from "@/common/model";
-import { DashboardPanel, GenericLoading } from "@/components";
+import { DashboardPanel, GenericButton, GenericLoading } from "@/components";
+import { useState } from "react";
+import { NewProjectModal } from "./NewProjectModal";
+import { ButtonVariant } from "@/common/enum";
 interface ProjectsPanelProps {
   projects: Project[];
   isLoading: boolean;
 }
 
-export function ProjectsPanel({
-  projects,
-  isLoading,
-}: ProjectsPanelProps) {
+export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProjectCreated = (newProject: Project) => {
+    console.log(newProject);
+  };
+
   function renderProjectBox(project: Project) {
     return (
       <Box
@@ -32,14 +38,47 @@ export function ProjectsPanel({
   }
 
   return (
-    <DashboardPanel title="My Projects">
-      {isLoading ? (
-        <GenericLoading />
-      ) : (
-        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={1}>
-          {projects.map((project) => renderProjectBox(project))}
-        </Box>
-      )}
-    </DashboardPanel>
+    <>
+      <DashboardPanel title="My Projects">
+        {isLoading ? (
+          <GenericLoading />
+        ) : (
+          <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={1}>
+            <Box
+              onClick={() => setIsModalOpen(true)}
+              sx={{
+                p: 2,
+                cursor: "pointer",
+                border: "2px dashed",
+                borderColor: "divider",
+                borderRadius: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                minHeight: 80,
+                "&:hover": {
+                  bgcolor: "action.hover",
+                  borderColor: "primary.main",
+                },
+              }}
+            >
+              <GenericButton
+                label="New Project"
+                variant={ButtonVariant.Text}
+                startIcon="add"
+              />
+            </Box>
+            {projects.map((project) => renderProjectBox(project))}
+          </Box>
+        )}
+      </DashboardPanel>
+      <NewProjectModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onProjectCreated={handleProjectCreated}
+      />
+    </>
   );
 }

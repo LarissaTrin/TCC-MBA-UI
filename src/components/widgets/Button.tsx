@@ -2,6 +2,7 @@
 
 import { GeneralColor, ButtonVariant } from "@/common/enum";
 import { GenericButtonProps } from "@/common/model";
+import { GenericIcon } from "./Icon";
 
 /**
  * Generic reusable button component based on Material UI's Button.
@@ -35,6 +36,7 @@ export function GenericButton({
   size,
   color = GeneralColor.Primary,
   variant = ButtonVariant.Contained,
+  startIcon,
   onClick,
   ...props
 }: GenericButtonProps) {
@@ -45,6 +47,7 @@ export function GenericButton({
       color={color}
       variant={variant}
       onClick={onClick}
+      startIcon={startIcon ? <GenericIcon icon={startIcon} /> : undefined}
     >
       {label}
     </Button>

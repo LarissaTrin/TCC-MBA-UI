@@ -6,6 +6,7 @@ import {
   ButtonVariant,
   LargeSize,
 } from "@/common/enum";
+import { MaterialSymbol } from "material-symbols";
 
 export interface GenericButtonProps extends ButtonProps {
   /**
@@ -48,4 +49,5 @@ export interface GenericButtonProps extends ButtonProps {
    * @default ButtonVariant.Text
    */
   variant?: ButtonVariant;
+  startIcon?: MaterialSymbol;
 }

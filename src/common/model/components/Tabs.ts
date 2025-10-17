@@ -2,14 +2,17 @@ export interface GenericTabsProps {
   /**
    * The index of the currently selected tab.
    */
-  selectedTab: number;
+  selectedTab: number | string;
 
   /**
    * Callback fired when a different tab is selected.
    * @param event - The event source of the callback.
    * @param newValue - The index of the newly selected tab.
    */
-  handleChange: (event: React.SyntheticEvent, newValue: number) => void;
+  handleChange: (
+    event: React.SyntheticEvent,
+    newValue: string | number
+  ) => void;
 
   /**
    * The orientation of the tabs.
@@ -35,5 +38,5 @@ export interface GenericTabItem {
   /**
    * The unique value (index or identifier) for the tab.
    */
-  value: number;
+  value: number | string;
 }

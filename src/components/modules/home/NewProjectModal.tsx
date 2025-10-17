@@ -9,10 +9,10 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { GenericButton, GenericModal, GenericTextField } from "@/components";
+import { GenericButton, GenericTextField } from "@/components";
 import { projectService } from "@/common/services";
-import { Project } from "@/common/model";
 import { ButtonVariant } from "@/common/enum";
+import { useRouter } from "next/navigation";
 
 const newProjectSchema = z.object({
   projectName: z
@@ -24,14 +24,11 @@ type NewProjectFormData = z.infer<typeof newProjectSchema>;
 interface NewProjectModalProps {
   open: boolean;
   onClose: () => void;
-  onProjectCreated: (newProject: Project) => void;
 }
 
-export function NewProjectModal({
-  open,
-  onClose,
-  onProjectCreated,
-}: NewProjectModalProps) {
+export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
+  const router = useRouter();
+
   const {
     control,
     handleSubmit,
@@ -46,14 +43,13 @@ export function NewProjectModal({
 
   const onSubmit: SubmitHandler<NewProjectFormData> = async (data) => {
     console.log(data);
-    // try {
-    //   const newProject = await projectService.create(data);
-    //   onProjectCreated(newProject); // Envia o novo projeto para o componente pai
-    //   handleClose();
-    // } catch (error) {
-    //   console.error("Falha ao criar projeto", error);
-    //   // Aqui você poderia mostrar um erro para o usuário
-    // }
+    try {
+      const newProject = await projectService.create(data);
+      handleClose();
+      router.push(`/project/${newProject.id}`);
+    } catch (error) {
+      console.error("Falha ao criar projeto", error);
+    }
   };
 
   return (

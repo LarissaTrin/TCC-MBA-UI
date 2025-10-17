@@ -19,4 +19,23 @@ export const projectService = {
       }, 300);
     });
   },
+
+  async create(projectData: { projectName: string }): Promise<Project> {
+    return new Promise((resolve) => {
+      // Simula um atraso de rede para a operação de criação
+      setTimeout(() => {
+        const newProject: Project = {
+          id: Math.floor(Math.random() * 10000) + 1, // Gera um ID aleatório
+          projectName: projectData.projectName,
+        };
+
+        // Adiciona o novo projeto à lista em memória para que
+        // chamadas futuras a `getAll()` o incluam.
+        PROJECT_BY_USER.push(newProject);
+
+        console.log("API MOCK: Projeto criado ->", newProject);
+        resolve(newProject);
+      }, 1500);
+    });
+  },
 };

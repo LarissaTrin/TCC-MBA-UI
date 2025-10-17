@@ -26,7 +26,7 @@ export function GenericTabs({
       aria-label="generic tabs"
     >
       {tabsList.map((tab) => (
-        <Tab key={tab.value} label={tab.label} value={tab.value} />
+        <Tab key={String(tab.value)} label={tab.label} value={tab.value} />
       ))}
     </Tabs>
   );

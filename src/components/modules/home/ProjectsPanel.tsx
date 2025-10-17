@@ -13,10 +13,6 @@ interface ProjectsPanelProps {
 export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleProjectCreated = (newProject: Project) => {
-    console.log(newProject);
-  };
-
   function renderProjectBox(project: Project) {
     return (
       <Box
@@ -77,7 +73,6 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
       <NewProjectModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onProjectCreated={handleProjectCreated}
       />
     </>
   );

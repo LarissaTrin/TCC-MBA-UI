@@ -18,7 +18,6 @@ export function DashboardContent() {
 
   const chartOptions: ApexOptions = useMemo(
     () => ({
-      // ... suas opções de gráfico ...
       chart: {
         type: "bar",
         height: 300,

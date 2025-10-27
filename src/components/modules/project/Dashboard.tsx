@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
-import ApexCharts, { ApexOptions } from "apexcharts";
-import { GenericCard, GenericChart } from "@/components/widgets";
+import { useMemo } from "react";
+import { Box, Grid, Typography } from "@mui/material";
+import { ApexOptions } from "apexcharts";
+import { GenericCard } from "@/components/widgets";
 import { GenericCardProps } from "@/common/model";
 
-export function DashboardContent() {
-  const chartRef = useRef<HTMLDivElement>(null);
+import dynamic from "next/dynamic";
+const DynamicGenericChart = dynamic(
+  () =>
+    // Certifique-se que o caminho para seu GenericChart está correto
+    import("@/components/widgets/Chart").then((mod) => mod.GenericChart),
+  {
+    ssr: false, // <-- A MÁGICA: Desliga a renderização no servidor
+    loading: () => <Typography>Carregando gráfico...</Typography>, // Opcional
+  }
+);
 
+export function DashboardContent() {
   // Array de dados para os KPIs com a tipagem correta
   const kpiData: GenericCardProps[] = [
     { title: "Abertas", value: 14, color: "primary" },
@@ -55,7 +64,7 @@ export function DashboardContent() {
       </Grid>
 
       {/* Gráfico Status por mês */}
-      <GenericChart title="Status por mês" options={chartOptions} />
+      <DynamicGenericChart title="Status por mês" options={chartOptions} />
 
       {/* KPI adicional */}
       <GenericCard

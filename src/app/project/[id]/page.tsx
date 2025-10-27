@@ -5,9 +5,9 @@ import { GenericTabs } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import { Box, Typography } from "@mui/material";
 import { DashboardContent } from "@/components/modules/project/Dashboard";
+import { BoardContent } from "@/components/modules/project/Board";
 
 // --- Crie componentes simples para o conteúdo de cada aba ---
-const BoardContent = () => <Typography>Conteúdo do Board (Kanban)</Typography>;
 const ListContent = () => <Typography>Conteúdo da Lista de Tarefas</Typography>;
 const TimelineContent = () => <Typography>Conteúdo da Timeline</Typography>;
 

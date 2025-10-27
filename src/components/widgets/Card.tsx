@@ -33,10 +33,12 @@ export function GenericCard({
   return (
     <Card {...props}>
       <CardContent>
-        <Typography variant="h6">{title}</Typography>
-        <Typography variant="h4" color={color}>
-          {value}
-        </Typography>
+        <Typography variant="subtitle1">{title}</Typography>
+        {value && (
+          <Typography variant="caption" color={color}>
+            {value}
+          </Typography>
+        )}
         {description && (
           <Typography variant="body2" color="text.secondary">
             {description}

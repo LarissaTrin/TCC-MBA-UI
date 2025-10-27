@@ -1,10 +1,9 @@
-// Salve como: components/Task.tsx
 "use client";
 
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent, Typography } from '@mui/material';
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GenericCard } from "./Card";
 
 export interface TaskProps {
   id: string; // ID da tarefa
@@ -26,20 +25,17 @@ export function Task({ id, title }: TaskProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.7 : 1,
-    cursor: 'grab',
-    marginBottom: '10px',
+    cursor: "grab",
+    marginBottom: "10px",
   };
 
   return (
-    <Card
+    <GenericCard
+      title={title}
       ref={setNodeRef} // Conecta o dnd-kit ao elemento
       style={style}
       {...attributes} // Permite o dnd-kit controlar
       {...listeners} // Adiciona os eventos de mouse/toque
-    >
-      <CardContent>
-        <Typography>{title}</Typography>
-      </CardContent>
-    </Card>
+    ></GenericCard>
   );
 }

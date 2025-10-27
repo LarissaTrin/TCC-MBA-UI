@@ -100,7 +100,9 @@ export function GenericAccordion({
 
         {!disableCollapse &&
           (isHorizontal ? (
-            expanded ? <GenericIcon icon="arrow_forward_ios" /> : null
+            expanded ? (
+              <GenericIcon icon="arrow_forward_ios" />
+            ) : null
           ) : expanded ? (
             <GenericIcon icon="keyboard_arrow_up" />
           ) : (
@@ -109,7 +111,12 @@ export function GenericAccordion({
       </Box>
 
       {/* CONTENT */}
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse
+        in={expanded}
+        timeout="auto"
+        unmountOnExit
+        sx={{ overflowY: "auto" }}
+      >
         <Box p={2}>{children}</Box>
       </Collapse>
     </Box>

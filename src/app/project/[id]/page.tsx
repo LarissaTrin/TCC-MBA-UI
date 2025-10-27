@@ -46,7 +46,7 @@ export default function ProjectPage() {
       />
 
       {/* 5. Renderiza o conteúdo da aba ativa */}
-      <Box sx={{ p: 3, flexGrow: 1 }}>
+      <Box sx={{ p: 2, flexGrow: 1 }}>
         {tabsConfig[selectedTabIndex]?.content}
       </Box>
     </GenericPage>

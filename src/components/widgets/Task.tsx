@@ -8,6 +8,7 @@ import { GenericCard } from "./Card";
 export interface TaskProps {
   id: string; // ID da tarefa
   title: string; // Título da tarefa
+  order: number;
 }
 
 export function Task({ id, title }: TaskProps) {

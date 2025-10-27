@@ -13,33 +13,35 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { createPortal } from "react-dom";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
+import { TableView } from "@/components/ui";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
 const initialData: KanbanContainers = {
   todo: [
-    { id: "1", title: "Tarefa 1" },
-    { id: "2", title: "Tarefa 2" },
-    { id: "3", title: "Tarefa 3" },
+    { id: "1", title: "Tarefa 1", order: 1 },
+    { id: "2", title: "Tarefa 2", order: 2 },
+    { id: "3", title: "Tarefa 3", order: 3 },
   ],
   inProgress: [
-    { id: "4", title: "Tarefa 4" },
-    { id: "5", title: "Tarefa 5" },
+    { id: "4", title: "Tarefa 4", order: 4 },
+    { id: "5", title: "Tarefa 5", order: 5 },
   ],
-  done: [{ id: "6", title: "Tarefa 6" }],
+  done: [{ id: "6", title: "Tarefa 6", order: 6 }],
 };
 
 export function BoardContent() {
   const [containers, setContainers] = useState<KanbanContainers>(initialData);
   const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
-  const [mounted, setMounted] = useState(false); // ✅ novo estado
+  const [mounted, setMounted] = useState(false);
+  const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
   useEffect(() => {
-    setMounted(true); // ✅ só após o componente montar no client
+    setMounted(true);
   }, []);
 
   const sensors = useSensors(
@@ -102,63 +104,85 @@ export function BoardContent() {
     const activeContainer = findContainer(activeId);
     const overContainer = findContainer(overId);
 
-    if (
-      !activeContainer ||
-      !overContainer ||
-      activeContainer !== overContainer
-    ) {
+    if (!activeContainer || !overContainer) {
       setActiveTask(null);
       return;
     }
 
-    const items = containers[activeContainer];
-    const oldIndex = items.findIndex((t) => t.id === activeId);
-    const newIndex = items.findIndex((t) => t.id === overId);
+    if (activeContainer === overContainer) {
+      const items = containers[activeContainer];
+      const oldIndex = items.findIndex((t) => t.id === activeId);
+      const newIndex = items.findIndex((t) => t.id === overId);
 
-    if (oldIndex !== newIndex) {
-      setContainers((prev) => ({
-        ...prev,
-        [activeContainer]: arrayMove(items, oldIndex, newIndex),
-      }));
+      if (oldIndex !== newIndex) {
+        const newOrder = arrayMove(items, oldIndex, newIndex).map(
+          (item, idx) => ({ ...item, order: idx + 1 })
+        );
+        setContainers((prev) => ({
+          ...prev,
+          [activeContainer]: newOrder,
+        }));
+      }
     }
 
     setActiveTask(null);
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 3, p: 3 }}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        {Object.entries(containers).map(([id, tasks], index) => {
-          const total = Object.entries(containers).length;
-          const isFirstOrLast = index === 0 || index === total - 1;
-          return (
-            <DroppableContainer
-              key={id}
-              id={id}
-              title={id.toUpperCase()}
-              tasks={tasks}
-              activeColapsed={isFirstOrLast}
-            />
-          );
-        })}
+    <Box>
+      <Box justifyContent={"flex-end"} display={"flex"}>
+        <Button
+          variant="contained"
+          onClick={() =>
+            setViewMode((m) => (m === "board" ? "table" : "board"))
+          }
+          sx={{ mb: 2 }}
+        >
+          {viewMode === "board" ? "Ver como Tabela" : "Ver como Board"}
+        </Button>
+      </Box>
 
-        {/* Só renderiza o portal no client */}
-        {mounted &&
-          createPortal(
-            <DragOverlay>
-              {activeTask ? (
-                <Task id={activeTask.id} title={activeTask.title} />
-              ) : null}
-            </DragOverlay>,
-            document.body
-          )}
-      </DndContext>
+      {viewMode === "board" ? (
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            {Object.entries(containers).map(([id, tasks], index) => {
+              const total = Object.entries(containers).length;
+              const isFirstOrLast = index === 0 || index === total - 1;
+              return (
+                <DroppableContainer
+                  key={id}
+                  id={id}
+                  title={id.toUpperCase()}
+                  tasks={tasks}
+                  activeColapsed={isFirstOrLast}
+                />
+              );
+            })}
+
+            {mounted &&
+              createPortal(
+                <DragOverlay>
+                  {activeTask ? (
+                    <Task
+                      id={activeTask.id}
+                      title={activeTask.title}
+                      order={activeTask.order}
+                    />
+                  ) : null}
+                </DragOverlay>,
+                document.body
+              )}
+          </DndContext>
+        </Box>
+      ) : (
+        <TableView containers={containers} setContainers={setContainers} />
+      )}
     </Box>
   );
 }

@@ -50,7 +50,12 @@ export function DroppableContainer({
       >
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
-            <Task key={task.id} id={task.id} title={task.title} />
+            <Task
+              key={task.id}
+              id={task.id}
+              title={task.title}
+              order={task.order}
+            />
           ))}
         </SortableContext>
       </Box>

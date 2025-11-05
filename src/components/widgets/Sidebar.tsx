@@ -2,6 +2,7 @@
 import { Box } from "@mui/material";
 import { GenericSidebarProps } from "@/common/model";
 import { GenericDrawer, GenericIcon, GenericList } from "./";
+import { useRouter } from "next/navigation";
 
 /**
  * Generic and reusable sidebar component based on Material UI's Drawer.
@@ -23,6 +24,7 @@ export function GenericSidebar({
   variant,
   onClose,
 }: GenericSidebarProps) {
+  const router = useRouter()
   const [expanded, setExpanded] = useState(true);
   const drawerWidth = expanded ? 240 : 80;
 
@@ -49,16 +51,17 @@ export function GenericSidebar({
         <GenericList
           collapsed={!expanded}
           items={[
-            { label: "Inbox", icon: "box" },
-            { label: "Drafts", icon: "troubleshoot", dividerBelow: true },
+            { label: "Home", icon: "home",onClick:()=>{router.push('/')} },
+            { label: "Dashboard", icon: "bar_chart_4_bars", dividerBelow: true, onClick:()=>{router.push('/project/1')} },
             {
-              label: "Trash",
-              icon: !expanded ? "box" : undefined,
-              onClick: () => console.log("Trash clicked"),
+              label: "Login",
+              icon: !expanded ? "account_box" : undefined,
+              onClick: () => {router.push('/login')},
             },
             {
-              label: "Spam",
-              icon: !expanded ? "box" : undefined,
+              label: "Profile",
+              icon: !expanded ? "user_attributes" : undefined,
+              onClick: () => {router.push('/profile')},
               href: "#simple-list",
             },
           ]}

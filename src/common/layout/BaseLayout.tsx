@@ -5,7 +5,6 @@ import {
   CssBaseline,
   Theme,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { ReactNode, useState } from "react";
@@ -39,7 +38,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   }
 
   return (
-    <Box display="flex" height="100vh">
+    <Box display="flex" height="100vh" width="100vw" overflow="hidden">
       <CssBaseline />
       <GenericHeader onMenuClick={handleSidebarToggle} />
 
@@ -49,7 +48,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <Box display="flex" flex={1} marginTop="64px">
+      <Box display="flex" flex={1} marginTop="64px" overflow="hidden">
         <Box flex={1} overflow="auto">
           {children}
         </Box>

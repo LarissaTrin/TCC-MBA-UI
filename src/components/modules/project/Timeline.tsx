@@ -16,7 +16,11 @@ import {
   DragOverEvent,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+
 import { GenericIcon, GenericPanel } from "../../widgets";
+import { TimelineTaskBar } from "../../ui/TimelineTaskBar";
+import { SidebarSection } from "../../ui/SidebarSection";
+
 import { Task, Month } from "../../../common/model/timeline";
 import {
   TIMELINE_CONFIG,
@@ -26,8 +30,6 @@ import {
   getDaysDiff,
   generateTimelineMonths,
 } from "../../../common/utils/timelineUtils";
-import { TimelineTaskBar } from "../../ui/TimelineTaskBar";
-import { SidebarSection } from "../../ui/SidebarSection";
 import { Status } from "@/common/enum";
 import { Card, Section } from "@/common/model";
 import { cardService, sectionService } from "@/common/services";
@@ -53,7 +55,11 @@ export function TimelineContent() {
   const [timelineStartDate, setTimelineStartDate] = useState<Date | null>(null);
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
   const initializedRef = useRef(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -61,7 +67,7 @@ export function TimelineContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const generatedMonths = generateTimelineMonths(now, 1, 4);
+    const generatedMonths = generateTimelineMonths(now, 1, 6);
     setMonths(generatedMonths);
     if (generatedMonths.length > 0) {
       setTimelineStartDate(
@@ -81,7 +87,6 @@ export function TimelineContent() {
         const mappedTasks: Task[] = cards.map((card) => {
           const start = card.startDate ?? card.dueDate;
           const end = card.endDate ?? card.dueDate;
-
           return {
             id: card.id,
             title: card.name,
@@ -100,9 +105,21 @@ export function TimelineContent() {
     );
   }, []);
 
+  const totalDays = useMemo(() => {
+    return months.reduce((acc, month) => acc + month.days.length, 0);
+  }, [months]);
+
+  const totalWidth = totalDays * TIMELINE_CONFIG.dayWidth;
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollLeft } = e.currentTarget;
+    if (sidebarRef.current) sidebarRef.current.scrollTop = scrollTop;
+    if (headerRef.current) headerRef.current.scrollLeft = scrollLeft;
+  };
 
   const handleTaskUpdate = useCallback(
     (
@@ -122,7 +139,6 @@ export function TimelineContent() {
           newIndex !== undefined ? newIndex : currentTask.index;
 
         const otherTasks = prevTasks.filter((t) => t.id !== taskId);
-
         const targetSectionTasks = otherTasks
           .filter((t) => t.sectionId === targetSectionId)
           .sort((a, b) => a.index - b.index);
@@ -152,7 +168,26 @@ export function TimelineContent() {
     []
   );
 
-  // --- DND-KIT HANDLERS ---
+  const getDropLocationAtY = useCallback(
+    (y: number) => {
+      for (const section of sections) {
+        const el = sectionRefs.current[section.id];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (y >= rect.top && y <= rect.bottom) {
+            const internalY = y - rect.top - TIMELINE_CONFIG.sectionHeight;
+            if (internalY < 0) return { sectionId: section.id, index: 0 };
+            const index = Math.floor(internalY / TIMELINE_CONFIG.rowHeight);
+            return { sectionId: section.id, index: Math.max(0, index) };
+          }
+        }
+      }
+      return null;
+    },
+    [sections]
+  );
+
+  // --- DND KIT EVENTS ---
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -211,41 +246,41 @@ export function TimelineContent() {
     }
   };
 
-  const getDropLocationAtY = useCallback(
-    (y: number) => {
-      for (const section of sections) {
-        const el = sectionRefs.current[section.id];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (y >= rect.top && y <= rect.bottom) {
-            const internalY = y - rect.top - TIMELINE_CONFIG.sectionHeight;
-            if (internalY < 0) return { sectionId: section.id, index: 0 };
-            const index = Math.floor(internalY / TIMELINE_CONFIG.rowHeight);
-            return { sectionId: section.id, index: Math.max(0, index) };
-          }
-        }
-      }
-      return null;
-    },
-    [sections]
-  );
-
-  // --- SCROLL AUTOMÁTICO ---
+  // --- SCROLL INICIAL AUTOMÁTICO (CORRIGIDO) ---
   useEffect(() => {
-    if (!initializedRef.current && scrollRef.current && timelineStartDate) {
-      const today = new Date(now);
-      today.setHours(0, 0, 0, 0);
-      const diffDays = getDaysDiff(timelineStartDate, today);
+    // 1. Timeout para garantir que o DOM renderizou e tem largura
+    const timer = setTimeout(() => {
+      if (
+        !initializedRef.current &&
+        scrollRef.current &&
+        timelineStartDate &&
+        totalWidth > 0
+      ) {
+        const today = new Date(now);
+        today.setHours(0, 0, 0, 0);
 
-      const containerCenter = scrollRef.current.clientWidth / 2;
-      const itemCenter = TIMELINE_CONFIG.dayWidth / 2;
-      const scrollPos =
-        diffDays * TIMELINE_CONFIG.dayWidth - containerCenter + itemCenter;
+        const diffDays = getDaysDiff(timelineStartDate, today);
+        const containerCenter = scrollRef.current.clientWidth / 2;
 
-      scrollRef.current.scrollLeft = Math.max(scrollPos, 0);
-      initializedRef.current = true;
-    }
-  }, [now, timelineStartDate]);
+        if (containerCenter === 0) return;
+
+        const itemCenter = TIMELINE_CONFIG.dayWidth / 2;
+        const scrollPos =
+          diffDays * TIMELINE_CONFIG.dayWidth - containerCenter + itemCenter;
+
+        const finalPos = Math.max(scrollPos, 0);
+        scrollRef.current.scrollLeft = finalPos;
+
+        if (headerRef.current) {
+          headerRef.current.scrollLeft = finalPos;
+        }
+
+        initializedRef.current = true;
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [now, timelineStartDate, totalWidth]);
 
   const todayOffset = useMemo(() => {
     if (!timelineStartDate) return 0;
@@ -272,77 +307,41 @@ export function TimelineContent() {
           height: "600px",
         }}
       >
-        <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
-          {/* --- SIDEBAR --- */}
+        {/* --- HEADER WRAPPER --- */}
+        <Box
+          sx={{
+            display: "flex",
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fff",
+            zIndex: 10,
+          }}
+        >
+          {/* Canto Fixo */}
           <Box
             sx={{
               width: TIMELINE_CONFIG.sidebarWidth,
               minWidth: TIMELINE_CONFIG.sidebarWidth,
+              height: TIMELINE_CONFIG.headerHeight,
               borderRight: "1px solid #e0e0e0",
-              backgroundColor: "#fff",
-              zIndex: 3,
               display: "flex",
-              flexDirection: "column",
-              boxShadow: "2px 0 5px rgba(0,0,0,0.05)",
+              alignItems: "center",
+              p: 2,
             }}
           >
-            <Box
-              sx={{
-                height: TIMELINE_CONFIG.headerHeight,
-                borderBottom: "1px solid #e0e0e0",
-                p: 2,
-                display: "flex",
-                alignItems: "center",
-                flexShrink: 0,
-              }}
+            <Typography
+              variant="h6"
+              sx={{ fontSize: "1rem", fontWeight: "bold" }}
             >
-              <Typography
-                variant="h6"
-                sx={{ fontSize: "1rem", fontWeight: "bold" }}
-              >
-                Tarefas
-              </Typography>
-            </Box>
-            <Box sx={{ overflowY: "auto", overflowX: "hidden", flex: 1 }}>
-              {sections.map((section) => (
-                <SidebarSection
-                  key={section.id}
-                  section={section}
-                  tasks={tasks
-                    .filter((t) => t.sectionId === section.id)
-                    .sort((a, b) => a.index - b.index)}
-                />
-              ))}
-            </Box>
+              Tarefas
+            </Typography>
           </Box>
 
-          {/* --- TIMELINE --- */}
+          {/* Header Rolável (Controlado) */}
           <Box
-            ref={scrollRef}
-            sx={{
-              flex: 1,
-              overflowX: "auto",
-              overflowY: "hidden",
-              position: "relative",
-              backgroundColor: "#f8fafc",
-              display: "flex",
-              flexDirection: "column",
-            }}
+            ref={headerRef}
+            sx={{ flex: 1, overflow: "hidden", display: "flex" }}
           >
-            {/* Header Timeline */}
-            <Box
-              sx={{
-                display: "flex",
-                height: TIMELINE_CONFIG.headerHeight,
-                borderBottom: "1px solid #e0e0e0",
-                backgroundColor: "#fff",
-                position: "sticky",
-                top: 0,
-                zIndex: 10,
-                width: "max-content",
-                flexShrink: 0,
-              }}
-            >
+            <Box sx={{ display: "flex", width: "max-content" }}>
               {months.map((m, i) => (
                 <Box key={i} sx={{ borderRight: "1px solid #e0e0e0" }}>
                   <Box
@@ -376,9 +375,61 @@ export function TimelineContent() {
                 </Box>
               ))}
             </Box>
+          </Box>
+        </Box>
 
-            {/* Body Timeline */}
-            <Box sx={{ position: "relative", width: "max-content", flex: 1 }}>
+        {/* --- BODY WRAPPER --- */}
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <Box
+            ref={sidebarRef}
+            sx={{
+              width: TIMELINE_CONFIG.sidebarWidth,
+              minWidth: TIMELINE_CONFIG.sidebarWidth,
+              borderRight: "1px solid #e0e0e0",
+              backgroundColor: "#fff",
+              zIndex: 3,
+              overflow: "hidden",
+              pb: 2,
+            }}
+          >
+            <Box>
+              {sections.map((section) => (
+                <SidebarSection
+                  key={section.id}
+                  section={section}
+                  tasks={tasks
+                    .filter((t) => t.sectionId === section.id)
+                    .sort((a, b) => a.index - b.index)}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box
+            ref={scrollRef}
+            onScroll={handleScroll}
+            sx={{
+              flex: 1,
+              overflow: "auto",
+              position: "relative",
+              backgroundColor: "#f8fafc",
+            }}
+          >
+            <Box
+              sx={{
+                position: "relative",
+                minWidth: totalWidth,
+                width: totalWidth,
+                minHeight: "100%",
+              }}
+            >
               <Box
                 sx={{
                   position: "absolute",
@@ -414,7 +465,6 @@ export function TimelineContent() {
                 const sectionTasks = tasks
                   .filter((t) => t.sectionId === section.id)
                   .sort((a, b) => a.index - b.index);
-
                 return (
                   <Box
                     key={section.id}

@@ -18,27 +18,54 @@ import { createPortal } from "react-dom";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { TableView } from "@/components/ui";
+import { Card, Section } from "@/common/model";
+import { cardService, sectionService } from "@/common/services";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
-const initialData: KanbanContainers = {
-  todo: [
-    { id: "1", title: "Tarefa 1", order: 1 },
-    { id: "2", title: "Tarefa 2", order: 2 },
-    { id: "3", title: "Tarefa 3", order: 3 },
-  ],
-  inProgress: [
-    { id: "4", title: "Tarefa 4", order: 4 },
-    { id: "5", title: "Tarefa 5", order: 5 },
-  ],
-  done: [{ id: "6", title: "Tarefa 6", order: 6 }],
-};
+function mapCardsToBoard(sections: Section[], cards: Card[]): KanbanContainers {
+  const result: KanbanContainers = {};
+  sections.forEach((s) => {
+    result[s.id] = [];
+  });
+
+  cards.forEach((card) => {
+    if (!result[card.sectionId]) return;
+    result[card.sectionId].push({
+      id: String(card.id),
+      title: card.name,
+      order: card.sortIndex,
+    });
+  });
+
+  Object.keys(result).forEach((key) => {
+    result[key] = result[key].sort((a, b) => a.order - b.order);
+  });
+
+  return result;
+}
 
 export function BoardContent() {
-  const [containers, setContainers] = useState<KanbanContainers>(initialData);
+  const [containers, setContainers] = useState<KanbanContainers>({});
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
+
+  useEffect(() => {
+    Promise.all([sectionService.getSections(), cardService.getAll()]).then(
+      ([sectionsApi, cards]) => {
+        const orderedSections = [...sectionsApi].sort(
+          (a, b) => a.order - b.order
+        );
+        setSections(orderedSections);
+        setContainers(mapCardsToBoard(orderedSections, cards));
+        setLoading(false);
+      }
+    );
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -128,6 +155,10 @@ export function BoardContent() {
     setActiveTask(null);
   };
 
+  if (loading) {
+    return <Box>Carregando board...</Box>;
+  }
+
   return (
     <Box>
       <Box justifyContent={"flex-end"} display={"flex"}>
@@ -151,14 +182,16 @@ export function BoardContent() {
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            {Object.entries(containers).map(([id, tasks], index) => {
-              const total = Object.entries(containers).length;
+            {sections.map((section, index) => {
+              const total = sections.length;
               const isFirstOrLast = index === 0 || index === total - 1;
+              const tasks = containers[section.id] ?? [];
+
               return (
                 <DroppableContainer
-                  key={id}
-                  id={id}
-                  title={id.toUpperCase()}
+                  key={section.id}
+                  id={section.id}
+                  title={section.name}
                   tasks={tasks}
                   activeColapsed={isFirstOrLast}
                 />

@@ -1,52 +1,80 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { ApexOptions } from "apexcharts";
 import { GenericCard } from "@/components/widgets";
-import { GenericCardProps } from "@/common/model";
+import { Card, GenericCardProps } from "@/common/model";
 
 import dynamic from "next/dynamic";
+import { cardService } from "@/common/services";
+import { Status } from "@/common/enum";
 const DynamicGenericChart = dynamic(
   () =>
-    // Certifique-se que o caminho para seu GenericChart está correto
     import("@/components/widgets/Chart").then((mod) => mod.GenericChart),
   {
-    ssr: false, // <-- A MÁGICA: Desliga a renderização no servidor
-    loading: () => <Typography>Carregando gráfico...</Typography>, // Opcional
+    ssr: false,
+    loading: () => <Typography>Carregando gráfico...</Typography>,
   }
 );
 
 export function DashboardContent() {
-  // Array de dados para os KPIs com a tipagem correta
-  const kpiData: GenericCardProps[] = [
-    { title: "Abertas", value: 14, color: "primary" },
-    { title: "Em andamento", value: 8, color: "warning.main" },
-    { title: "Finalizadas", value: 22, color: "success.main" },
-  ];
+  const [cards, setCards] = useState<Card[]>([]);
 
-  const chartOptions: ApexOptions = useMemo(
-    () => ({
-      chart: {
-        type: "bar",
-        height: 300,
-        toolbar: { show: false },
-      },
+  useEffect(() => {
+    cardService.getAll().then(setCards);
+  }, []);
+
+  const kpiData: GenericCardProps[] = useMemo(() => {
+    const abertas = cards.filter((c) => c.status === Status.Pending).length;
+    const andamento = cards.filter(
+      (c) => c.status === Status.InProgress
+    ).length;
+    const finalizadas = cards.filter(
+      (c) => c.status === Status.Validation || c.status === Status.Done
+    ).length;
+
+    return [
+      { title: "Abertas", value: abertas, color: "primary" },
+      { title: "Em andamento", value: andamento, color: "warning.main" },
+      { title: "Finalizadas", value: finalizadas, color: "success.main" },
+    ];
+  }, [cards]);
+
+  const chartOptions: ApexOptions = useMemo(() => {
+    const byMonth: Record<string, { abertas: number; finalizadas: number }> =
+      {};
+    cards.forEach((c) => {
+      const date = new Date(c.dueDate);
+      const key = `${date.getFullYear()}-${date.getMonth()}`;
+      if (!byMonth[key]) byMonth[key] = { abertas: 0, finalizadas: 0 };
+
+      if (c.status === Status.Pending || c.status === Status.InProgress)
+        byMonth[key].abertas++;
+      else byMonth[key].finalizadas++;
+    });
+
+    const labels = Object.keys(byMonth).sort();
+    const abertasSeries = labels.map((k) => byMonth[k].abertas);
+    const finalizadasSeries = labels.map((k) => byMonth[k].finalizadas);
+
+    return {
+      chart: { type: "bar", height: 300, toolbar: { show: false } },
       series: [
-        { name: "Abertas", data: [10, 12, 7, 15, 9] },
-        { name: "Finalizadas", data: [8, 11, 9, 10, 13] },
+        { name: "Abertas", data: abertasSeries },
+        { name: "Finalizadas", data: finalizadasSeries },
       ],
       xaxis: {
-        categories: ["Jan", "Fev", "Mar", "Abr", "Mai"],
+        categories: labels.map((k) => {
+          const [year, month] = k.split("-");
+          return `${Number(month) + 1}/${year}`;
+        }),
       },
       colors: ["#1976d2", "#2e7d32"],
       legend: { position: "top" },
-      grid: {
-        borderColor: "#f1f1f1",
-      },
-    }),
-    []
-  );
+      grid: { borderColor: "#f1f1f1" },
+    } as ApexOptions;
+  }, [cards]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>

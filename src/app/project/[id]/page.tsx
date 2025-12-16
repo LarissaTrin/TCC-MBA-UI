@@ -6,12 +6,12 @@ import { GenericPage } from "@/components/widgets/Page";
 import { Box } from "@mui/material";
 import { DashboardContent } from "@/components/modules/project/Dashboard";
 import { BoardContent } from "@/components/modules/project/Board";
-import { TimelineCalendar } from "@/components/ui/Timeline";
+import { TimelineContent } from "@/components/modules/project/Timeline";
 
 const tabsConfig = [
   { label: "Dashboard", value: "dashboard", content: <DashboardContent /> },
   { label: "Board", value: "board", content: <BoardContent /> },
-  { label: "Timeline", value: "timeline", content: <TimelineCalendar /> },
+  { label: "Timeline", value: "timeline", content: <TimelineContent /> },
 ];
 
 export default function ProjectPage() {

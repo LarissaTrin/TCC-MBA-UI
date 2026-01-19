@@ -49,7 +49,11 @@ function pickColorByStatus(card: Card): string {
   }
 }
 
-export function TimelineContent() {
+interface TimelineContentProps {
+  setSelectCardId: (cardId: string) => void;
+}
+
+export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
   const now = useMemo(() => new Date(), []);
   const [months, setMonths] = useState<Month[]>([]);
   const [timelineStartDate, setTimelineStartDate] = useState<Date | null>(null);

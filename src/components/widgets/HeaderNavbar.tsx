@@ -35,7 +35,7 @@ export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
   return (
     <AppBar
       position="fixed"
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{ zIndex: 1500 }}
     >
       <Toolbar
         style={{

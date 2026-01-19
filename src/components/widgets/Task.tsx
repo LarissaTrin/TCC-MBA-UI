@@ -6,20 +6,21 @@ import { CSS } from "@dnd-kit/utilities";
 import { GenericCard } from "./Card";
 
 export interface TaskProps {
-  id: string; // ID da tarefa
-  title: string; // Título da tarefa
+  id: string;
+  title: string;
   order: number;
+  onClick?: () => void;
 }
 
-export function Task({ id, title }: TaskProps) {
+export function Task({ id, title, onClick }: TaskProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging, // Útil para estilização
-  } = useSortable({ id }); // O hook principal
+    isDragging,
+  } = useSortable({ id });
 
   // Estilos para o dnd-kit controlar a posição
   const style = {
@@ -35,6 +36,7 @@ export function Task({ id, title }: TaskProps) {
       title={title}
       ref={setNodeRef} // Conecta o dnd-kit ao elemento
       style={style}
+      onClick={onClick}
       {...attributes} // Permite o dnd-kit controlar
       {...listeners} // Adiciona os eventos de mouse/toque
     ></GenericCard>

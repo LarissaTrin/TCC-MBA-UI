@@ -45,7 +45,11 @@ function mapCardsToBoard(sections: Section[], cards: Card[]): KanbanContainers {
   return result;
 }
 
-export function BoardContent() {
+interface BoardContentProps {
+  setSelectCardId: (cardId: string) => void;
+}
+
+export function BoardContent({ setSelectCardId }: BoardContentProps) {
   const [containers, setContainers] = useState<KanbanContainers>({});
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +159,11 @@ export function BoardContent() {
     setActiveTask(null);
   };
 
+  const handleCardClick = (id: string) => {
+    console.log("Card clicado:", id); // Para debug
+    setSelectCardId(id);
+  };
+
   if (loading) {
     return <Box>Carregando board...</Box>;
   }
@@ -194,6 +203,7 @@ export function BoardContent() {
                   title={section.name}
                   tasks={tasks}
                   activeColapsed={isFirstOrLast}
+                  onTaskClick={handleCardClick}
                 />
               );
             })}

@@ -15,6 +15,7 @@ interface ColumnProps {
   title: string;
   tasks: TaskProps[];
   activeColapsed: boolean;
+  onTaskClick?: (id: string) => void;
 }
 
 export function DroppableContainer({
@@ -22,6 +23,7 @@ export function DroppableContainer({
   title,
   tasks,
   activeColapsed,
+  onTaskClick
 }: ColumnProps) {
   const taskIds = tasks.map((task) => task.id);
 
@@ -55,6 +57,7 @@ export function DroppableContainer({
               id={task.id}
               title={task.title}
               order={task.order}
+              onClick={() => onTaskClick?.(task.id)}
             />
           ))}
         </SortableContext>

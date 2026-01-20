@@ -13,9 +13,19 @@ import {
 
 export default function HomePage() {
   const { projects, cards, isLoading, error } = useHomePageData();
-  
+
   if (isLoading) {
-    return <GenericLoading />;
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        width="100%"
+        height="100%"
+      >
+        <GenericLoading />
+      </Box>
+    );
   }
 
   if (error) {

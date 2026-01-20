@@ -28,6 +28,8 @@ export interface GenericDrawerProps extends DrawerProps {
    */
   variant?: "permanent" | "persistent" | "temporary";
 
+  disableIcon?: boolean;
+
   /**
    * Callback function triggered when the Drawer requests to be closed
    * (e.g., by clicking the backdrop or pressing the Esc key).

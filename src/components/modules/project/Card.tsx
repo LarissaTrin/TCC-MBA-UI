@@ -1,6 +1,6 @@
 "use client";
 
-import { GenericDrawer } from "@/components/widgets";
+import { GenericDrawer, GenericTextField } from "@/components/widgets";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 
@@ -11,6 +11,7 @@ interface CardContentProps {
 
 export function CardContent({ id, onClose }: CardContentProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [value, setValue] = useState("");
 
   const handleClose = () => {
     setIsDrawerOpen(false);
@@ -30,7 +31,10 @@ export function CardContent({ id, onClose }: CardContentProps) {
       anchor="right"
       sx={{ zIndex: 1501 }}
     >
-      <Box>Testeeeeee</Box>
+      <Box sx={{ padding: 2, minWidth: 400, gap: 2, display: "flex", flexDirection: "column" }}>
+        <Box>Testeeeeee111111111111111111111</Box>
+        <GenericTextField name={id ?? ""} label={"Description"} value={value} onChange={setValue}/>
+      </Box>
     </GenericDrawer>
   );
 }

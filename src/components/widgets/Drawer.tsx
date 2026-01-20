@@ -1,6 +1,7 @@
-﻿import { Drawer } from "@mui/material";
+﻿import { Box, Drawer } from "@mui/material";
 
 import { GenericDrawerProps } from "@/common/model";
+import { GenericIcon } from "./Icon";
 
 /**
  * A generic and reusable Drawer component, based on Material UI's Drawer.
@@ -19,6 +20,7 @@ export function GenericDrawer({
   open,
   anchor = "left",
   variant = "temporary",
+  disableIcon,
   children,
   onClose,
   ...props
@@ -31,7 +33,24 @@ export function GenericDrawer({
       variant={variant}
       {...props}
     >
-      {children}
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {!disableIcon && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              p: 1,
+            }}
+          >
+            <GenericIcon
+              icon="close"
+              onClick={onClose}
+              sx={{ cursor: "pointer" }}
+            />
+          </Box>
+        )}
+        {children}
+      </Box>
     </Drawer>
   );
 }

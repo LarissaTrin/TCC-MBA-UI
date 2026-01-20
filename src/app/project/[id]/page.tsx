@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import { useState } from "react";
+
 import { useSearchParams, useRouter } from "next/navigation";
 import { GenericTabs } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
@@ -7,8 +9,7 @@ import { Box } from "@mui/material";
 import { DashboardContent } from "@/components/modules/project/Dashboard";
 import { BoardContent } from "@/components/modules/project/Board";
 import { TimelineContent } from "@/components/modules/project/Timeline";
-import { useState } from "react";
-import { CardContent } from "@/components/modules/project/card";
+import { CardContent } from "@/components/modules/project/Card";
 
 export default function ProjectPage() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function ProjectPage() {
   const activeTabValue = searchParams.get("tab") || tabsConfig[0].value;
 
   const selectedTabIndex = tabsConfig.findIndex(
-    (tab) => tab.value === activeTabValue
+    (tab) => tab.value === activeTabValue,
   );
 
   const handleTabChange = (newValue: string) => {

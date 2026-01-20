@@ -24,7 +24,7 @@ export function GenericSidebar({
   variant,
   onClose,
 }: GenericSidebarProps) {
-  const router = useRouter()
+  const router = useRouter();
   const [expanded, setExpanded] = useState(true);
   const drawerWidth = expanded ? 240 : 80;
 
@@ -33,6 +33,7 @@ export function GenericSidebar({
       open={open}
       variant={variant}
       onClose={onClose}
+      disableIcon
       sx={{
         width: variant === "permanent" ? drawerWidth : "auto",
         flexShrink: 0,
@@ -47,21 +48,45 @@ export function GenericSidebar({
         },
       }}
     >
-      <Box>
+      <Box sx={{ height: "100%" }}>
         <GenericList
           collapsed={!expanded}
           items={[
-            { label: "Home", icon: "home",onClick:()=>{router.push('/')} },
-            { label: "Dashboard", icon: "bar_chart_4_bars", dividerBelow: true, onClick:()=>{router.push('/project/1')} },
+            {
+              label: "Home",
+              icon: "home",
+              onClick: () => {
+                router.push("/home");
+              },
+            },
+            {
+              label: "Home2",
+              icon: "home",
+              onClick: () => {
+                router.push("/");
+              },
+            },
+            {
+              label: "Dashboard",
+              icon: "bar_chart_4_bars",
+              dividerBelow: true,
+              onClick: () => {
+                router.push("/project/1");
+              },
+            },
             {
               label: "Login",
               icon: !expanded ? "account_box" : undefined,
-              onClick: () => {router.push('/login')},
+              onClick: () => {
+                router.push("/login");
+              },
             },
             {
               label: "Profile",
               icon: !expanded ? "user_attributes" : undefined,
-              onClick: () => {router.push('/profile')},
+              onClick: () => {
+                router.push("/profile");
+              },
               href: "#simple-list",
             },
           ]}

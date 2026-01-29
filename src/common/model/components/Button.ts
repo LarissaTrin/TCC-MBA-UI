@@ -12,7 +12,7 @@ export interface GenericButtonProps extends ButtonProps {
   /**
    * Text displayed inside the button.
    */
-  label: string;
+  label?: string;
 
   /**
    * Button size. Uses the GeneralSize enum.

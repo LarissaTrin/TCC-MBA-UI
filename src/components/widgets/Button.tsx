@@ -47,7 +47,26 @@ export function GenericButton({
       color={color}
       variant={variant}
       onClick={onClick}
-      startIcon={startIcon ? <GenericIcon icon={startIcon} /> : undefined}
+      startIcon={
+        startIcon ? (
+          <GenericIcon
+            icon={startIcon}
+            sx={{ cursor: "pointer" }}
+          />
+        ) : undefined
+      }
+      sx={{
+        ...(label
+          ? {}
+          : {
+              p: 0.5,
+              minWidth: "auto",
+              "& .MuiButton-startIcon": {
+                mr: 0,
+              },
+            }),
+        ...props.sx,
+      }}
     >
       {label}
     </Button>

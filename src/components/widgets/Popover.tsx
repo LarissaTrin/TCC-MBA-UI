@@ -51,7 +51,7 @@ export function GenericPopover({
   }>;
 
   return (
-    <div>
+    <div style={{ height: "100%" }}>
       {cloneElement(child, {
         onClick: (event: MouseEvent<HTMLElement>) => {
           if (child.props.onClick) {
@@ -65,6 +65,15 @@ export function GenericPopover({
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        sx={{ zIndex: 3000 }}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
         {...props}
       >
         {children}

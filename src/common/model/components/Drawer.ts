@@ -29,6 +29,7 @@ export interface GenericDrawerProps extends DrawerProps {
   variant?: "permanent" | "persistent" | "temporary";
 
   disableIcon?: boolean;
+  headerTitle?: React.ReactNode | string;
 
   /**
    * Callback function triggered when the Drawer requests to be closed

@@ -20,12 +20,13 @@ export function GenericTextField<T extends FieldValues>({
   size,
   autoFocus,
   onChange,
+  ...prop
 }: GenericTextFieldProps<T>) {
   const renderTextField = (
     val: string,
     onChangeFn: (val: string) => void,
     err?: boolean,
-    helper?: string
+    helper?: string,
   ) => {
     return (
       <TextField
@@ -44,6 +45,7 @@ export function GenericTextField<T extends FieldValues>({
         fullWidth
         size={size}
         autoFocus={autoFocus}
+        {...prop}
       />
     );
   };
@@ -58,7 +60,7 @@ export function GenericTextField<T extends FieldValues>({
             field.value,
             field.onChange,
             !!fieldState.error,
-            fieldState.error?.message
+            fieldState.error?.message,
           )
         }
       />
@@ -69,6 +71,6 @@ export function GenericTextField<T extends FieldValues>({
     value || "",
     onChange || (() => {}),
     error,
-    helperText
+    helperText,
   );
 }

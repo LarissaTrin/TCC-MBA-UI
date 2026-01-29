@@ -1,6 +1,7 @@
 import { HTMLInputTypeAttribute } from "react";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { GeneralSize } from "@/common/enum";
+import { TextFieldProps } from "@mui/material";
 
 /**
  * Props for the GenericTextField component.
@@ -8,7 +9,7 @@ import { GeneralSize } from "@/common/enum";
  * It can be integrated with React Hook Form by providing the `control` and `name` props,
  * or used as a standard controlled component with `value` and `onChange`.
  */
-export interface GenericTextFieldProps <T extends FieldValues>{
+export interface GenericTextFieldProps<T extends FieldValues> {
   /**
    * The `control` object from React Hook Form's `useForm` hook.
    * Providing this enables automatic form state management.
@@ -91,6 +92,11 @@ export interface GenericTextFieldProps <T extends FieldValues>{
    * @default false
    */
   autoFocus?: boolean;
+
+  InputLabelProps?: TextFieldProps["InputLabelProps"];
+  multiline?: boolean;
+  minRows?: number;
+  maxRows?: number;
 
   /**
    * Callback fired when the value of the input changes.

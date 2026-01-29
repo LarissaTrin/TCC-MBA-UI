@@ -21,6 +21,7 @@ export function GenericDrawer({
   anchor = "left",
   variant = "temporary",
   disableIcon,
+  headerTitle,
   children,
   onClose,
   ...props
@@ -34,21 +35,42 @@ export function GenericDrawer({
       {...props}
     >
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        {!disableIcon && (
+        {(headerTitle || !disableIcon) && (
           <Box
+            id="drawer-header"
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
-              p: 1,
+              width: "100%",
+              justifyContent: headerTitle ? "space-between" : "flex-end",
+              alignItems: "center",
+              p: 2,
+              borderBottom: 1,
+              borderColor: "divider",
             }}
           >
-            <GenericIcon
-              icon="close"
-              onClick={onClose}
-              sx={{ cursor: "pointer" }}
-            />
+            {headerTitle && (
+              <Box
+                id="drawer-header-title"
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                }}
+              >
+                {headerTitle}
+              </Box>
+            )}
+            {!disableIcon && (
+              <Box>
+                <GenericIcon
+                  icon="close"
+                  onClick={onClose}
+                  sx={{ cursor: "pointer" }}
+                />
+              </Box>
+            )}
           </Box>
         )}
+
         {children}
       </Box>
     </Drawer>

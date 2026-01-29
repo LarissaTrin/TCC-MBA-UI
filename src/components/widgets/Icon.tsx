@@ -39,6 +39,7 @@ import { iconSizeMap } from "@/common/styles";
  * ```
  */
 export function GenericIcon({
+  id = "default-icon",
   icon,
   size = GeneralSize.Medium,
   weight = 400,
@@ -65,6 +66,7 @@ export function GenericIcon({
 
   return (
     <Box
+      id={id}
       className="material-symbols-outlined"
       fontSize={fontSize}
       component="span"

@@ -18,12 +18,11 @@ import { createPortal } from "react-dom";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { TableView } from "@/components/ui";
-import { Card, Section } from "@/common/model";
-import { cardService, sectionService } from "@/common/services";
+import { Section, Task as TaskModel } from "@/common/model";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
-function mapCardsToBoard(sections: Section[], cards: Card[]): KanbanContainers {
+function mapCardsToBoard(sections: Section[], cards: TaskModel[]): KanbanContainers {
   const result: KanbanContainers = {};
   sections.forEach((s) => {
     result[s.id] = [];
@@ -33,8 +32,8 @@ function mapCardsToBoard(sections: Section[], cards: Card[]): KanbanContainers {
     if (!result[card.sectionId]) return;
     result[card.sectionId].push({
       id: String(card.id),
-      title: card.name,
-      order: card.sortIndex,
+      title: card.title,
+      order: card.index,
     });
   });
 
@@ -46,30 +45,27 @@ function mapCardsToBoard(sections: Section[], cards: Card[]): KanbanContainers {
 }
 
 interface BoardContentProps {
+  sections: Section[];
+  tasks: TaskModel[];
+  loading: boolean;
   setSelectCardId: (cardId: string) => void;
 }
 
-export function BoardContent({ setSelectCardId }: BoardContentProps) {
+export function BoardContent({
+  sections,
+  tasks,
+  loading,
+  setSelectCardId,
+}: BoardContentProps) {
   const [containers, setContainers] = useState<KanbanContainers>({});
-  const [sections, setSections] = useState<Section[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
   useEffect(() => {
-    Promise.all([sectionService.getSections(), cardService.getAll()]).then(
-      ([sectionsApi, cards]) => {
-        const orderedSections = [...sectionsApi].sort(
-          (a, b) => a.order - b.order
-        );
-        setSections(orderedSections);
-        setContainers(mapCardsToBoard(orderedSections, cards));
-        setLoading(false);
-      }
-    );
-  }, []);
+    setContainers(mapCardsToBoard(sections, tasks));
+  }, [sections, tasks]);
 
   useEffect(() => {
     setMounted(true);
@@ -78,13 +74,13 @@ export function BoardContent({ setSelectCardId }: BoardContentProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
-    })
+    }),
   );
 
   const findContainer = (id: string) => {
     if (id in containers) return id;
     return Object.keys(containers).find((key) =>
-      containers[key].some((task) => task.id === id)
+      containers[key].some((task) => task.id === id),
     );
   };
 
@@ -147,7 +143,7 @@ export function BoardContent({ setSelectCardId }: BoardContentProps) {
 
       if (oldIndex !== newIndex) {
         const newOrder = arrayMove(items, oldIndex, newIndex).map(
-          (item, idx) => ({ ...item, order: idx + 1 })
+          (item, idx) => ({ ...item, order: idx + 1 }),
         );
         setContainers((prev) => ({
           ...prev,
@@ -219,7 +215,7 @@ export function BoardContent({ setSelectCardId }: BoardContentProps) {
                     />
                   ) : null}
                 </DragOverlay>,
-                document.body
+                document.body,
               )}
           </DndContext>
         </Box>

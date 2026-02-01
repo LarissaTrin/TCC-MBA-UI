@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { TextField } from "@mui/material";
+import { TextField, TextFieldProps } from "@mui/material";
 import { Controller, FieldValues } from "react-hook-form";
 import { GenericTextFieldProps } from "@/common/model";
 
@@ -19,6 +19,7 @@ export function GenericTextField<T extends FieldValues>({
   rows,
   size,
   autoFocus,
+  slotProps,
   onChange,
   ...prop
 }: GenericTextFieldProps<T>) {
@@ -27,6 +28,7 @@ export function GenericTextField<T extends FieldValues>({
     onChangeFn: (val: string) => void,
     err?: boolean,
     helper?: string,
+    slotProps?: TextFieldProps["slotProps"],
   ) => {
     return (
       <TextField
@@ -45,6 +47,7 @@ export function GenericTextField<T extends FieldValues>({
         fullWidth
         size={size}
         autoFocus={autoFocus}
+        slotProps={slotProps}
         {...prop}
       />
     );
@@ -61,6 +64,7 @@ export function GenericTextField<T extends FieldValues>({
             field.onChange,
             !!fieldState.error,
             fieldState.error?.message,
+            slotProps,
           )
         }
       />
@@ -72,5 +76,6 @@ export function GenericTextField<T extends FieldValues>({
     onChange || (() => {}),
     error,
     helperText,
+    slotProps,
   );
 }

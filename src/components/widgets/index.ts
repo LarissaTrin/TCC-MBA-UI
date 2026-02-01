@@ -1,6 +1,7 @@
 export * from "./Accordion";
 export * from "./Alert";
 export * from "./Avatar";
+export * from "./AutoComplete";
 export * from "./Badge";
 export * from "./Button";
 export * from "./ButtonGroup";

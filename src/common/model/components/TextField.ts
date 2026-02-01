@@ -97,6 +97,7 @@ export interface GenericTextFieldProps<T extends FieldValues> {
   multiline?: boolean;
   minRows?: number;
   maxRows?: number;
+  slotProps?: TextFieldProps['slotProps'];
 
   /**
    * Callback fired when the value of the input changes.

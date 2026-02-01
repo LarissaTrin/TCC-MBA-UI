@@ -2,9 +2,11 @@ import type {
   AutocompleteProps,
   AutocompleteValue,
   SxProps,
+  TextFieldProps,
   Theme,
 } from "@mui/material";
 import { MaterialSymbol } from "material-symbols";
+import { Control, FieldValues, Path } from "react-hook-form";
 
 /**
  * Represents an option in the autocomplete dropdown.
@@ -29,6 +31,7 @@ export type AutocompleteOption = {
  * @template IsMultiple - Indicates whether the component allows multiple selections (true) or not (false).
  */
 export type GenericAutoCompleteProps<
+  TFieldValues extends FieldValues = FieldValues,
   IsMultiple extends boolean = false,
   FreeSolo extends boolean = false,
 > = Omit<
@@ -39,6 +42,10 @@ export type GenericAutoCompleteProps<
    * Label displayed on the input field.
    */
   label?: string;
+
+  name?: Path<TFieldValues>;
+  control?: Control<TFieldValues>;
+  textFieldProps?: TextFieldProps;
 
   /**
    * List of options available for selection.
@@ -89,7 +96,7 @@ export type GenericAutoCompleteProps<
    * Current selected value.
    * Should be a string or null (for no selection).
    */
-  value: AutocompleteValue<AutocompleteOption, IsMultiple, false, FreeSolo>;
+  value?: AutocompleteValue<AutocompleteOption, IsMultiple, false, FreeSolo>;
 
   /**
    * Callback fired when an option (or multiple) is selected.
@@ -97,7 +104,7 @@ export type GenericAutoCompleteProps<
    * @param newValue - The new selected value(s).
    * @param fieldOption - The full option object(s) related to the selected value(s).
    */
-  onChange: (
+  onChange?: (
     newValue: string | string[],
     fieldOption?:
       | AutocompleteOption

@@ -1,7 +1,7 @@
 "use client";
 
 import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
-import { Card } from "@/common/model";
+import { AutocompleteOption, Card, Section } from "@/common/model";
 import { cardService } from "@/common/services";
 import {
   GenericDrawer,
@@ -10,24 +10,29 @@ import {
   GenericButtonGroup,
   GenericPoper,
   GenericIcon,
+  GenericAutoComplete,
 } from "@/components/widgets";
 import { Box, Divider, Grid, MenuItem } from "@mui/material";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
+import { mapToOptions } from "@/common/utils/mapToOptions";
 
 interface CardContentProps {
   id?: string;
+  sections: Section[];
   onClose: () => void;
 }
 
-export function CardContent({ id, onClose }: CardContentProps) {
+export function CardContent({ id, sections, onClose }: CardContentProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<Card | null>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
   const [openOptions, setOpenOptions] = useState(false);
+
+  const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
 
   // RHF + Zod
   const form = useForm<CardFormData>({
@@ -42,6 +47,8 @@ export function CardContent({ id, onClose }: CardContentProps) {
       priority: "",
       task: "",
       approver: "",
+      sectionId: "",
+      storyPoints: "",
     },
   });
 
@@ -63,7 +70,7 @@ export function CardContent({ id, onClose }: CardContentProps) {
       // user: data.user || undefined,
       status: data.status as Status,
       dueDate: data.date || undefined,
-      priority: data.priority || undefined,
+     priority: data.priority ? Number(data.priority) : undefined,
       // task: data.task || undefined,
       // approver: data.approver || undefined,
     };
@@ -101,7 +108,9 @@ export function CardContent({ id, onClose }: CardContentProps) {
             user: loadedCard.user?.firstName ?? "",
             status: loadedCard.status ?? "",
             date: loadedCard.dueDate ?? "",
-            priority: loadedCard.priority ?? "",
+            priority: loadedCard.priority?.toString() ?? "",
+            storyPoints: loadedCard.storyPoints?.toString() ?? "",
+            sectionId: loadedCard.sectionId ?? "",
             // task: loadedCard.task ?? "",
             // approver: loadedCard.approver ?? "",
           });
@@ -191,9 +200,10 @@ export function CardContent({ id, onClose }: CardContentProps) {
             <GenericTextField name="user" label="User" control={form.control} />
           </Grid>
           <Grid size={6}>
-            <GenericTextField
-              name="status"
-              label="Status"
+            <GenericAutoComplete
+              label="Section"
+              options={sectionOptions}
+              name="sectionId"
               control={form.control}
             />
           </Grid>
@@ -209,9 +219,34 @@ export function CardContent({ id, onClose }: CardContentProps) {
           </Grid>
           <Grid size={6}>
             <GenericTextField
+              name="storyPoints"
+              label="Story Points"
+              control={form.control}
+              type="number"
+              slotProps={{
+                input: {
+                  inputProps: {
+                    min: 0,
+                    step: 1,
+                  },
+                },
+              }}
+            />
+          </Grid>
+          <Grid size={6}>
+            <GenericTextField
               name="priority"
               label="Priority"
               control={form.control}
+              type="number"
+              slotProps={{
+                input: {
+                  inputProps: {
+                    min: 0,
+                    step: 1,
+                  },
+                },
+              }}
             />
           </Grid>
 

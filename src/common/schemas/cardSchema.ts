@@ -8,9 +8,11 @@ export const cardSchema = z
     user: z.string().optional(),
     status: z.string().optional(),
     date: z.string().optional(),
-    priority: z.string().optional(),
+    priority: z.string().regex(/^\d*$/).optional(),
+    storyPoints: z.string().regex(/^\d*$/).optional(),
     task: z.string().optional(),
     approver: z.string().optional(),
+    sectionId: z.string().min(1, "Section não pode estar vazio"),
   })
   .transform((data) => ({
     ...data,

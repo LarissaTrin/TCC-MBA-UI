@@ -4,6 +4,8 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  Dispatch,
+  SetStateAction,
 } from "react";
 import { Box, Typography } from "@mui/material";
 import {
@@ -50,10 +52,20 @@ function pickColorByStatus(card: Card): string {
 }
 
 interface TimelineContentProps {
+  sections: Section[];
+  tasks: Task[];
+  loading: boolean;
+  setTasks: Dispatch<SetStateAction<Task[]>>;
   setSelectCardId: (cardId: string) => void;
 }
 
-export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
+export function TimelineContent({
+  sections,
+  tasks,
+  loading,
+  setTasks,
+  setSelectCardId,
+}: TimelineContentProps) {
   const now = useMemo(() => new Date(), []);
   const [months, setMonths] = useState<Month[]>([]);
   const [timelineStartDate, setTimelineStartDate] = useState<Date | null>(null);
@@ -66,48 +78,17 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
 
   const initializedRef = useRef(false);
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const generatedMonths = generateTimelineMonths(now, 1, 6);
     setMonths(generatedMonths);
     if (generatedMonths.length > 0) {
       setTimelineStartDate(
-        new Date(generatedMonths[0].year, generatedMonths[0].month, 1)
+        new Date(generatedMonths[0].year, generatedMonths[0].month, 1),
       );
     }
   }, [now]);
 
-  useEffect(() => {
-    Promise.all([sectionService.getSections(), cardService.getAll()]).then(
-      ([sectionsApi, cards]) => {
-        const orderedSections = [...sectionsApi].sort(
-          (a, b) => a.order - b.order
-        );
-        setSections(orderedSections);
-
-        const mappedTasks: Task[] = cards.map((card) => {
-          const start = card.startDate ?? card.dueDate;
-          const end = card.endDate ?? card.dueDate;
-          return {
-            id: card.id,
-            title: card.name,
-            subtitle: card.status,
-            startDate: start,
-            endDate: end,
-            color: pickColorByStatus(card),
-            sectionId: card.sectionId,
-            index: card.sortIndex ?? 0,
-          };
-        });
-
-        setTasks(mappedTasks);
-        setLoading(false);
-      }
-    );
-  }, []);
+  useEffect(() => {}, []);
 
   const totalDays = useMemo(() => {
     return months.reduce((acc, month) => acc + month.days.length, 0);
@@ -116,7 +97,7 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
   const totalWidth = totalDays * TIMELINE_CONFIG.dayWidth;
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -131,7 +112,7 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
       newStart: string,
       newEnd: string,
       newSectionId?: string,
-      newIndex?: number
+      newIndex?: number,
     ) => {
       setTasks((prevTasks) => {
         const taskIndex = prevTasks.findIndex((t) => t.id === taskId);
@@ -163,13 +144,13 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
           index: i,
         }));
         const tasksFromOtherSections = otherTasks.filter(
-          (t) => t.sectionId !== targetSectionId
+          (t) => t.sectionId !== targetSectionId,
         );
 
         return [...tasksFromOtherSections, ...reindexedTargetSection];
       });
     },
-    []
+    [],
   );
 
   const getDropLocationAtY = useCallback(
@@ -188,7 +169,7 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
       }
       return null;
     },
-    [sections]
+    [sections],
   );
 
   // --- DND KIT EVENTS ---
@@ -206,7 +187,7 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
         .sort((a, b) => a.index - b.index);
 
       const oldIndexInSection = sectionTasks.findIndex(
-        (t) => t.id === active.id
+        (t) => t.id === active.id,
       );
       const newIndexInSection = sectionTasks.findIndex((t) => t.id === over.id);
 
@@ -216,7 +197,7 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
       const reorderedSection = arrayMove(
         sectionTasks,
         oldIndexInSection,
-        newIndexInSection
+        newIndexInSection,
       );
       const reindexedSection = reorderedSection.map((t, i) => ({
         ...t,
@@ -244,8 +225,8 @@ export function TimelineContent({ setSelectCardId }: TimelineContentProps) {
     if (targetSectionId && activeTask.sectionId !== targetSectionId) {
       setTasks((prev) =>
         prev.map((t) =>
-          t.id === active.id ? { ...t, sectionId: targetSectionId! } : t
-        )
+          t.id === active.id ? { ...t, sectionId: targetSectionId! } : t,
+        ),
       );
     }
   };

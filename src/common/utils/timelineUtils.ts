@@ -1,5 +1,3 @@
-// src/utils/timelineUtils.ts
-
 export const getDaysDiff = (start: Date, end: Date) => {
   const oneDay = 24 * 60 * 60 * 1000;
   return Math.round((end.getTime() - start.getTime()) / oneDay);

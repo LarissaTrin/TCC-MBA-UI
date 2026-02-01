@@ -7,7 +7,8 @@ export interface Card {
   id: number;
   name: string;
   description?: string;
-  priority?: string;
+  priority?: number;
+  storyPoints?: number;
   status: Status;
   dueDate: string;
   startDate?: string;

@@ -7,7 +7,16 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   DndContext,
   closestCenter,
@@ -19,7 +28,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import { GenericIcon, GenericPanel } from "../../widgets";
+import { GenericButton, GenericIcon, GenericPanel } from "../../widgets";
 import { TimelineTaskBar } from "../../ui/TimelineTaskBar";
 import { SidebarSection } from "../../ui/SidebarSection";
 
@@ -32,9 +41,16 @@ import {
   getDaysDiff,
   generateTimelineMonths,
 } from "../../../common/utils/timelineUtils";
-import { Status } from "@/common/enum";
+import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
 import { Card, Section } from "@/common/model";
-import { cardService, sectionService } from "@/common/services";
+import { cardService } from "@/common/services";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  newCardSchema,
+  NewCardFormData,
+} from "@/common/schemas/newCardSchema";
+import { mapCardsToTasks } from "@/common/utils/cardMapper";
 
 function pickColorByStatus(card: Card): string {
   switch (card.status) {
@@ -77,6 +93,21 @@ export function TimelineContent({
   const headerRef = useRef<HTMLDivElement>(null);
 
   const initializedRef = useRef(false);
+
+  // ── New Card Dialog ──
+  const [newCardOpen, setNewCardOpen] = useState(false);
+  const newCardForm = useForm<NewCardFormData>({
+    resolver: zodResolver(newCardSchema),
+    defaultValues: { title: "" },
+  });
+
+  const handleCreateCard = async (data: NewCardFormData) => {
+    const created = await cardService.create(data.title);
+    const [mapped] = mapCardsToTasks([created]);
+    setTasks((prev) => [...prev, mapped]);
+    newCardForm.reset();
+    setNewCardOpen(false);
+  };
 
   useEffect(() => {
     const generatedMonths = generateTimelineMonths(now, 1, 6);
@@ -310,7 +341,8 @@ export function TimelineContent({
               borderRight: "1px solid #e0e0e0",
               display: "flex",
               alignItems: "center",
-              p: 2,
+              justifyContent: "space-between",
+              px: 2,
             }}
           >
             <Typography
@@ -319,6 +351,13 @@ export function TimelineContent({
             >
               Tarefas
             </Typography>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => setNewCardOpen(true)}
+            >
+              <GenericIcon icon="add" size={20} />
+            </IconButton>
           </Box>
 
           {/* Header Rolável (Controlado) */}
@@ -496,6 +535,56 @@ export function TimelineContent({
           </Box>
         </Box>
       </GenericPanel>
+
+      {/* ── New Card Dialog ── */}
+      <Dialog
+        open={newCardOpen}
+        onClose={() => {
+          setNewCardOpen(false);
+          newCardForm.reset();
+        }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>New Card</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            size="small"
+            label="Title"
+            placeholder="Enter card title..."
+            sx={{ mt: 1 }}
+            error={!!newCardForm.formState.errors.title}
+            helperText={newCardForm.formState.errors.title?.message}
+            {...newCardForm.register("title")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                newCardForm.handleSubmit(handleCreateCard)();
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <GenericButton
+            label="Cancel"
+            variant={ButtonVariant.Text}
+            size={GeneralSize.Small}
+            onClick={() => {
+              setNewCardOpen(false);
+              newCardForm.reset();
+            }}
+          />
+          <GenericButton
+            label="Create"
+            variant={ButtonVariant.Contained}
+            size={GeneralSize.Small}
+            onClick={newCardForm.handleSubmit(handleCreateCard)}
+            disabled={newCardForm.formState.isSubmitting}
+          />
+        </DialogActions>
+      </Dialog>
     </DndContext>
   );
 }

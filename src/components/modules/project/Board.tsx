@@ -19,6 +19,7 @@ import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { TableView } from "@/components/ui";
 import { Section, Task as TaskModel } from "@/common/model";
+import { cardService } from "@/common/services";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
@@ -156,8 +157,21 @@ export function BoardContent({
   };
 
   const handleCardClick = (id: string) => {
-    console.log("Card clicado:", id); // Para debug
     setSelectCardId(id);
+  };
+
+  const handleAddCard = async (sectionId: string, title: string) => {
+    const created = await cardService.create(title);
+    const currentTasks = containers[sectionId] ?? [];
+    const newTask: TaskProps = {
+      id: String(created.id),
+      title: created.name,
+      order: currentTasks.length,
+    };
+    setContainers((prev) => ({
+      ...prev,
+      [sectionId]: [...(prev[sectionId] ?? []), newTask],
+    }));
   };
 
   if (loading) {
@@ -200,6 +214,7 @@ export function BoardContent({
                   tasks={tasks}
                   activeColapsed={isFirstOrLast}
                   onTaskClick={handleCardClick}
+                  onAddCard={handleAddCard}
                 />
               );
             })}

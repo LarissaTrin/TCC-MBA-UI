@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -10,6 +10,8 @@ import { DashboardContent } from "@/components/modules/project/Dashboard";
 import { BoardContent } from "@/components/modules/project/Board";
 import { TimelineContent } from "@/components/modules/project/Timeline";
 import { CardContent } from "@/components/modules/project/Card";
+import { BoardFilters } from "@/components/modules/project/BoardFilters";
+import { useBoardFilters } from "@/components/modules/project/useBoardFilters";
 import { Section, Task } from "@/common/model";
 import { cardService, sectionService } from "@/common/services";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
@@ -37,6 +39,19 @@ export default function ProjectPage() {
     );
   }, []);
 
+  const {
+    form: filterForm,
+    filteredTasks,
+    isFiltered,
+    resetFilters,
+    handleApply,
+    tagOptions,
+    userOptions,
+  } = useBoardFilters(tasks);
+
+  const activeTabValue = searchParams.get("tab") || "dashboard";
+  const showFilters = activeTabValue === "board" || activeTabValue === "timeline";
+
   const tabsConfig = [
     {
       label: "Dashboard",
@@ -50,7 +65,7 @@ export default function ProjectPage() {
         <BoardContent
           sections={sections}
           setSelectCardId={(cardId: string) => setSelectCardId(cardId)}
-          tasks={tasks}
+          tasks={filteredTasks}
           loading={loading}
         />
       ),
@@ -62,15 +77,13 @@ export default function ProjectPage() {
         <TimelineContent
           setSelectCardId={(cardId: string) => setSelectCardId(cardId)}
           sections={sections}
-          tasks={tasks}
+          tasks={filteredTasks}
           setTasks={setTasks}
           loading={loading}
         />
       ),
     },
   ];
-
-  const activeTabValue = searchParams.get("tab") || tabsConfig[0].value;
 
   const selectedTabIndex = tabsConfig.findIndex(
     (tab) => tab.value === activeTabValue,
@@ -82,11 +95,23 @@ export default function ProjectPage() {
 
   return (
     <GenericPage sx={{ display: "flex", flexDirection: "column" }}>
-      <GenericTabs
-        selectedTab={activeTabValue}
-        handleChange={(_, value) => handleTabChange(value as string)}
-        tabsList={tabsConfig}
-      />
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <GenericTabs
+          selectedTab={activeTabValue}
+          handleChange={(_, value) => handleTabChange(value as string)}
+          tabsList={tabsConfig}
+        />
+        {showFilters && (
+          <BoardFilters
+            form={filterForm}
+            tagOptions={tagOptions}
+            userOptions={userOptions}
+            isFiltered={isFiltered}
+            onApply={handleApply}
+            onClear={resetFilters}
+          />
+        )}
+      </Box>
 
       <Box sx={{ p: 2, flexGrow: 1 }}>
         {tabsConfig[selectedTabIndex]?.content}

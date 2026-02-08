@@ -1,7 +1,7 @@
 "use client";
 
 import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
-import { AutocompleteOption, Card, Section } from "@/common/model";
+import { Card, Section, Comments } from "@/common/model";
 import { cardService } from "@/common/services";
 import {
   GenericDrawer,
@@ -9,7 +9,6 @@ import {
   GenericButton,
   GenericButtonGroup,
   GenericPoper,
-  GenericIcon,
   GenericAutoComplete,
 } from "@/components/widgets";
 import { Box, Divider, Grid, MenuItem } from "@mui/material";
@@ -18,6 +17,11 @@ import { useForm } from "react-hook-form";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
+import dayjs from "dayjs";
+
+import { CardTasksSection } from "./CardTasksSection";
+import { CardApproversSection } from "./CardApproversSection";
+import { CardCommentsSection } from "./CardCommentsSection";
 
 interface CardContentProps {
   id?: string;
@@ -32,9 +36,12 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
   const anchorRef = useRef<HTMLDivElement>(null);
   const [openOptions, setOpenOptions] = useState(false);
 
+  // Comments are decoupled — managed by CardCommentsSection with immediate API calls
+  const [initialComments, setInitialComments] = useState<Comments[]>([]);
+
   const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
 
-  // RHF + Zod
+  // RHF + Zod (tasks and approvers are part of the form via useFieldArray)
   const form = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
     defaultValues: {
@@ -45,16 +52,16 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       status: "",
       date: "",
       priority: "",
-      task: "",
-      approver: "",
       sectionId: "",
       storyPoints: "",
+      tasks: [],
+      approvers: [],
     },
   });
 
   const {
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = form;
 
   const handleOptions = () => setOpenOptions((prev) => !prev);
@@ -67,12 +74,33 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       ...card,
       name: data.name,
       description: data.description,
-      // user: data.user || undefined,
       status: data.status as Status,
       dueDate: data.date || undefined,
-     priority: data.priority ? Number(data.priority) : undefined,
-      // task: data.task || undefined,
-      // approver: data.approver || undefined,
+      priority: data.priority ? Number(data.priority) : undefined,
+      storyPoints: data.storyPoints ? Number(data.storyPoints) : undefined,
+      tasks: (data.tasks ?? []).map((t) => ({
+        id: t.id,
+        title: t.title,
+        date: t.date ? dayjs(t.date) : dayjs(),
+        completed: t.completed,
+        user: {
+          id: 0,
+          firstName: t.userName ?? "",
+          lastName: "",
+          email: "",
+        },
+      })),
+      approvers: (data.approvers ?? []).map((a) => ({
+        id: a.id,
+        environment: a.environment,
+        user: {
+          id: 0,
+          firstName: a.userName ?? "",
+          lastName: "",
+          email: "",
+        },
+      })),
+      // Comments are saved independently via commentService
     };
 
     console.log("Saving:", payload);
@@ -86,7 +114,7 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
     onClose();
   };
 
-  // Carrega dados e popula form
+  // Load card data and populate form + comments
   useEffect(() => {
     if (!id) return;
 
@@ -100,7 +128,6 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
         setCard(loadedCard);
 
         if (loadedCard) {
-          // Popula form com dados carregados
           form.reset({
             id: loadedCard.id,
             name: loadedCard.name ?? "",
@@ -111,9 +138,21 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
             priority: loadedCard.priority?.toString() ?? "",
             storyPoints: loadedCard.storyPoints?.toString() ?? "",
             sectionId: loadedCard.sectionId ?? "",
-            // task: loadedCard.task ?? "",
-            // approver: loadedCard.approver ?? "",
+            tasks: (loadedCard.tasks ?? []).map((t) => ({
+              id: t.id,
+              title: t.title,
+              date: t.date ? dayjs(t.date).format("YYYY-MM-DD") : "",
+              completed: t.completed,
+              userName: t.user?.firstName ?? "",
+            })),
+            approvers: (loadedCard.approvers ?? []).map((a) => ({
+              id: a.id,
+              environment: a.environment,
+              userName: a.user?.firstName ?? "",
+            })),
           });
+
+          setInitialComments(loadedCard.comments ?? []);
         }
 
         setLoading(false);
@@ -137,10 +176,10 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
         <Box sx={{ fontWeight: 600 }}>{card.id}</Box>
         <Box sx={{ flex: 1 }}>
           <GenericTextField
-            name="name" // RHF gerencia
+            name="name"
             label=""
             size={GeneralSize.Small}
-            control={form.control} // ← RHF mode
+            control={form.control}
           />
         </Box>
         <GenericButtonGroup
@@ -265,23 +304,30 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
             />
           </Grid>
 
+          {/* ── Tasks ── */}
           <Grid size={12}>
             <Divider />
           </Grid>
-
           <Grid size={12}>
-            <GenericTextField name="task" label="Task" control={form.control} />
+            <CardTasksSection control={form.control} />
           </Grid>
 
+          {/* ── Approvers ── */}
           <Grid size={12}>
             <Divider />
           </Grid>
-
           <Grid size={12}>
-            <GenericTextField
-              name="approver"
-              label="Approver"
-              control={form.control}
+            <CardApproversSection control={form.control} />
+          </Grid>
+
+          {/* ── Comments ── */}
+          <Grid size={12}>
+            <Divider />
+          </Grid>
+          <Grid size={12}>
+            <CardCommentsSection
+              cardId={card?.id ?? 0}
+              initialComments={initialComments}
             />
           </Grid>
         </Grid>

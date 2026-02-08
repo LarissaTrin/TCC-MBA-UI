@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { CardTasksSection } from "./CardTasksSection";
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
+import { CardTagsSection } from "./CardTagsSection";
 
 interface CardContentProps {
   id?: string;
@@ -56,6 +57,7 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       storyPoints: "",
       tasks: [],
       approvers: [],
+      tags: [],
     },
   });
 
@@ -99,6 +101,10 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
           lastName: "",
           email: "",
         },
+      })),
+      tags: (data.tags ?? []).map((t) => ({
+        id: t.id,
+        name: t.name,
       })),
       // Comments are saved independently via commentService
     };
@@ -149,6 +155,10 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
               id: a.id,
               environment: a.environment,
               userName: a.user?.firstName ?? "",
+            })),
+            tags: (loadedCard.tags ?? []).map((t) => ({
+              id: t.id,
+              name: t.name,
             })),
           });
 
@@ -302,6 +312,14 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
               maxRows={10}
               control={form.control}
             />
+          </Grid>
+
+          {/* ── Tags ── */}
+          <Grid size={12}>
+            <Divider />
+          </Grid>
+          <Grid size={12}>
+            <CardTagsSection control={form.control} />
           </Grid>
 
           {/* ── Tasks ── */}

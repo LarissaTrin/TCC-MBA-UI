@@ -14,6 +14,11 @@ const approverItemSchema = z.object({
   userName: z.string().optional(),
 });
 
+const tagItemSchema = z.object({
+  id: z.number(),
+  name: z.string().min(1),
+});
+
 export const cardSchema = z.object({
   id: z.number().min(1, "ID é obrigatório"),
   name: z.string().min(1, "Nome não pode estar vazio"),
@@ -26,8 +31,10 @@ export const cardSchema = z.object({
   sectionId: z.string().min(1, "Section não pode estar vazio"),
   tasks: z.array(taskItemSchema),
   approvers: z.array(approverItemSchema),
+  tags: z.array(tagItemSchema),
 });
 
 export type CardFormData = z.infer<typeof cardSchema>;
 export type TaskItemFormData = z.infer<typeof taskItemSchema>;
 export type ApproverItemFormData = z.infer<typeof approverItemSchema>;
+export type TagItemFormData = z.infer<typeof tagItemSchema>;

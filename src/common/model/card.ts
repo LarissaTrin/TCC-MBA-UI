@@ -1,6 +1,7 @@
 import { Status } from "../enum";
 import { Approvers } from "./approvers";
 import { Comments } from "./comments";
+import { Tag } from "./tag";
 import { Tasks } from "./tasks";
 import { User } from "./user";
 export interface Card {
@@ -20,4 +21,5 @@ export interface Card {
   tasks?: Tasks[];
   approvers?: Approvers[];
   comments?: Comments[];
+  tags?: Tag[];
 }

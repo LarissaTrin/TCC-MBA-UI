@@ -4,6 +4,7 @@ export * from "./card";
 export * from "./comments";
 export * from "./preject";
 export * from "./section";
+export * from "./tag";
 export * from "./tasks";
 export * from "./timeline";
 export * from "./user";

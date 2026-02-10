@@ -12,6 +12,9 @@ import { TimelineContent } from "@/components/modules/project/Timeline";
 import { CardContent } from "@/components/modules/project/Card";
 import { BoardFilters } from "@/components/modules/project/BoardFilters";
 import { useBoardFilters } from "@/components/modules/project/useBoardFilters";
+import { ProjectSettingsDialog } from "@/components/modules/project/settings/ProjectSettingsDialog";
+import { GenericButton } from "@/components/widgets";
+import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { Section, Task } from "@/common/model";
 import { cardService, sectionService } from "@/common/services";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
@@ -24,6 +27,7 @@ export default function ProjectPage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([sectionService.getSections(), cardService.getAll()]).then(
@@ -101,16 +105,25 @@ export default function ProjectPage() {
           handleChange={(_, value) => handleTabChange(value as string)}
           tabsList={tabsConfig}
         />
-        {showFilters && (
-          <BoardFilters
-            form={filterForm}
-            tagOptions={tagOptions}
-            userOptions={userOptions}
-            isFiltered={isFiltered}
-            onApply={handleApply}
-            onClear={resetFilters}
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          {showFilters && (
+            <BoardFilters
+              form={filterForm}
+              tagOptions={tagOptions}
+              userOptions={userOptions}
+              isFiltered={isFiltered}
+              onApply={handleApply}
+              onClear={resetFilters}
+            />
+          )}
+          <GenericButton
+            startIcon="settings"
+            label="Configurações"
+            variant={ButtonVariant.Outlined}
+            size={GeneralSize.Small}
+            onClick={() => setSettingsOpen(true)}
           />
-        )}
+        </Box>
       </Box>
 
       <Box sx={{ p: 2, flexGrow: 1 }}>
@@ -123,6 +136,11 @@ export default function ProjectPage() {
           onClose={() => setSelectCardId(undefined)}
         />
       )}
+      <ProjectSettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        sections={sections}
+      />
     </GenericPage>
   );
 }

@@ -6,7 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { resetPassword } from "@/common/services/passwordService";
+import { resetPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 
 const changePasswordSchema = z

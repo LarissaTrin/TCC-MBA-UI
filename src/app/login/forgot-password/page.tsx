@@ -7,7 +7,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { requestPasswordReset } from "@/common/services/passwordService";
+import { forgotPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 
 // Schema e Tipo
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
   } = useForm<ForgotFormData>({ resolver: zodResolver(forgotSchema) });
 
   const onSubmit: SubmitHandler<ForgotFormData> = async (data) => {
-    await requestPasswordReset(data.email);
+    await forgotPassword(data.email);
     setSubmitted(true);
   };
 

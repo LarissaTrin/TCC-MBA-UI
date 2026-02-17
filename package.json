@@ -22,6 +22,7 @@
     "dayjs": "^1.11.19",
     "material-symbols": "^0.35.0",
     "next": "15.5.2",
+    "next-auth": "^5.0.0-beta.30",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",

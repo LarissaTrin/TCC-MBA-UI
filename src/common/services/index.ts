@@ -1,5 +1,5 @@
+export * from './authService'
 export * from './cardService'
 export * from './commentService'
-export * from './passwordService'
 export * from './projectService'
 export * from './sectionService'

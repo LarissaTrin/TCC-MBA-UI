@@ -1,23 +1,19 @@
-﻿"use client";
+"use client";
 
-import { Box, Typography, Stack, Link } from "@mui/material";
+import { useState } from "react";
+import { Box, Typography, Stack, Link, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
+import { loginSchema, LoginFormData } from "@/common/schemas/authSchema";
 import { GeneralSize } from "@/common/enum";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 
-const loginSchema = z.object({
-  email: z.string().email("Por favor, insira um email válido."),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
 export default function LoginCardFullScreen() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const {
     control,
@@ -32,9 +28,20 @@ export default function LoginCardFullScreen() {
   });
 
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Login submit", data);
-    // Ex: router.push("/dashboard");
+    setError(null);
+
+    const result = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Email ou senha inválidos.");
+      return;
+    }
+
+    router.push("/home");
   };
 
   const handleForgot = () => {
@@ -65,6 +72,12 @@ export default function LoginCardFullScreen() {
             Sign in to your account
           </Typography>
         </Box>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         <Box
           component="form"
@@ -113,7 +126,7 @@ export default function LoginCardFullScreen() {
                 display="inline"
                 color="text.secondary"
               >
-                Don’t have an account?{" "}
+                Don&apos;t have an account?{" "}
               </Typography>
               <Link
                 component="button"

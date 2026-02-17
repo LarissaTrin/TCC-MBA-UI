@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "material-symbols/outlined.css";
 
+import { SessionProvider } from "next-auth/react";
 import { BaseLayout } from "@/common/layout";
 import { ThemeProvider } from "@/common/provider";
 
@@ -31,9 +32,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <BaseLayout>{children}</BaseLayout>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <BaseLayout>{children}</BaseLayout>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

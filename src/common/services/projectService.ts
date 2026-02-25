@@ -1,41 +1,54 @@
-import { PROJECT_BY_USER } from "../mock";
+import { apiClient } from "./apiClient";
 import { Project } from "../model";
 
-/**
- * Service para simular API de projetos.
- * Posteriormente pode ser substituído por chamadas reais à API Python (fetch/axios).
- */
+/** Backend ProjectSchemaBase response (camelCase via alias_generator) */
+interface ProjectApiResponse {
+  id: number;
+  title: string;
+  description: string;
+}
+
+function mapProject(p: ProjectApiResponse): Project {
+  return {
+    id: p.id,
+    projectName: p.title,
+  };
+}
+
 export const projectService = {
   async getAll(): Promise<Project[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(PROJECT_BY_USER), 3000);
-    });
+    const data = await apiClient.get<ProjectApiResponse[]>("/projects/");
+    return data.map(mapProject);
   },
 
   async getById(id: number): Promise<Project | undefined> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(PROJECT_BY_USER.find((p) => p.id === id));
-      }, 300);
-    });
+    try {
+      const data = await apiClient.get<ProjectApiResponse>(`/projects/${id}`);
+      return mapProject(data);
+    } catch {
+      return undefined;
+    }
   },
 
   async create(projectData: { projectName: string }): Promise<Project> {
-    return new Promise((resolve) => {
-      // Simula um atraso de rede para a operação de criação
-      setTimeout(() => {
-        const newProject: Project = {
-          id: Math.floor(Math.random() * 10000) + 1, // Gera um ID aleatório
-          projectName: projectData.projectName,
-        };
-
-        // Adiciona o novo projeto à lista em memória para que
-        // chamadas futuras a `getAll()` o incluam.
-        PROJECT_BY_USER.push(newProject);
-
-        console.log("API MOCK: Projeto criado ->", newProject);
-        resolve(newProject);
-      }, 1500);
+    const data = await apiClient.post<ProjectApiResponse>("/projects/", {
+      title: projectData.projectName,
+      description: "",
     });
+    return mapProject(data);
+  },
+
+  async update(
+    id: number,
+    projectData: { projectName?: string; description?: string },
+  ): Promise<void> {
+    await apiClient.put(`/projects/${id}`, {
+      title: projectData.projectName,
+      description: projectData.description,
+    });
+  },
+
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/projects/${id}`);
   },
 };

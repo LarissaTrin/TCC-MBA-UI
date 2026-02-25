@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { GenericTabs } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import { Box } from "@mui/material";
@@ -15,33 +15,33 @@ import { useBoardFilters } from "@/components/modules/project/useBoardFilters";
 import { ProjectSettingsDialog } from "@/components/modules/project/settings/ProjectSettingsDialog";
 import { GenericButton } from "@/components/widgets";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
-import { Section, Task } from "@/common/model";
-import { cardService, sectionService } from "@/common/services";
+import { Card, Section, Task } from "@/common/model";
+import { sectionService } from "@/common/services";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
 
 export default function ProjectPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+  const projectId = Number(params.id);
 
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
   const [sections, setSections] = useState<Section[]>([]);
+  const [rawCards, setRawCards] = useState<Card[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
-    Promise.all([sectionService.getSections(), cardService.getAll()]).then(
-      ([sectionsApi, cards]) => {
-        const orderedSections = [...sectionsApi].sort(
-          (a, b) => a.order - b.order,
-        );
-
-        setSections(orderedSections);
-        setTasks(mapCardsToTasks(cards));
-        setLoading(false);
-      },
-    );
-  }, []);
+    if (!projectId) return;
+    sectionService.getListsWithCards(projectId).then(({ sections: secs, cards }) => {
+      const orderedSections = [...secs].sort((a, b) => a.order - b.order);
+      setSections(orderedSections);
+      setRawCards(cards);
+      setTasks(mapCardsToTasks(cards));
+      setLoading(false);
+    });
+  }, [projectId]);
 
   const {
     form: filterForm,
@@ -60,7 +60,7 @@ export default function ProjectPage() {
     {
       label: "Dashboard",
       value: "dashboard",
-      content: <DashboardContent />,
+      content: <DashboardContent cards={rawCards} />,
     },
     {
       label: "Board",

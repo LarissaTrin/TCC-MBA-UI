@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { ReactNode, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import { GenericHeader, GenericSidebar } from "@/components";
 
@@ -17,6 +18,7 @@ interface BaseLayoutProps {
 
 export function BaseLayout({ children }: BaseLayoutProps) {
   const pathname = usePathname();
+  const {data} = useSession();
   const isLoginPage = pathname.startsWith("/login");
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -40,7 +42,7 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   return (
     <Box display="flex" height="100vh" width="100vw" overflow="hidden">
       <CssBaseline />
-      <GenericHeader onMenuClick={handleSidebarToggle} />
+      <GenericHeader onMenuClick={handleSidebarToggle} fullName={data?.user.name} />
 
       <GenericSidebar
         variant={isMobile ? "temporary" : "permanent"}

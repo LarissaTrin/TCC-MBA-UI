@@ -102,7 +102,8 @@ export function TimelineContent({
   });
 
   const handleCreateCard = async (data: NewCardFormData) => {
-    const created = await cardService.create(data.title);
+    const firstListId = sections.length > 0 ? Number(sections[0].id) : 0;
+    const created = await cardService.create(data.title, firstListId);
     const [mapped] = mapCardsToTasks([created]);
     setTasks((prev) => [...prev, mapped]);
     newCardForm.reset();

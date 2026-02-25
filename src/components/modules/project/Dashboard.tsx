@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { ApexOptions } from "apexcharts";
 import { GenericCard } from "@/components/widgets";
 import { Card, GenericCardProps } from "@/common/model";
 
 import dynamic from "next/dynamic";
-import { cardService } from "@/common/services";
 import { Status } from "@/common/enum";
 const DynamicGenericChart = dynamic(
   () =>
@@ -18,12 +17,11 @@ const DynamicGenericChart = dynamic(
   }
 );
 
-export function DashboardContent() {
-  const [cards, setCards] = useState<Card[]>([]);
+interface DashboardContentProps {
+  cards: Card[];
+}
 
-  useEffect(() => {
-    cardService.getAll().then(setCards);
-  }, []);
+export function DashboardContent({ cards }: DashboardContentProps) {
 
   const kpiData: GenericCardProps[] = useMemo(() => {
     const abertas = cards.filter((c) => c.status === Status.Pending).length;

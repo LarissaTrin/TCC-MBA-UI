@@ -24,7 +24,11 @@ import { useRouter } from "next/navigation";
  * @param {React.ReactNode} children - The content to be rendered inside the Drawer.
  * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
  */
-export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
+export function GenericHeader({
+  onMenuClick,
+  fullName = "",
+  ...props
+}: GenericHeaderProps) {
   const router = useRouter();
 
   const settings = [
@@ -33,10 +37,7 @@ export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
   ];
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{ zIndex: 1500 }}
-    >
+    <AppBar position="fixed" sx={{ zIndex: 1500 }}>
       <Toolbar
         style={{
           display: "flex",
@@ -73,7 +74,7 @@ export function GenericHeader({ onMenuClick, ...props }: GenericHeaderProps) {
           <Tooltip title="Open settings">
             <GenericMenu items={settings}>
               <IconButton sx={{ p: 0 }}>
-                <GenericAvatar fullName="Remy Sharp" />
+                <GenericAvatar fullName={fullName} />
               </IconButton>
             </GenericMenu>
           </Tooltip>

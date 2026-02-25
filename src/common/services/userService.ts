@@ -1,27 +1,57 @@
+import { apiClient } from "./apiClient";
 import { UserProfile } from "@/common/model";
-import { MOCK_USER } from "../mock";
 
+interface UserApiResponse {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isAdmin: boolean;
+}
+
+function mapUserProfile(u: UserApiResponse): UserProfile {
+  return {
+    id: u.id,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    username: u.username,
+    email: u.email,
+  };
+}
+
+/**
+ * Fetch the current authenticated user's profile.
+ * GET /api/users/user
+ */
 export async function getProfile(): Promise<UserProfile> {
-  console.log("API: Buscando dados do perfil...");
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  console.log("API: Dados retornados:", MOCK_USER);
-  return MOCK_USER;
+  const data = await apiClient.get<UserApiResponse>("/users/user");
+  return mapUserProfile(data);
 }
 
+/**
+ * Update user profile fields.
+ * PUT /api/users/{userId}
+ */
 export async function updateProfile(data: Partial<UserProfile>): Promise<void> {
-  console.log("API: Salvando dados do perfil...", data);
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("API: Perfil atualizado com sucesso!");
+  if (!data.id) throw new Error("User ID is required for profile update.");
+  await apiClient.put(`/users/${data.id}`, {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    username: data.username,
+  });
 }
 
+/**
+ * Update password for the current user.
+ * POST /api/users/reset-password (requires auth)
+ */
 export async function updatePassword(data: {
   password?: string;
 }): Promise<void> {
-  if (!data.password) {
-    console.log("API: Nenhuma senha fornecida para atualização.");
-    return;
-  }
-  console.log("API: Atualizando a senha...");
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("API: Senha atualizada com sucesso!");
+  if (!data.password) return;
+  await apiClient.post("/users/reset-password", {
+    newPassword: data.password,
+  });
 }

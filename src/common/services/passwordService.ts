@@ -1,17 +1,34 @@
-export async function requestPasswordReset(email: string): Promise<void> {
-  console.log(`API: Solicitando reset de senha para o email: ${email}`);
+import { apiClient } from "./apiClient";
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("API: Email de reset enviado com sucesso (simulado).");
+/**
+ * Request a password reset email.
+ * POST /api/users/forgot-password
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  await apiClient.post("/users/forgot-password", { email });
 }
 
+/**
+ * Reset password using a JWT token from the email link.
+ * POST /api/users/reset-password with the token as Bearer auth.
+ */
 export async function resetPassword(
   token: string,
-  password: string
+  password: string,
 ): Promise<void> {
-  console.log(`API: Redefinindo senha com o token: ${token}`);
-  console.log(`API: Nova senha: ${password}`);
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("API: Senha redefinida com sucesso (simulado).");
+  const res = await fetch(`${API_URL}/users/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ newPassword: password }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Falha ao redefinir senha.");
+  }
 }

@@ -161,7 +161,8 @@ export function BoardContent({
   };
 
   const handleAddCard = async (sectionId: string, title: string) => {
-    const created = await cardService.create(title);
+    const listId = Number(sectionId);
+    const created = await cardService.create(title, listId);
     const currentTasks = containers[sectionId] ?? [];
     const newTask: TaskProps = {
       id: String(created.id),

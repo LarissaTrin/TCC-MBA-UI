@@ -109,8 +109,14 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       // Comments are saved independently via commentService
     };
 
-    console.log("Saving:", payload);
-    // await cardService.update(payload);
+    await cardService.update(card.id, {
+      title: payload.name,
+      description: payload.description,
+      priority: payload.priority,
+      storyPoints: payload.storyPoints,
+      date: payload.dueDate,
+      listId: payload.sectionId ? Number(payload.sectionId) : undefined,
+    });
     handleClose();
   };
 

@@ -127,6 +127,7 @@ export const cardService = {
       storyPoints?: number;
       date?: string;
       listId?: number;
+      userId?: number;
     },
   ): Promise<Card> {
     const data = await apiClient.put<CardApiResponse>(

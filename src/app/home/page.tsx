@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useState } from "react";
 import { Box, Typography } from "@mui/material";
 
 import { useHomePageData } from "@/common/hooks";
@@ -10,9 +11,11 @@ import {
   NotesPanel,
   ProjectsPanel,
 } from "@/components/modules/home";
+import { CardContent } from "@/components/modules/project/Card";
 
 export default function HomePage() {
   const { projects, cards, isLoading, error } = useHomePageData();
+  const [selectCardId, setSelectCardId] = useState<string | undefined>();
 
   if (isLoading) {
     return (
@@ -54,12 +57,25 @@ export default function HomePage() {
           flex={1}
           minHeight={300}
         >
-          <AssignedCardsPanel cards={cards} isLoading={isLoading} />
+          <AssignedCardsPanel
+            cards={cards}
+            isLoading={isLoading}
+            onCardClick={(id) => setSelectCardId(id)}
+          />
           <ProjectsPanel projects={projects} isLoading={isLoading} />
         </Box>
 
         <NotesPanel />
       </Box>
+
+      {!!selectCardId && (
+        <CardContent
+          id={selectCardId}
+          sections={[]}
+          onClose={() => setSelectCardId(undefined)}
+          userRole="User"
+        />
+      )}
     </GenericPage>
   );
 }

@@ -12,11 +12,13 @@ import {
 interface AssignedCardsPanelProps {
   cards: Card[];
   isLoading: boolean;
+  onCardClick: (id: string) => void;
 }
 
 export function AssignedCardsPanel({
   cards,
   isLoading,
+  onCardClick,
 }: AssignedCardsPanelProps) {
   function renderCardLabel(card: Card) {
     return (
@@ -47,7 +49,7 @@ export function AssignedCardsPanel({
   function renderCardList(cards: Card[]) {
     const items = cards.map((card) => ({
       label: renderCardLabel(card),
-      onClick: () => console.log("Card clicked:", card.id),
+      onClick: () => onCardClick(String(card.id)),
       secondary: card.status,
     }));
 

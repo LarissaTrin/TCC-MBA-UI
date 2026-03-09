@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useSearchParams, useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { GenericTabs } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import { Box } from "@mui/material";
@@ -15,8 +16,8 @@ import { useBoardFilters } from "@/components/modules/project/useBoardFilters";
 import { ProjectSettingsDialog } from "@/components/modules/project/settings/ProjectSettingsDialog";
 import { GenericButton } from "@/components/widgets";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
-import { Card, Section, Task } from "@/common/model";
-import { sectionService } from "@/common/services";
+import { Card, ProjectMember, Section, Task } from "@/common/model";
+import { projectService, sectionService } from "@/common/services";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
 
 export default function ProjectPage() {
@@ -24,6 +25,7 @@ export default function ProjectPage() {
   const searchParams = useSearchParams();
   const params = useParams();
   const projectId = Number(params.id);
+  const { data: session } = useSession();
 
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
   const [sections, setSections] = useState<Section[]>([]);
@@ -31,6 +33,10 @@ export default function ProjectPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const [userRole, setUserRole] = useState<string>("User");
+  const [projectTitle, setProjectTitle] = useState<string>("");
+  const [projectDescription, setProjectDescription] = useState<string>("");
 
   useEffect(() => {
     if (!projectId) return;
@@ -42,6 +48,21 @@ export default function ProjectPage() {
       setLoading(false);
     });
   }, [projectId]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    projectService.getDetailById(projectId).then((detail) => {
+      if (!detail) return;
+      setProjectMembers(detail.projectUsers);
+      setProjectTitle(detail.projectName);
+      setProjectDescription(detail.description ?? "");
+      const currentUserId = session?.user?.id ? Number(session.user.id) : null;
+      if (currentUserId !== null) {
+        const myMembership = detail.projectUsers.find((pu) => pu.userId === currentUserId);
+        setUserRole(myMembership?.role.name ?? "User");
+      }
+    });
+  }, [projectId, session?.user?.id]);
 
   const {
     form: filterForm,
@@ -134,12 +155,21 @@ export default function ProjectPage() {
           id={selectCardId}
           sections={sections}
           onClose={() => setSelectCardId(undefined)}
+          userRole={userRole}
+          projectMembers={projectMembers}
         />
       )}
       <ProjectSettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+        projectId={projectId}
+        projectTitle={projectTitle}
+        projectDescription={projectDescription}
         sections={sections}
+        onSectionsChange={setSections}
+        userRole={userRole}
+        projectMembers={projectMembers}
+        onMembersUpdate={setProjectMembers}
       />
     </GenericPage>
   );

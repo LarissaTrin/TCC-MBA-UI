@@ -13,7 +13,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { createPortal } from "react-dom";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
@@ -63,6 +63,7 @@ export function BoardContent({
   const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
+  const [triggerAddFirst, setTriggerAddFirst] = useState(false);
 
   useEffect(() => {
     setContainers(mapCardsToBoard(sections, tasks));
@@ -179,9 +180,40 @@ export function BoardContent({
     return <Box>Carregando board...</Box>;
   }
 
+  if (sections.length === 0) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          py: 10,
+          gap: 1,
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          Nenhuma lista criada ainda
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Acesse <strong>Configurações → Listas</strong> para criar suas primeiras listas.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Box justifyContent={"flex-end"} display={"flex"}>
+      <Box justifyContent={"flex-end"} display={"flex"} gap={1}>
+        {viewMode === "board" && sections.length > 0 && (
+          <Button
+            variant="outlined"
+            onClick={() => setTriggerAddFirst(true)}
+            sx={{ mb: 2 }}
+          >
+            + Add Card
+          </Button>
+        )}
         <Button
           variant="contained"
           onClick={() =>
@@ -216,6 +248,9 @@ export function BoardContent({
                   activeColapsed={isFirstOrLast}
                   onTaskClick={handleCardClick}
                   onAddCard={handleAddCard}
+                  triggerAdd={index === 0 ? triggerAddFirst : false}
+                  forceExpand={index === 0 ? triggerAddFirst : false}
+                  onAddTriggerHandled={index === 0 ? () => setTriggerAddFirst(false) : undefined}
                 />
               );
             })}

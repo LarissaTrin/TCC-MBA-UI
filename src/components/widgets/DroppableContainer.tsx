@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 import { Task, TaskProps } from "./Task";
 import { useDroppable } from "@dnd-kit/core";
 import { GenericAccordion } from "./Accordion";
-import { GenericButton, GenericIcon } from "./";
+import { GenericButton } from "./";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
 
 interface ColumnProps {
@@ -19,6 +19,9 @@ interface ColumnProps {
   activeColapsed: boolean;
   onTaskClick?: (id: string) => void;
   onAddCard?: (sectionId: string, title: string) => void;
+  triggerAdd?: boolean;
+  forceExpand?: boolean;
+  onAddTriggerHandled?: () => void;
 }
 
 export function DroppableContainer({
@@ -28,6 +31,9 @@ export function DroppableContainer({
   activeColapsed,
   onTaskClick,
   onAddCard,
+  triggerAdd,
+  forceExpand,
+  onAddTriggerHandled,
 }: ColumnProps) {
   const taskIds = tasks.map((task) => task.id);
   const { setNodeRef, isOver } = useDroppable({ id });
@@ -35,6 +41,13 @@ export function DroppableContainer({
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (triggerAdd) {
+      setIsAdding(true);
+      onAddTriggerHandled?.();
+    }
+  }, [triggerAdd]);
 
   const handleSubmit = async () => {
     const trimmed = newTitle.trim();
@@ -68,6 +81,7 @@ export function DroppableContainer({
       header={title}
       height={"500px"}
       disableCollapse={!activeColapsed}
+      forceExpand={forceExpand}
     >
       <Box
         ref={setNodeRef}
@@ -96,14 +110,13 @@ export function DroppableContainer({
           ))}
         </SortableContext>
 
-        {/* ── Inline Add Card ── */}
-        {isAdding ? (
+        {isAdding && (
           <Box sx={{ p: 1 }}>
             <TextField
               autoFocus
               fullWidth
               size="small"
-              placeholder="Enter a title..."
+              placeholder="Título do card..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -112,42 +125,20 @@ export function DroppableContainer({
             />
             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
               <GenericButton
-                label="Add"
+                label="Adicionar"
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Contained}
                 onClick={handleSubmit}
                 disabled={!newTitle.trim() || isSubmitting}
               />
               <GenericButton
-                label="Cancel"
+                label="Cancelar"
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Text}
                 onClick={handleCancel}
               />
             </Box>
           </Box>
-        ) : (
-          onAddCard && (
-            <Box
-              onClick={() => setIsAdding(true)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                p: 1,
-                cursor: "pointer",
-                borderRadius: 1,
-                color: "text.secondary",
-                "&:hover": {
-                  backgroundColor: "#f5f5f5",
-                  color: "text.primary",
-                },
-              }}
-            >
-              <GenericIcon icon="add" size={18} />
-              <Typography variant="body2">Add a card</Typography>
-            </Box>
-          )
         )}
       </Box>
     </GenericAccordion>

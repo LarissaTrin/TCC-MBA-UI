@@ -55,3 +55,20 @@ export async function updatePassword(data: {
     newPassword: data.password,
   });
 }
+
+/**
+ * Fetch notes for the current user.
+ * GET /api/users/me/notes
+ */
+export async function getNotes(): Promise<string> {
+  const data = await apiClient.get<{ notes: string }>("/users/me/notes");
+  return data.notes ?? "";
+}
+
+/**
+ * Save notes for the current user.
+ * PUT /api/users/me/notes
+ */
+export async function saveNotes(notes: string): Promise<void> {
+  await apiClient.put("/users/me/notes", { notes });
+}

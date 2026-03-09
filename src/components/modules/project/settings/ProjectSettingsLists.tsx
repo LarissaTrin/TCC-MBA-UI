@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Box, List, ListItem, ListItemText, IconButton } from "@mui/material";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenericButton, GenericTextField, GenericIcon } from "@/components/widgets";
@@ -11,31 +18,59 @@ import {
 } from "@/common/schemas/projectSettingsSchema";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { Section } from "@/common/model";
+import { sectionService } from "@/common/services";
 
 interface ProjectSettingsListsProps {
+  projectId: number;
   sections: Section[];
+  onSectionsChange: (sections: Section[]) => void;
+  canDelete?: boolean;
 }
 
-export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
+export function ProjectSettingsLists({
+  projectId,
+  sections,
+  onSectionsChange,
+  canDelete = true,
+}: ProjectSettingsListsProps) {
   const [lists, setLists] = useState<Section[]>(sections);
+  const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { control, handleSubmit, reset } = useForm<NewListData>({
     resolver: zodResolver(newListSchema),
     defaultValues: { name: "" },
   });
 
-  const onCreateList = (data: NewListData) => {
-    const newSection: Section = {
-      id: `list-${Date.now()}`,
-      name: data.name,
-      order: lists.length,
-    };
-    setLists((prev) => [...prev, newSection]);
-    reset({ name: "" });
+  const onCreateList = async (data: NewListData) => {
+    setCreating(true);
+    try {
+      const newSection = await sectionService.create(projectId, {
+        name: data.name,
+        order: lists.length,
+      });
+      const updated = [...lists, newSection];
+      setLists(updated);
+      onSectionsChange(updated);
+      reset({ name: "" });
+    } finally {
+      setCreating(false);
+    }
   };
 
-  const onDeleteList = (sectionId: string) => {
-    setLists((prev) => prev.filter((s) => s.id !== sectionId));
+  const onDeleteList = async (sectionId: string) => {
+    setDeletingId(sectionId);
+    try {
+      await sectionService.deleteSection(projectId, Number(sectionId));
+      const updated = lists
+        .filter((s) => s.id !== sectionId)
+        .map((s, i) => ({ ...s, order: i }));
+      setLists(updated);
+      onSectionsChange(updated);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const onMoveList = (index: number, direction: "up" | "down") => {
@@ -49,6 +84,22 @@ export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
       updated[swapIndex] = temp;
       return updated.map((item, i) => ({ ...item, order: i }));
     });
+  };
+
+  const onSaveOrder = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        lists.map((section) =>
+          sectionService.update(projectId, Number(section.id), {
+            order: section.order,
+          }),
+        ),
+      );
+      onSectionsChange(lists);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -65,10 +116,11 @@ export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
           size={GeneralSize.Small}
         />
         <GenericButton
-          label="Criar"
+          label={creating ? "Criando..." : "Criar"}
           type="submit"
           variant={ButtonVariant.Contained}
           size={GeneralSize.Small}
+          disabled={creating}
           sx={{ mt: "4px" }}
         />
       </Box>
@@ -81,7 +133,7 @@ export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
               <Box sx={{ display: "flex", gap: 0.5 }}>
                 <IconButton
                   size="small"
-                  disabled={index === 0}
+                  disabled={index === 0 || deletingId === section.id}
                   onClick={() => onMoveList(index, "up")}
                   aria-label="mover para cima"
                 >
@@ -89,19 +141,26 @@ export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
                 </IconButton>
                 <IconButton
                   size="small"
-                  disabled={index === lists.length - 1}
+                  disabled={index === lists.length - 1 || deletingId === section.id}
                   onClick={() => onMoveList(index, "down")}
                   aria-label="mover para baixo"
                 >
                   <GenericIcon icon="arrow_downward" size={GeneralSize.Small} />
                 </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => onDeleteList(section.id)}
-                  aria-label="excluir lista"
-                >
-                  <GenericIcon icon="delete" size={GeneralSize.Small} />
-                </IconButton>
+                {canDelete && (
+                  <IconButton
+                    size="small"
+                    disabled={deletingId === section.id}
+                    onClick={() => onDeleteList(section.id)}
+                    aria-label="excluir lista"
+                  >
+                    {deletingId === section.id ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <GenericIcon icon="delete" size={GeneralSize.Small} />
+                    )}
+                  </IconButton>
+                )}
               </Box>
             }
           >
@@ -120,6 +179,19 @@ export function ProjectSettingsLists({ sections }: ProjectSettingsListsProps) {
           </ListItem>
         )}
       </List>
+
+      {lists.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <GenericButton
+            label={saving ? "Salvando..." : "Salvar ordem"}
+            variant={ButtonVariant.Outlined}
+            size={GeneralSize.Small}
+            disabled={saving}
+            onClick={onSaveOrder}
+            startIcon={saving ? undefined : "save"}
+          />
+        </Box>
+      )}
     </Box>
   );
 }

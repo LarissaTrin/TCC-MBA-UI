@@ -34,6 +34,7 @@ export default function LoginCardFullScreen() {
       email: data.email,
       password: data.password,
       redirect: false,
+      callbackUrl: "/home",
     });
 
     if (result?.error) {

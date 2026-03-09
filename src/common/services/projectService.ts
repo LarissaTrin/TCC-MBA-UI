@@ -1,5 +1,5 @@
 import { apiClient } from "./apiClient";
-import { Project } from "../model";
+import { InviteUsersResponse, Project, ProjectDetail, ProjectMember } from "../model";
 
 /** Backend ProjectSchemaBase response (camelCase via alias_generator) */
 interface ProjectApiResponse {
@@ -8,10 +8,37 @@ interface ProjectApiResponse {
   description: string;
 }
 
+interface ProjectDetailApiResponse extends ProjectApiResponse {
+  projectUsers: Array<{
+    id: number;
+    userId: number;
+    roleId: number;
+    user: { id: number; firstName: string; lastName: string; email: string };
+    role: { id: number; name: string };
+  }>;
+}
+
 function mapProject(p: ProjectApiResponse): Project {
   return {
     id: p.id,
     projectName: p.title,
+  };
+}
+
+function mapProjectDetail(p: ProjectDetailApiResponse): ProjectDetail {
+  return {
+    id: p.id,
+    projectName: p.title,
+    description: p.description,
+    projectUsers: (p.projectUsers ?? []).map(
+      (pu): ProjectMember => ({
+        id: pu.id,
+        userId: pu.userId,
+        roleId: pu.roleId,
+        user: pu.user,
+        role: pu.role,
+      }),
+    ),
   };
 }
 
@@ -25,6 +52,15 @@ export const projectService = {
     try {
       const data = await apiClient.get<ProjectApiResponse>(`/projects/${id}`);
       return mapProject(data);
+    } catch {
+      return undefined;
+    }
+  },
+
+  async getDetailById(id: number): Promise<ProjectDetail | undefined> {
+    try {
+      const data = await apiClient.get<ProjectDetailApiResponse>(`/projects/${id}`);
+      return mapProjectDetail(data);
     } catch {
       return undefined;
     }
@@ -50,5 +86,19 @@ export const projectService = {
 
   async delete(id: number): Promise<void> {
     await apiClient.delete(`/projects/${id}`);
+  },
+
+  async inviteUsers(
+    projectId: number,
+    invites: { email: string; role: string }[],
+  ): Promise<InviteUsersResponse> {
+    return apiClient.post<InviteUsersResponse>(
+      `/projects/${projectId}/members/invite`,
+      { invites },
+    );
+  },
+
+  async removeMember(projectId: number, userId: number): Promise<void> {
+    await apiClient.delete(`/projects/${projectId}/members/${userId}`);
   },
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogTitle,
@@ -10,7 +11,7 @@ import {
 } from "@mui/material";
 import { GenericTabs, GenericIcon } from "@/components/widgets";
 import { GeneralSize } from "@/common/enum";
-import { Section } from "@/common/model";
+import { ProjectMember, Section } from "@/common/model";
 import { ProjectSettingsUsers } from "./ProjectSettingsUsers";
 import { ProjectSettingsLists } from "./ProjectSettingsLists";
 import { ProjectSettingsDetails } from "./ProjectSettingsDetails";
@@ -18,25 +19,50 @@ import { ProjectSettingsDetails } from "./ProjectSettingsDetails";
 interface ProjectSettingsDialogProps {
   open: boolean;
   onClose: () => void;
+  projectId: number;
+  projectTitle: string;
+  projectDescription: string;
   sections: Section[];
+  onSectionsChange: (sections: Section[]) => void;
+  userRole: string;
+  projectMembers: ProjectMember[];
+  onMembersUpdate: (members: ProjectMember[]) => void;
 }
 
-const SETTINGS_TABS = [
-  { label: "Usuários", value: "users" },
-  { label: "Listas", value: "lists" },
-  { label: "Detalhes", value: "details" },
-];
+// SuperAdmin e Admin podem gerenciar usuários
+const canManageUsers = (role: string) => ["SuperAdmin", "Admin"].includes(role);
+// SuperAdmin, Admin e Leader podem ver/gerenciar listas
+const canManageLists = (role: string) => ["SuperAdmin", "Admin", "Leader"].includes(role);
+// Apenas SuperAdmin e Admin podem deletar listas
+const canDeleteLists = (role: string) => ["SuperAdmin", "Admin"].includes(role);
+
+function buildTabs(role: string) {
+  const tabs = [];
+  if (canManageUsers(role)) tabs.push({ label: "Usuários", value: "users" });
+  if (canManageLists(role)) tabs.push({ label: "Listas", value: "lists" });
+  tabs.push({ label: "Detalhes", value: "details" });
+  return tabs;
+}
 
 export function ProjectSettingsDialog({
   open,
   onClose,
+  projectId,
+  projectTitle,
+  projectDescription,
   sections,
+  onSectionsChange,
+  userRole,
+  projectMembers,
+  onMembersUpdate,
 }: ProjectSettingsDialogProps) {
-  const [activeTab, setActiveTab] = useState<string>("users");
+  const router = useRouter();
+  const tabs = buildTabs(userRole);
+  const [activeTab, setActiveTab] = useState<string>(tabs[0]?.value ?? "details");
 
   const handleDeleteProject = () => {
-    console.log("Project deleted");
     onClose();
+    router.push("/home");
   };
 
   return (
@@ -58,16 +84,32 @@ export function ProjectSettingsDialog({
         <GenericTabs
           selectedTab={activeTab}
           handleChange={(_, value) => setActiveTab(value as string)}
-          tabsList={SETTINGS_TABS}
+          tabsList={tabs}
         />
 
         <Box sx={{ pt: 3 }}>
-          {activeTab === "users" && <ProjectSettingsUsers />}
-          {activeTab === "lists" && (
-            <ProjectSettingsLists sections={sections} />
+          {activeTab === "users" && canManageUsers(userRole) && (
+            <ProjectSettingsUsers
+              projectId={projectId}
+              currentMembers={projectMembers}
+              onMembersUpdate={onMembersUpdate}
+            />
+          )}
+          {activeTab === "lists" && canManageLists(userRole) && (
+            <ProjectSettingsLists
+              projectId={projectId}
+              sections={sections}
+              onSectionsChange={onSectionsChange}
+              canDelete={canDeleteLists(userRole)}
+            />
           )}
           {activeTab === "details" && (
-            <ProjectSettingsDetails onDeleteProject={handleDeleteProject} />
+            <ProjectSettingsDetails
+              projectId={projectId}
+              projectTitle={projectTitle}
+              projectDescription={projectDescription}
+              onDeleteProject={handleDeleteProject}
+            />
           )}
         </Box>
       </DialogContent>

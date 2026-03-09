@@ -1,7 +1,7 @@
 "use client";
 
 import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
-import { Card, Section, Comments } from "@/common/model";
+import { Card, ProjectMember, Section, Comments } from "@/common/model";
 import { cardService } from "@/common/services";
 import {
   GenericDrawer,
@@ -28,9 +28,12 @@ interface CardContentProps {
   id?: string;
   sections: Section[];
   onClose: () => void;
+  userRole?: string;
+  projectMembers?: ProjectMember[];
 }
 
-export function CardContent({ id, sections, onClose }: CardContentProps) {
+export function CardContent({ id, sections, onClose, userRole = "User", projectMembers = [] }: CardContentProps) {
+  const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<Card | null>(null);
@@ -41,6 +44,14 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
   const [initialComments, setInitialComments] = useState<Comments[]>([]);
 
   const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
+  const memberOptions = useMemo(
+    () =>
+      projectMembers.map((m) => ({
+        value: String(m.userId),
+        label: `${m.user.firstName} ${m.user.lastName}`.trim(),
+      })),
+    [projectMembers],
+  );
 
   // RHF + Zod (tasks and approvers are part of the form via useFieldArray)
   const form = useForm<CardFormData>({
@@ -68,6 +79,12 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
 
   const handleOptions = () => setOpenOptions((prev) => !prev);
   const handleCloseOptions = () => setOpenOptions(false);
+
+  const handleDeleteCard = async () => {
+    if (!card) return;
+    await cardService.delete(card.id);
+    handleClose();
+  };
 
   const onSubmit = async (data: CardFormData) => {
     if (!card) return;
@@ -116,6 +133,7 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       storyPoints: payload.storyPoints,
       date: payload.dueDate,
       listId: payload.sectionId ? Number(payload.sectionId) : undefined,
+      userId: data.user ? Number(data.user) : undefined,
     });
     handleClose();
   };
@@ -144,7 +162,7 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
             id: loadedCard.id,
             name: loadedCard.name ?? "",
             description: loadedCard.description ?? "",
-            user: loadedCard.user?.firstName ?? "",
+            user: loadedCard.user?.id ? String(loadedCard.user.id) : "",
             status: loadedCard.status ?? "",
             date: loadedCard.dueDate ?? "",
             priority: loadedCard.priority?.toString() ?? "",
@@ -217,6 +235,11 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
         >
           <MenuItem onClick={handleSubmit(onSubmit)}>Save and Close</MenuItem>
           <MenuItem onClick={handleClose}>Close</MenuItem>
+          {canDeleteCard && (
+            <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
+              Deletar card
+            </MenuItem>
+          )}
         </GenericPoper>
       </Box>
     );
@@ -252,7 +275,12 @@ export function CardContent({ id, sections, onClose }: CardContentProps) {
       >
         <Grid container spacing={2}>
           <Grid size={6}>
-            <GenericTextField name="user" label="User" control={form.control} />
+            <GenericAutoComplete
+              label="User"
+              options={memberOptions}
+              name="user"
+              control={form.control}
+            />
           </Grid>
           <Grid size={6}>
             <GenericAutoComplete

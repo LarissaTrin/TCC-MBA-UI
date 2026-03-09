@@ -9,6 +9,8 @@ export interface GenericAccordionProps {
   orientation?: Orientation;
   /** Header (trigger) content */
   header: ReactNode;
+  /** Actions shown next to the title only when expanded */
+  headerActions?: ReactNode;
   /** Collapsible content */
   children: ReactNode;
   /** Optional: start expanded */
@@ -21,17 +23,21 @@ export interface GenericAccordionProps {
   collapsedWidth?: number;
   /** Disable collapsing (always expanded, no icon) */
   disableCollapse?: boolean;
+  /** When set to true, programmatically expand the accordion (does not prevent collapsing again) */
+  forceExpand?: boolean;
 }
 
 export function GenericAccordion({
   orientation = "vertical",
   header,
+  headerActions,
   children,
   defaultExpanded = false,
   height = "auto",
   expandedWidth = 240,
   collapsedWidth = 64,
   disableCollapse = false,
+  forceExpand = false,
 }: GenericAccordionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded || disableCollapse);
   const theme = useTheme();
@@ -44,6 +50,10 @@ export function GenericAccordion({
       setExpanded(true);
     }
   }, [disableCollapse]);
+
+  useEffect(() => {
+    if (forceExpand) setExpanded(true);
+  }, [forceExpand]);
 
   const toggleAccordion = () => {
     if (!disableCollapse) {
@@ -96,6 +106,9 @@ export function GenericAccordion({
           >
             {header}
           </Typography>
+          {expanded && headerActions && (
+            <Box onClick={(e) => e.stopPropagation()}>{headerActions}</Box>
+          )}
         </Box>
 
         {!disableCollapse &&

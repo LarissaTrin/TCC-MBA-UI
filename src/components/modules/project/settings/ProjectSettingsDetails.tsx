@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Stack,
@@ -18,12 +18,19 @@ import {
   ProjectDetailsData,
 } from "@/common/schemas/projectSettingsSchema";
 import { ButtonVariant, GeneralSize, GeneralColor } from "@/common/enum";
+import { projectService } from "@/common/services";
 
 interface ProjectSettingsDetailsProps {
+  projectId: number;
+  projectTitle: string;
+  projectDescription: string;
   onDeleteProject: () => void;
 }
 
 export function ProjectSettingsDetails({
+  projectId,
+  projectTitle,
+  projectDescription,
   onDeleteProject,
 }: ProjectSettingsDetailsProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -31,25 +38,34 @@ export function ProjectSettingsDetails({
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isSubmitting },
   } = useForm<ProjectDetailsData>({
     resolver: zodResolver(projectDetailsSchema),
     defaultValues: {
-      projectName: "",
-      description: "",
+      projectName: projectTitle,
+      description: projectDescription,
     },
   });
 
-  const onSave = (data: ProjectDetailsData) => {
-    console.log("Saving project details:", data);
+  useEffect(() => {
+    reset({ projectName: projectTitle, description: projectDescription });
+  }, [projectTitle, projectDescription, reset]);
+
+  const onSave = async (data: ProjectDetailsData) => {
+    await projectService.update(projectId, {
+      projectName: data.projectName,
+      description: data.description,
+    });
   };
 
   const handleDeleteClick = () => {
     setConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     setConfirmOpen(false);
+    await projectService.delete(projectId);
     onDeleteProject();
   };
 

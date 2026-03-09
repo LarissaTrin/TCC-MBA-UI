@@ -1,12 +1,25 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 
-import { GeneralSize } from "@/common/enum";
+import { ButtonVariant, GeneralSize } from "@/common/enum";
+import { getNotes, saveNotes } from "@/common/services";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 
 export function NotesPanel() {
   const [notes, setNotes] = useState("");
-  const handleSave = () => console.log("Saving notes:", notes);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    getNotes().then((content) => setNotes(content)).catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    await saveNotes(notes);
+    setIsSaving(false);
+  };
 
   return (
     <GenericPanel
@@ -20,15 +33,17 @@ export function NotesPanel() {
       >
         <Typography variant="h6">Notes</Typography>
         <GenericButton
-          label="Save"
+          label={isSaving ? "Salvando..." : "Save"}
           size={GeneralSize.Small}
+          variant={ButtonVariant.Contained}
           onClick={handleSave}
+          disabled={isSaving}
         />
       </Box>
       <GenericTextField
         name="notes"
         label=""
-        rows={2}
+        rows={4}
         value={notes}
         onChange={(value) => setNotes(value)}
       />

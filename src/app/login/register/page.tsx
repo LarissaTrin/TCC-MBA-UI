@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Path, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,6 +16,7 @@ import {
 
 import { GeneralSize } from "@/common/enum";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { register as registerUser } from "@/common/services/userService";
 
 // Schema Zod
 const registerSchema = z
@@ -37,6 +39,9 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
   const formFields: {
     name: Path<RegisterFormData>;
     label: string;
@@ -60,8 +65,19 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log("Register data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setError(null);
+    try {
+      await registerUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      router.push("/login");
+    } catch {
+      setError("Erro ao criar conta. Verifique os dados e tente novamente.");
+    }
   };
 
   return (
@@ -115,6 +131,12 @@ export default function RegisterPage() {
             {errors.terms && (
               <Typography variant="caption" color="error">
                 {errors.terms.message}
+              </Typography>
+            )}
+
+            {error && (
+              <Typography variant="caption" color="error">
+                {error}
               </Typography>
             )}
 

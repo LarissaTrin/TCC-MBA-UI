@@ -1,6 +1,22 @@
 import { apiClient } from "./apiClient";
 import { UserProfile } from "@/common/model";
 
+export interface RegisterData {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+}
+
+/**
+ * Register a new user.
+ * POST /api/users/
+ */
+export async function register(data: RegisterData): Promise<void> {
+  await apiClient.post("/users/", data);
+}
+
 interface UserApiResponse {
   id: number;
   username: string;

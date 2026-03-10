@@ -25,6 +25,7 @@ interface ProjectSettingsDetailsProps {
   projectTitle: string;
   projectDescription: string;
   onDeleteProject: () => void;
+  canEdit: boolean;
 }
 
 export function ProjectSettingsDetails({
@@ -32,6 +33,7 @@ export function ProjectSettingsDetails({
   projectTitle,
   projectDescription,
   onDeleteProject,
+  canEdit,
 }: ProjectSettingsDetailsProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -92,33 +94,37 @@ export function ProjectSettingsDetails({
           />
         </Stack>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <GenericButton
-            label={isSubmitting ? "Salvando..." : "Salvar"}
-            type="submit"
-            variant={ButtonVariant.Contained}
-            size={GeneralSize.Small}
-            disabled={isSubmitting}
-          />
-        </Box>
+        {canEdit && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <GenericButton
+              label={isSubmitting ? "Salvando..." : "Salvar"}
+              type="submit"
+              variant={ButtonVariant.Contained}
+              size={GeneralSize.Small}
+              disabled={isSubmitting}
+            />
+          </Box>
+        )}
 
-        <Box
-          sx={{
-            mt: 4,
-            pt: 3,
-            borderTop: 1,
-            borderColor: "divider",
-          }}
-        >
-          <GenericButton
-            label="Excluir Projeto"
-            variant={ButtonVariant.Outlined}
-            color={GeneralColor.Error}
-            size={GeneralSize.Small}
-            startIcon="delete"
-            onClick={handleDeleteClick}
-          />
-        </Box>
+        {canEdit && (
+          <Box
+            sx={{
+              mt: 4,
+              pt: 3,
+              borderTop: 1,
+              borderColor: "divider",
+            }}
+          >
+            <GenericButton
+              label="Excluir Projeto"
+              variant={ButtonVariant.Outlined}
+              color={GeneralColor.Error}
+              size={GeneralSize.Small}
+              startIcon="delete"
+              onClick={handleDeleteClick}
+            />
+          </Box>
+        )}
       </Box>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>

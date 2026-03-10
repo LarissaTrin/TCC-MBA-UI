@@ -35,6 +35,8 @@ const canManageUsers = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 const canManageLists = (role: string) => ["SuperAdmin", "Admin", "Leader"].includes(role);
 // Apenas SuperAdmin e Admin podem deletar listas
 const canDeleteLists = (role: string) => ["SuperAdmin", "Admin"].includes(role);
+// Apenas SuperAdmin e Admin podem editar/excluir o projeto
+const canEditProject = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 
 function buildTabs(role: string) {
   const tabs = [];
@@ -109,6 +111,7 @@ export function ProjectSettingsDialog({
               projectTitle={projectTitle}
               projectDescription={projectDescription}
               onDeleteProject={handleDeleteProject}
+              canEdit={canEditProject(userRole)}
             />
           )}
         </Box>

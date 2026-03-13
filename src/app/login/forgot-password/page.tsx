@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { forgotPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { useLoading } from "@/common/context/LoadingContext";
+import { useNavigation } from "@/common/hooks";
 
 // Schema e Tipo
 const forgotSchema = z.object({
@@ -17,7 +18,8 @@ const forgotSchema = z.object({
 type ForgotFormData = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
+  const { withLoading } = useLoading();
+  const { navigate } = useNavigation();
   const [submitted, setSubmitted] = useState(false);
 
   const {
@@ -27,7 +29,7 @@ export default function ForgotPasswordPage() {
   } = useForm<ForgotFormData>({ resolver: zodResolver(forgotSchema) });
 
   const onSubmit: SubmitHandler<ForgotFormData> = async (data) => {
-    await forgotPassword(data.email);
+    await withLoading(() => forgotPassword(data.email));
     setSubmitted(true);
   };
 
@@ -51,7 +53,7 @@ export default function ForgotPasswordPage() {
             </Typography>
             <GenericButton
               label="Voltar para o Login"
-              onClick={() => router.push("/login")}
+              onClick={() => navigate("/login")}
               sx={{ mt: 3 }}
             />
           </Box>

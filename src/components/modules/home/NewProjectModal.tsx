@@ -13,6 +13,7 @@ import { GenericButton, GenericTextField } from "@/components";
 import { projectService } from "@/common/services";
 import { ButtonVariant } from "@/common/enum";
 import { useRouter } from "next/navigation";
+import { useLoading } from "@/common/context/LoadingContext";
 
 const newProjectSchema = z.object({
   projectName: z
@@ -28,6 +29,7 @@ interface NewProjectModalProps {
 
 export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
   const router = useRouter();
+  const { withLoading } = useLoading();
 
   const {
     control,
@@ -42,9 +44,8 @@ export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
   };
 
   const onSubmit: SubmitHandler<NewProjectFormData> = async (data) => {
-    console.log(data);
     try {
-      const newProject = await projectService.create(data);
+      const newProject = await withLoading(() => projectService.create(data));
       handleClose();
       router.push(`/project/${newProject.id}`);
     } catch (error) {

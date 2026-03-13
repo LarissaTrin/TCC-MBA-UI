@@ -60,7 +60,7 @@ export function GenericTextField<T extends FieldValues>({
         control={control}
         render={({ field, fieldState }) =>
           renderTextField(
-            field.value,
+            field.value ?? "",
             field.onChange,
             !!fieldState.error,
             fieldState.error?.message,

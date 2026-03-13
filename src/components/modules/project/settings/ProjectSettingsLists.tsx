@@ -12,6 +12,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenericButton, GenericTextField, GenericIcon } from "@/components/widgets";
+import { useLoading } from "@/common/context/LoadingContext";
 import {
   newListSchema,
   NewListData,
@@ -33,6 +34,7 @@ export function ProjectSettingsLists({
   onSectionsChange,
   canDelete = true,
 }: ProjectSettingsListsProps) {
+  const { withLoading } = useLoading();
   const [lists, setLists] = useState<Section[]>(sections);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -46,10 +48,9 @@ export function ProjectSettingsLists({
   const onCreateList = async (data: NewListData) => {
     setCreating(true);
     try {
-      const newSection = await sectionService.create(projectId, {
-        name: data.name,
-        order: lists.length,
-      });
+      const newSection = await withLoading(() =>
+        sectionService.create(projectId, { name: data.name, order: lists.length }),
+      );
       const updated = [...lists, newSection];
       setLists(updated);
       onSectionsChange(updated);
@@ -62,7 +63,9 @@ export function ProjectSettingsLists({
   const onDeleteList = async (sectionId: string) => {
     setDeletingId(sectionId);
     try {
-      await sectionService.deleteSection(projectId, Number(sectionId));
+      await withLoading(() =>
+        sectionService.deleteSection(projectId, Number(sectionId)),
+      );
       const updated = lists
         .filter((s) => s.id !== sectionId)
         .map((s, i) => ({ ...s, order: i }));
@@ -89,11 +92,13 @@ export function ProjectSettingsLists({
   const onSaveOrder = async () => {
     setSaving(true);
     try {
-      await Promise.all(
-        lists.map((section) =>
-          sectionService.update(projectId, Number(section.id), {
-            order: section.order,
-          }),
+      await withLoading(() =>
+        Promise.all(
+          lists.map((section) =>
+            sectionService.update(projectId, Number(section.id), {
+              order: section.order,
+            }),
+          ),
         ),
       );
       onSectionsChange(lists);

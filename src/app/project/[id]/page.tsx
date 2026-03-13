@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { GenericTabs } from "@/components";
+import { GenericTabs, GenericLoading } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import { Box } from "@mui/material";
 import { DashboardContent } from "@/components/modules/project/Dashboard";
@@ -18,10 +18,12 @@ import { GenericButton } from "@/components/widgets";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { Card, ProjectMember, Section, Task } from "@/common/model";
 import { projectService, sectionService } from "@/common/services";
+import { useLoading } from "@/common/context/LoadingContext";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
 
 export default function ProjectPage() {
   const router = useRouter();
+  const { withLoading } = useLoading();
   const searchParams = useSearchParams();
   const params = useParams();
   const projectId = Number(params.id);
@@ -40,18 +42,20 @@ export default function ProjectPage() {
 
   useEffect(() => {
     if (!projectId) return;
-    sectionService.getListsWithCards(projectId).then(({ sections: secs, cards }) => {
-      const orderedSections = [...secs].sort((a, b) => a.order - b.order);
-      setSections(orderedSections);
-      setRawCards(cards);
-      setTasks(mapCardsToTasks(cards));
-      setLoading(false);
-    });
-  }, [projectId]);
+    withLoading(() => sectionService.getListsWithCards(projectId)).then(
+      ({ sections: secs, cards }) => {
+        const orderedSections = [...secs].sort((a, b) => a.order - b.order);
+        setSections(orderedSections);
+        setRawCards(cards);
+        setTasks(mapCardsToTasks(cards));
+        setLoading(false);
+      },
+    );
+  }, [projectId, withLoading]);
 
   useEffect(() => {
     if (!projectId) return;
-    projectService.getDetailById(projectId).then((detail) => {
+    withLoading(() => projectService.getDetailById(projectId)).then((detail) => {
       if (!detail) return;
       setProjectMembers(detail.projectUsers);
       setProjectTitle(detail.projectName);
@@ -62,7 +66,7 @@ export default function ProjectPage() {
         setUserRole(myMembership?.role.name ?? "User");
       }
     });
-  }, [projectId, session?.user?.id]);
+  }, [projectId, session?.user?.id, withLoading]);
 
   const {
     form: filterForm,
@@ -117,6 +121,10 @@ export default function ProjectPage() {
   const handleTabChange = (newValue: string) => {
     router.push(`?tab=${newValue}`);
   };
+
+  if (loading) {
+    return <GenericLoading fullPage />;
+  }
 
   return (
     <GenericPage sx={{ display: "flex", flexDirection: "column" }}>

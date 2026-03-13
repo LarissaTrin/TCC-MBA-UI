@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card, Project } from "@/common/model";
 import { projectService, sectionService } from "@/common/services";
+import { useLoading } from "@/common/context/LoadingContext";
 
 export function useHomePageData() {
+  const { withLoading } = useLoading();
   const [projects, setProjects] = useState<Project[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,14 +15,14 @@ export function useHomePageData() {
       try {
         setIsLoading(true);
 
-        // 1. Fetch all projects for the current user
-        const projectsData = await projectService.getAll();
+        const projectsData = await withLoading(() => projectService.getAll());
         setProjects(projectsData);
 
-        // 2. For each project, fetch lists with cards and flatten
         const allCards: Card[] = [];
         const results = await Promise.allSettled(
-          projectsData.map((p) => sectionService.getListsWithCards(p.id)),
+          projectsData.map((p) =>
+            withLoading(() => sectionService.getListsWithCards(p.id)),
+          ),
         );
         for (const result of results) {
           if (result.status === "fulfilled") {
@@ -37,7 +39,7 @@ export function useHomePageData() {
     }
 
     fetchData();
-  }, []);
+  }, [withLoading]);
 
   return { projects, cards, isLoading, error };
 }

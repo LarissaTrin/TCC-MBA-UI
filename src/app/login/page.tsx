@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Box, Typography, Stack, Link, Alert } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,9 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "@/common/schemas/authSchema";
 import { GeneralSize } from "@/common/enum";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { useLoading } from "@/common/context/LoadingContext";
+import { useNavigation } from "@/common/hooks";
 
 export default function LoginCardFullScreen() {
-  const router = useRouter();
+  const { withLoading } = useLoading();
+  const { navigate } = useNavigation();
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -30,26 +32,25 @@ export default function LoginCardFullScreen() {
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
     setError(null);
 
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-      callbackUrl: "/home",
-    });
+    const result = await withLoading(() =>
+      signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+        callbackUrl: "/home",
+      }),
+    );
 
     if (result?.error) {
       setError("Email ou senha inválidos.");
       return;
     }
 
-    router.push("/home");
+    navigate("/home");
   };
 
-  const handleForgot = () => {
-    router.push("/login/forgot-password");
-  };
-
-  const handleRegister = () => router.push("/login/register");
+  const handleForgot = () => navigate("/login/forgot-password");
+  const handleRegister = () => navigate("/login/register");
 
   return (
     <Box

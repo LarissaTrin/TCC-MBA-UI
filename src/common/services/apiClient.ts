@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getAuthToken } from "@/common/utils/tokenStore";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -13,14 +13,21 @@ export class ApiError extends Error {
   }
 }
 
-async function authHeaders(): Promise<HeadersInit> {
-  const session = await getSession();
+/** Synchronous — reads token from in-memory store set by BaseLayout. */
+function authHeaders(): HeadersInit {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  const token = getAuthToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return headers;
+}
+
+/** Synchronous variant for form submissions. */
+function formHeaders(): HeadersInit {
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded",
   };
-  if (session?.user?.accessToken) {
-    headers["Authorization"] = `Bearer ${session.user.accessToken}`;
-  }
+  const token = getAuthToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
   return headers;
 }
 
@@ -35,52 +42,41 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const apiClient = {
   async get<T>(path: string): Promise<T> {
-    const headers = await authHeaders();
-    const res = await fetch(`${API_URL}${path}`, { headers });
+    const res = await fetch(`${API_URL}${path}`, { headers: authHeaders() });
     return handleResponse<T>(res);
   },
 
   async post<T>(path: string, body?: unknown): Promise<T> {
-    const headers = await authHeaders();
     const res = await fetch(`${API_URL}${path}`, {
       method: "POST",
-      headers,
+      headers: authHeaders(),
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     return handleResponse<T>(res);
   },
 
   async postForm<T>(path: string, formData: URLSearchParams): Promise<T> {
-    const session = await getSession();
-    const headers: HeadersInit = {
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-    if (session?.user?.accessToken) {
-      headers["Authorization"] = `Bearer ${session.user.accessToken}`;
-    }
     const res = await fetch(`${API_URL}${path}`, {
       method: "POST",
-      headers,
+      headers: formHeaders(),
       body: formData,
     });
     return handleResponse<T>(res);
   },
 
   async put<T>(path: string, body?: unknown): Promise<T> {
-    const headers = await authHeaders();
     const res = await fetch(`${API_URL}${path}`, {
       method: "PUT",
-      headers,
+      headers: authHeaders(),
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     return handleResponse<T>(res);
   },
 
   async delete(path: string): Promise<void> {
-    const headers = await authHeaders();
     const res = await fetch(`${API_URL}${path}`, {
       method: "DELETE",
-      headers,
+      headers: authHeaders(),
     });
     if (!res.ok) {
       const body = await res.text();

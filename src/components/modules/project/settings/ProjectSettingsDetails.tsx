@@ -13,6 +13,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenericButton, GenericTextField } from "@/components/widgets";
+import { useLoading } from "@/common/context/LoadingContext";
 import {
   projectDetailsSchema,
   ProjectDetailsData,
@@ -35,6 +36,7 @@ export function ProjectSettingsDetails({
   onDeleteProject,
   canEdit,
 }: ProjectSettingsDetailsProps) {
+  const { withLoading } = useLoading();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const {
@@ -55,19 +57,19 @@ export function ProjectSettingsDetails({
   }, [projectTitle, projectDescription, reset]);
 
   const onSave = async (data: ProjectDetailsData) => {
-    await projectService.update(projectId, {
-      projectName: data.projectName,
-      description: data.description,
-    });
+    await withLoading(() =>
+      projectService.update(projectId, {
+        projectName: data.projectName,
+        description: data.description,
+      }),
+    );
   };
 
-  const handleDeleteClick = () => {
-    setConfirmOpen(true);
-  };
+  const handleDeleteClick = () => setConfirmOpen(true);
 
   const handleConfirmDelete = async () => {
     setConfirmOpen(false);
-    await projectService.delete(projectId);
+    await withLoading(() => projectService.delete(projectId));
     onDeleteProject();
   };
 

@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  Divider,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Typography, Stack, Divider } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { GenericButton, GenericLoading, GenericPanel, GenericTextField } from "@/components";
 import { UserProfile } from "@/common/model";
 import { getProfile, updatePassword } from "@/common/services/userService";
+import { useLoading } from "@/common/context/LoadingContext";
 
 const passwordSchema = z
   .object({
@@ -44,6 +39,7 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 );
 
 export default function ProfilePage() {
+  const { withLoading } = useLoading();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,7 +56,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const userData = await getProfile();
+        const userData = await withLoading(() => getProfile());
         setUser(userData);
       } catch (error) {
         console.error("Erro ao buscar perfil", error);
@@ -69,29 +65,20 @@ export default function ProfilePage() {
       }
     }
     fetchProfile();
-  }, []);
+  }, [withLoading]);
 
   const onSubmit: SubmitHandler<PasswordFormData> = async (data) => {
     if (!data.password) {
       alert("Por favor, preencha o campo de nova senha.");
       return;
     }
-    await updatePassword(data);
+    await withLoading(() => updatePassword(data));
     alert("Senha alterada com sucesso!");
     reset();
   };
 
   if (isLoading || !user) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <GenericLoading fullPage />;
   }
 
   return (

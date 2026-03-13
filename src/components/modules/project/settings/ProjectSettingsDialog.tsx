@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigation } from "@/common/hooks";
 import {
   Dialog,
   DialogTitle,
@@ -58,13 +58,13 @@ export function ProjectSettingsDialog({
   projectMembers,
   onMembersUpdate,
 }: ProjectSettingsDialogProps) {
-  const router = useRouter();
+  const { navigate } = useNavigation();
   const tabs = buildTabs(userRole);
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.value ?? "details");
 
   const handleDeleteProject = () => {
     onClose();
-    router.push("/home");
+    navigate("/home");
   };
 
   return (

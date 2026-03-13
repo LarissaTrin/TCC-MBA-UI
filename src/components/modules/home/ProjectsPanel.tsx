@@ -5,14 +5,14 @@ import { DashboardPanel, GenericButton, GenericLoading } from "@/components";
 import { useState } from "react";
 import { NewProjectModal } from "./NewProjectModal";
 import { ButtonVariant } from "@/common/enum";
-import { useRouter } from "next/navigation";
+import { useNavigation } from "@/common/hooks";
 interface ProjectsPanelProps {
   projects: Project[];
   isLoading: boolean;
 }
 
 export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
-  const router = useRouter();
+  const { navigate } = useNavigation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -20,7 +20,7 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
     return (
       <Box
         key={project.id}
-        onClick={() => router.push(`/project/${project.id}`)}
+        onClick={() => navigate(`/project/${project.id}`)}
         sx={{
           border: "1px solid",
           borderRadius: 2,

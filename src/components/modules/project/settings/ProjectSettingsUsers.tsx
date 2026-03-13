@@ -20,6 +20,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenericButton, GenericTextField, GenericIcon } from "@/components/widgets";
+import { useLoading } from "@/common/context/LoadingContext";
 import { addUserSchema, AddUserData } from "@/common/schemas/projectSettingsSchema";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { InviteUserResult, ProjectMember } from "@/common/model";
@@ -49,6 +50,7 @@ export function ProjectSettingsUsers({
   currentMembers,
   onMembersUpdate,
 }: ProjectSettingsUsersProps) {
+  const { withLoading } = useLoading();
   const [stagingList, setStagingList] = useState<StagingEntry[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("User");
   const [inviteResults, setInviteResults] = useState<InviteUserResult[]>([]);
@@ -93,9 +95,11 @@ export function ProjectSettingsUsers({
     setSaving(true);
     setInviteResults([]);
     try {
-      const response = await projectService.inviteUsers(
-        projectId,
-        stagingList.map((s) => ({ email: s.email, role: s.role })),
+      const response = await withLoading(() =>
+        projectService.inviteUsers(
+          projectId,
+          stagingList.map((s) => ({ email: s.email, role: s.role })),
+        ),
       );
       setInviteResults(response.results);
 
@@ -103,7 +107,9 @@ export function ProjectSettingsUsers({
         (r) => r.registered && !r.alreadyMember,
       );
       if (newlyAdded.length > 0) {
-        const detail = await projectService.getDetailById(projectId);
+        const detail = await withLoading(() =>
+          projectService.getDetailById(projectId),
+        );
         if (detail) onMembersUpdate(detail.projectUsers);
         setStagingList((prev) =>
           prev.filter((s) => !newlyAdded.some((r) => r.email === s.email)),
@@ -117,7 +123,7 @@ export function ProjectSettingsUsers({
   const onRemoveMember = async (member: ProjectMember) => {
     setRemovingId(member.userId);
     try {
-      await projectService.removeMember(projectId, member.userId);
+      await withLoading(() => projectService.removeMember(projectId, member.userId));
       onMembersUpdate(currentMembers.filter((m) => m.userId !== member.userId));
     } finally {
       setRemovingId(null);

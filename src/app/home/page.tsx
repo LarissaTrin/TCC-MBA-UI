@@ -18,17 +18,7 @@ export default function HomePage() {
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
 
   if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        width="100%"
-        height="100%"
-      >
-        <GenericLoading />
-      </Box>
-    );
+    return <GenericLoading fullPage />;
   }
 
   if (error) {

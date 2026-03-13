@@ -1,4 +1,5 @@
 export * from './apiClient'
+export * from './dashboardService'
 export * from './authService'
 export * from './cardService'
 export * from './commentService'

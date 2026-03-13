@@ -49,6 +49,7 @@ interface ListApiResponse {
   id: number;
   name: string;
   order: number;
+  isFinal: boolean;
   cards?: CardApiResponse[];
 }
 
@@ -109,7 +110,7 @@ function mapSection(list: ListApiResponse): Section {
     id: String(list.id),
     name: list.name,
     order: list.order,
-    isFinal: list.order === 4,
+    isFinal: list.isFinal,
   };
 }
 

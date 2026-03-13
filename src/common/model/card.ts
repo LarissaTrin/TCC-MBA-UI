@@ -14,6 +14,7 @@ export interface Card {
   dueDate: string;
   startDate?: string;
   endDate?: string;
+  completedAt?: string | null;
   sectionId: string;
   order?: number;
   sortIndex: number;

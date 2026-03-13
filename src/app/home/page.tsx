@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
@@ -8,7 +8,9 @@ import { GenericLoading, GenericPanel } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import {
   AssignedCardsPanel,
+  MyDayPanel,
   NotesPanel,
+  PendingApprovalsPanel,
   ProjectsPanel,
 } from "@/components/modules/home";
 import { CardContent } from "@/components/modules/project/Card";
@@ -39,6 +41,15 @@ export default function HomePage() {
           <Typography>Data</Typography>
           <Typography>Welcome</Typography>
         </GenericPanel>
+
+        <Box
+          display="grid"
+          gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
+          gap={3}
+        >
+          <MyDayPanel />
+          <PendingApprovalsPanel />
+        </Box>
 
         <Box
           display="grid"

@@ -152,6 +152,9 @@ export function BoardContent({
           [activeContainer]: newOrder,
         }));
       }
+    } else {
+      // Card movido para outra coluna — persiste novo listId no banco
+      cardService.update(Number(activeId), { listId: Number(overContainer) }).catch(console.error);
     }
 
     setActiveTask(null);

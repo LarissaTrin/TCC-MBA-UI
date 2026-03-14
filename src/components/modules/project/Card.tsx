@@ -11,7 +11,7 @@ import {
   GenericPoper,
   GenericAutoComplete,
 } from "@/components/widgets";
-import { Box, Divider, Grid, MenuItem } from "@mui/material";
+import { Box, Divider, Grid, MenuItem, Typography } from "@mui/material";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -19,10 +19,11 @@ import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
 import dayjs from "dayjs";
 
-import { CardTasksSection } from "./CardTasksSection";
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
+import { CardHistorySection } from "./CardHistorySection";
 import { CardTagsSection } from "./CardTagsSection";
+import { CardTasksSection } from "./CardTasksSection";
 
 interface CardContentProps {
   id?: string;
@@ -132,7 +133,7 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
       priority: payload.priority,
       storyPoints: payload.storyPoints,
       date: payload.dueDate,
-      listId: payload.sectionId ? Number(payload.sectionId) : undefined,
+      listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
     });
     handleClose();
@@ -381,6 +382,17 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
               cardId={card?.id ?? 0}
               initialComments={initialComments}
             />
+          </Grid>
+
+          {/* ── Histórico ── */}
+          <Grid size={12}>
+            <Divider />
+          </Grid>
+          <Grid size={12}>
+            <Typography variant="subtitle2" gutterBottom>
+              Histórico
+            </Typography>
+            <CardHistorySection cardId={card?.id ?? 0} />
           </Grid>
         </Grid>
       </Box>

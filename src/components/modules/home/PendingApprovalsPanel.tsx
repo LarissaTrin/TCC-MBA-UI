@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { Box, Chip, Typography } from "@mui/material";
 
-import { useLoading } from "@/common/context/LoadingContext";
-import { dashboardService, DashboardCard } from "@/common/services";
+import { usePendingApprovals } from "@/common/hooks";
+import { DashboardCard } from "@/common/services";
 import { GenericLoading, DashboardPanel } from "@/components";
 
 function ApprovalRow({ card }: { card: DashboardCard }) {
@@ -30,25 +29,7 @@ function ApprovalRow({ card }: { card: DashboardCard }) {
 }
 
 export function PendingApprovalsPanel() {
-  const { withLoading } = useLoading();
-  const [pending, setPending] = useState<DashboardCard[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await withLoading(() => dashboardService.getPendingApprovals());
-      setPending(data.pending);
-    } catch {
-      // silently ignore — panel simply stays empty on error
-    } finally {
-      setIsLoading(false);
-    }
-  }, [withLoading]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { pending, isLoading } = usePendingApprovals();
 
   return (
     <DashboardPanel title="Aprovações Pendentes">

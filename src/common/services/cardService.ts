@@ -90,6 +90,14 @@ function mapCard(card: CardApiResponse): Card {
   };
 }
 
+export interface CardHistoryEntry {
+  id: number;
+  action: string;
+  oldValue?: string;
+  newValue?: string;
+  createdAt: string;
+}
+
 export const cardService = {
   /**
    * Get a single card by ID with all relationships.
@@ -143,5 +151,13 @@ export const cardService = {
    */
   async delete(cardId: number): Promise<void> {
     await apiClient.delete(`/cards/${cardId}`);
+  },
+
+  /**
+   * Get history events for a card.
+   * GET /api/cards/{cardId}/history
+   */
+  async getHistory(cardId: number): Promise<CardHistoryEntry[]> {
+    return apiClient.get<CardHistoryEntry[]>(`/cards/${cardId}/history`);
   },
 };

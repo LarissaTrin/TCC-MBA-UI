@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { Box, Chip, Divider, Typography } from "@mui/material";
 
-import { useLoading } from "@/common/context/LoadingContext";
-import { dashboardService, DashboardCard } from "@/common/services";
+import { useMyDay } from "@/common/hooks";
+import { DashboardCard } from "@/common/services";
 import { GenericLoading, DashboardPanel } from "@/components";
 
 function CardRow({ card }: { card: DashboardCard }) {
@@ -52,27 +51,7 @@ function EmptyState({ label }: { label: string }) {
 }
 
 export function MyDayPanel() {
-  const { withLoading } = useLoading();
-  const [dueToday, setDueToday] = useState<DashboardCard[]>([]);
-  const [overdue, setOverdue] = useState<DashboardCard[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await withLoading(() => dashboardService.getMyDay());
-      setDueToday(data.dueToday);
-      setOverdue(data.overdue);
-    } catch {
-      // silently ignore — panel simply stays empty on error
-    } finally {
-      setIsLoading(false);
-    }
-  }, [withLoading]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { dueToday, overdue, isLoading } = useMyDay();
 
   return (
     <DashboardPanel title="Meu Dia">

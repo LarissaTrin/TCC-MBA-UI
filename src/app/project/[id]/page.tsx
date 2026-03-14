@@ -85,7 +85,7 @@ export default function ProjectPage() {
     {
       label: "Dashboard",
       value: "dashboard",
-      content: <DashboardContent cards={rawCards} />,
+      content: <DashboardContent projectId={projectId} />,
     },
     {
       label: "Board",

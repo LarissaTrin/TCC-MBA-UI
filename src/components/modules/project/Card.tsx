@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
+import { CardDependenciesSection } from "./CardDependenciesSection";
 import { CardHistorySection } from "./CardHistorySection";
 import { CardTagsSection } from "./CardTagsSection";
 import { CardTasksSection } from "./CardTasksSection";
@@ -31,9 +32,11 @@ interface CardContentProps {
   onClose: () => void;
   userRole?: string;
   projectMembers?: ProjectMember[];
+  projectId?: number;
+  onOpenCard?: (cardId: number) => void;
 }
 
-export function CardContent({ id, sections, onClose, userRole = "User", projectMembers = [] }: CardContentProps) {
+export function CardContent({ id, sections, onClose, userRole = "User", projectMembers = [], projectId, onOpenCard }: CardContentProps) {
   const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -371,6 +374,21 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
           </Grid>
           <Grid size={12}>
             <CardApproversSection control={form.control} />
+          </Grid>
+
+          {/* ── Dependências ── */}
+          <Grid size={12}>
+            <Divider />
+          </Grid>
+          <Grid size={12}>
+            <Typography variant="subtitle2" gutterBottom>
+              Dependências
+            </Typography>
+            <CardDependenciesSection
+              cardId={card?.id ?? 0}
+              projectId={projectId}
+              onOpenCard={onOpenCard}
+            />
           </Grid>
 
           {/* ── Comments ── */}

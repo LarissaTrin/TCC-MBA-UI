@@ -98,6 +98,22 @@ export interface CardHistoryEntry {
   createdAt: string;
 }
 
+export interface CardDependencyItem {
+  id: number;
+  cardNumber: number;
+  title: string;
+}
+
+export interface CardDependenciesResponse {
+  dependencies: CardDependencyItem[];
+}
+
+export interface CardSearchResult {
+  id: number;
+  cardNumber: number;
+  title: string;
+}
+
 export const cardService = {
   /**
    * Get a single card by ID with all relationships.
@@ -159,5 +175,39 @@ export const cardService = {
    */
   async getHistory(cardId: number): Promise<CardHistoryEntry[]> {
     return apiClient.get<CardHistoryEntry[]>(`/cards/${cardId}/history`);
+  },
+
+  /**
+   * Search cards by title or card number (up to 10 results).
+   * GET /api/cards/search?q=...&project_id=...
+   */
+  async searchCards(q: string, projectId?: number): Promise<CardSearchResult[]> {
+    const params = new URLSearchParams({ q });
+    if (projectId) params.append("project_id", String(projectId));
+    return apiClient.get<CardSearchResult[]>(`/cards/search?${params.toString()}`);
+  },
+
+  /**
+   * Get dependencies for a card.
+   * GET /api/cards/{cardId}/dependencies
+   */
+  async getDependencies(cardId: number): Promise<CardDependenciesResponse> {
+    return apiClient.get<CardDependenciesResponse>(`/cards/${cardId}/dependencies`);
+  },
+
+  /**
+   * Add a related card as a dependency.
+   * POST /api/cards/{cardId}/dependencies
+   */
+  async addDependency(cardId: number, relatedCardId: number): Promise<void> {
+    await apiClient.post(`/cards/${cardId}/dependencies`, { relatedCardId });
+  },
+
+  /**
+   * Remove a dependency from a card.
+   * DELETE /api/cards/{cardId}/dependencies/{relatedCardId}
+   */
+  async removeDependency(cardId: number, relatedCardId: number): Promise<void> {
+    await apiClient.delete(`/cards/${cardId}/dependencies/${relatedCardId}`);
   },
 };

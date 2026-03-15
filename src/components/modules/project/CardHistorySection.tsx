@@ -10,6 +10,8 @@ const ACTION_LABEL: Record<string, string> = {
   assigned: "Atribuído",
   priority_changed: "Prioridade alterada",
   due_date_changed: "Data alterada",
+  dependency_added: "Dependência adicionada",
+  dependency_removed: "Dependência removida",
 };
 
 const ACTION_COLOR: Record<
@@ -20,6 +22,8 @@ const ACTION_COLOR: Record<
   assigned: "info",
   priority_changed: "warning",
   due_date_changed: "default",
+  dependency_added: "success",
+  dependency_removed: "default",
 };
 
 interface CardHistorySectionProps {

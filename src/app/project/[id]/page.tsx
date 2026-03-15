@@ -165,6 +165,8 @@ export default function ProjectPage() {
           onClose={() => setSelectCardId(undefined)}
           userRole={userRole}
           projectMembers={projectMembers}
+          projectId={projectId}
+          onOpenCard={(id) => setSelectCardId(String(id))}
         />
       )}
       <ProjectSettingsDialog

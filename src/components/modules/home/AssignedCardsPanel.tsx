@@ -13,12 +13,14 @@ interface AssignedCardsPanelProps {
   cards: Card[];
   isLoading: boolean;
   onCardClick: (id: string) => void;
+  embedded?: boolean;
 }
 
 export function AssignedCardsPanel({
   cards,
   isLoading,
   onCardClick,
+  embedded = false,
 }: AssignedCardsPanelProps) {
   function renderCardLabel(card: Card) {
     return (
@@ -56,9 +58,9 @@ export function AssignedCardsPanel({
     return <GenericList items={items} loading={false} collapsed={false} />;
   }
 
-  return (
-    <DashboardPanel title="Assigned to Me">
-      {isLoading ? <GenericLoading /> : renderCardList(cards)}
-    </DashboardPanel>
-  );
+  const content = isLoading ? <GenericLoading /> : renderCardList(cards);
+
+  if (embedded) return content;
+
+  return <DashboardPanel title="Assigned to Me">{content}</DashboardPanel>;
 }

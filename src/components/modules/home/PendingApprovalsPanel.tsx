@@ -28,20 +28,20 @@ function ApprovalRow({ card }: { card: DashboardCard }) {
   );
 }
 
-export function PendingApprovalsPanel() {
+export function PendingApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
   const { pending, isLoading } = usePendingApprovals();
 
-  return (
-    <DashboardPanel title="Aprovações Pendentes">
-      {isLoading ? (
-        <GenericLoading />
-      ) : pending.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" textAlign="center" py={1}>
-          Nenhuma aprovação pendente
-        </Typography>
-      ) : (
-        pending.map((c) => <ApprovalRow key={c.id} card={c} />)
-      )}
-    </DashboardPanel>
+  const content = isLoading ? (
+    <GenericLoading />
+  ) : pending.length === 0 ? (
+    <Typography variant="body2" color="text.secondary" textAlign="center" py={1}>
+      Nenhuma aprovação pendente
+    </Typography>
+  ) : (
+    pending.map((c) => <ApprovalRow key={c.id} card={c} />)
   );
+
+  if (embedded) return content;
+
+  return <DashboardPanel title="Aprovações Pendentes">{content}</DashboardPanel>;
 }

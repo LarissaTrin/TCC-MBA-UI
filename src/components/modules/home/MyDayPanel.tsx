@@ -50,36 +50,36 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-export function MyDayPanel() {
+export function MyDayPanel({ embedded = false }: { embedded?: boolean }) {
   const { dueToday, overdue, isLoading } = useMyDay();
 
-  return (
-    <DashboardPanel title="Meu Dia">
-      {isLoading ? (
-        <GenericLoading />
+  const content = isLoading ? (
+    <GenericLoading />
+  ) : (
+    <>
+      <Typography variant="subtitle2" color="primary" gutterBottom>
+        Vence hoje {dueToday.length > 0 && `(${dueToday.length})`}
+      </Typography>
+      {dueToday.length === 0 ? (
+        <EmptyState label="Nenhum card vence hoje" />
       ) : (
-        <>
-          <Typography variant="subtitle2" color="primary" gutterBottom>
-            Vence hoje {dueToday.length > 0 && `(${dueToday.length})`}
-          </Typography>
-          {dueToday.length === 0 ? (
-            <EmptyState label="Nenhum card vence hoje" />
-          ) : (
-            dueToday.map((c) => <CardRow key={c.id} card={c} />)
-          )}
-
-          <Divider sx={{ my: 1.5 }} />
-
-          <Typography variant="subtitle2" color="error" gutterBottom>
-            Atrasados {overdue.length > 0 && `(${overdue.length})`}
-          </Typography>
-          {overdue.length === 0 ? (
-            <EmptyState label="Nenhum card atrasado" />
-          ) : (
-            overdue.map((c) => <CardRow key={c.id} card={c} />)
-          )}
-        </>
+        dueToday.map((c) => <CardRow key={c.id} card={c} />)
       )}
-    </DashboardPanel>
+
+      <Divider sx={{ my: 1.5 }} />
+
+      <Typography variant="subtitle2" color="error" gutterBottom>
+        Atrasados {overdue.length > 0 && `(${overdue.length})`}
+      </Typography>
+      {overdue.length === 0 ? (
+        <EmptyState label="Nenhum card atrasado" />
+      ) : (
+        overdue.map((c) => <CardRow key={c.id} card={c} />)
+      )}
+    </>
   );
+
+  if (embedded) return content;
+
+  return <DashboardPanel title="Meu Dia">{content}</DashboardPanel>;
 }

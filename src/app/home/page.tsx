@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 
 import { useHomePageData } from "@/common/hooks";
 import { GenericLoading, GenericPanel } from "@/components";
@@ -15,9 +15,16 @@ import {
 } from "@/components/modules/home";
 import { CardContent } from "@/components/modules/project/Card";
 
+const TABS = [
+  { label: "Assigned to Me", value: 0 },
+  { label: "Meu Dia", value: 1 },
+  { label: "Aprovações Pendentes", value: 2 },
+];
+
 export default function HomePage() {
   const { projects, cards, isLoading, error } = useHomePageData();
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState(0);
 
   if (isLoading) {
     return <GenericLoading fullPage />;
@@ -26,6 +33,7 @@ export default function HomePage() {
   if (error) {
     return <Typography color="error">{error}</Typography>;
   }
+
   return (
     <GenericPage sx={{ height: "100%" }}>
       <Box display="flex" flexDirection="column" gap={3} height="100%">
@@ -46,23 +54,34 @@ export default function HomePage() {
           display="grid"
           gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
           gap={3}
-        >
-          <MyDayPanel />
-          <PendingApprovalsPanel />
-        </Box>
-
-        <Box
-          display="grid"
-          gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
-          gap={3}
           flex={1}
           minHeight={300}
         >
-          <AssignedCardsPanel
-            cards={cards}
-            isLoading={isLoading}
-            onCardClick={(id) => setSelectCardId(id)}
-          />
+          {/* Bloco único com 3 tabs */}
+          <GenericPanel sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, v) => setActiveTab(v)}
+              sx={{ borderBottom: 1, borderColor: "divider", px: 1 }}
+            >
+              {TABS.map((t) => (
+                <Tab key={t.value} label={t.label} value={t.value} />
+              ))}
+            </Tabs>
+            <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+              {activeTab === 0 && (
+                <AssignedCardsPanel
+                  cards={cards}
+                  isLoading={isLoading}
+                  onCardClick={(id) => setSelectCardId(id)}
+                  embedded
+                />
+              )}
+              {activeTab === 1 && <MyDayPanel embedded />}
+              {activeTab === 2 && <PendingApprovalsPanel embedded />}
+            </Box>
+          </GenericPanel>
+
           <ProjectsPanel projects={projects} isLoading={isLoading} />
         </Box>
 

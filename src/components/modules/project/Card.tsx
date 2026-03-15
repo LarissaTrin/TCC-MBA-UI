@@ -11,7 +11,16 @@ import {
   GenericPoper,
   GenericAutoComplete,
 } from "@/components/widgets";
-import { Box, Divider, Grid, MenuItem, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  IconButton,
+  MenuItem,
+  Tab,
+  Tabs,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -36,15 +45,31 @@ interface CardContentProps {
   onOpenCard?: (cardId: number) => void;
 }
 
-export function CardContent({ id, sections, onClose, userRole = "User", projectMembers = [], projectId, onOpenCard }: CardContentProps) {
+const TABS = [
+  { label: "Details", value: 0 },
+  { label: "Tasks", value: 1 },
+  { label: "Approvers & Deps", value: 2 },
+  { label: "Comments", value: 3 },
+  { label: "History", value: 4 },
+];
+
+export function CardContent({
+  id,
+  sections,
+  onClose,
+  userRole = "User",
+  projectMembers = [],
+  projectId,
+  onOpenCard,
+}: CardContentProps) {
   const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<Card | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const anchorRef = useRef<HTMLDivElement>(null);
   const [openOptions, setOpenOptions] = useState(false);
-
-  // Comments are decoupled — managed by CardCommentsSection with immediate API calls
   const [initialComments, setInitialComments] = useState<Comments[]>([]);
 
   const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
@@ -57,7 +82,6 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
     [projectMembers],
   );
 
-  // RHF + Zod (tasks and approvers are part of the form via useFieldArray)
   const form = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
     defaultValues: {
@@ -106,28 +130,14 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
         title: t.title,
         date: t.date ? dayjs(t.date) : dayjs(),
         completed: t.completed,
-        user: {
-          id: 0,
-          firstName: t.userName ?? "",
-          lastName: "",
-          email: "",
-        },
+        user: { id: 0, firstName: t.userName ?? "", lastName: "", email: "" },
       })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id,
         environment: a.environment,
-        user: {
-          id: 0,
-          firstName: a.userName ?? "",
-          lastName: "",
-          email: "",
-        },
+        user: { id: 0, firstName: a.userName ?? "", lastName: "", email: "" },
       })),
-      tags: (data.tags ?? []).map((t) => ({
-        id: t.id,
-        name: t.name,
-      })),
-      // Comments are saved independently via commentService
+      tags: (data.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
     };
 
     await cardService.update(card.id, {
@@ -148,12 +158,12 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
     onClose();
   };
 
-  // Load card data and populate form + comments
   useEffect(() => {
     if (!id) return;
 
     setIsDrawerOpen(true);
     setLoading(true);
+    setActiveTab(0);
 
     cardService
       .getById(Number(id))
@@ -184,12 +194,8 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
               environment: a.environment,
               userName: a.user?.firstName ?? "",
             })),
-            tags: (loadedCard.tags ?? []).map((t) => ({
-              id: t.id,
-              name: t.name,
-            })),
+            tags: (loadedCard.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
           });
-
           setInitialComments(loadedCard.comments ?? []);
         }
 
@@ -198,55 +204,70 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
       .catch(() => setLoading(false));
   }, [id, form]);
 
-  const renderTitle = () => {
+  const renderHeader = () => {
     if (!card) return <Box>Card</Box>;
 
     return (
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 1,
-        }}
-      >
-        <Box sx={{ fontWeight: 600 }}>{card.id}</Box>
-        <Box sx={{ flex: 1 }}>
-          <GenericTextField
-            name="name"
-            label=""
+      <Box sx={{ display: "flex", flexDirection: "column", width: "100%", gap: 0.75 }}>
+        {/* Row 1: ID + title + actions */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+            #{card.sortIndex}
+          </Typography>
+          <Box sx={{ flex: 1 }}>
+            <GenericTextField
+              name="name"
+              label=""
+              size={GeneralSize.Small}
+              control={form.control}
+            />
+          </Box>
+          <Tooltip title={isFullScreen ? "Sair do full screen" : "Expandir"}>
+            <IconButton size="small" onClick={() => setIsFullScreen((v) => !v)}>
+              <span className="material-icons" style={{ fontSize: 20 }}>
+                {isFullScreen ? "fullscreen_exit" : "fullscreen"}
+              </span>
+            </IconButton>
+          </Tooltip>
+          <GenericButtonGroup
             size={GeneralSize.Small}
-            control={form.control}
-          />
+            variant={ButtonVariant.Outlined}
+            ref={anchorRef}
+          >
+            <GenericButton
+              label="Save"
+              onClick={handleSubmit(onSubmit)}
+              disabled={!isValid || isSubmitting}
+            />
+            <GenericButton startIcon="more_vert" onClick={handleOptions} />
+          </GenericButtonGroup>
+          <GenericPoper
+            anchorRef={anchorRef}
+            open={openOptions}
+            onClose={handleCloseOptions}
+          >
+            <MenuItem onClick={handleSubmit(onSubmit)}>Save and Close</MenuItem>
+            <MenuItem onClick={handleClose}>Close</MenuItem>
+            {canDeleteCard && (
+              <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
+                Deletar card
+              </MenuItem>
+            )}
+          </GenericPoper>
         </Box>
-        <GenericButtonGroup
-          size={GeneralSize.Small}
-          variant={ButtonVariant.Outlined}
-          ref={anchorRef}
-        >
-          <GenericButton
-            label="Save"
-            onClick={handleSubmit(onSubmit)}
-            disabled={!isValid || isSubmitting}
-          />
-          <GenericButton startIcon="more_vert" onClick={handleOptions} />
-        </GenericButtonGroup>
-        <GenericPoper
-          anchorRef={anchorRef}
-          open={openOptions}
-          onClose={handleCloseOptions}
-        >
-          <MenuItem onClick={handleSubmit(onSubmit)}>Save and Close</MenuItem>
-          <MenuItem onClick={handleClose}>Close</MenuItem>
-          {canDeleteCard && (
-            <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
-              Deletar card
-            </MenuItem>
-          )}
-        </GenericPoper>
+
+        {/* Row 2: Tags */}
+        <CardTagsSection control={form.control} />
       </Box>
     );
+  };
+
+  const drawerSx = {
+    zIndex: 1501,
+    "& .MuiDrawer-paper": {
+      width: isFullScreen ? "100vw" : { xs: "100%", sm: 540 },
+      transition: "width 0.25s ease",
+    },
   };
 
   if (loading) {
@@ -255,7 +276,7 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
         open={isDrawerOpen}
         onClose={handleClose}
         anchor="right"
-        sx={{ zIndex: 1501 }}
+        sx={drawerSx}
         disableIcon
       >
         <Box sx={{ padding: 2 }}>Carregando...</Box>
@@ -268,151 +289,120 @@ export function CardContent({ id, sections, onClose, userRole = "User", projectM
       open={isDrawerOpen}
       onClose={handleClose}
       anchor="right"
-      sx={{ zIndex: 1501 }}
+      sx={drawerSx}
       disableIcon
-      headerTitle={renderTitle()}
+      headerTitle={renderHeader()}
     >
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
-        sx={{ padding: 2, maxWidth: 500 }}
+        sx={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
       >
-        <Grid container spacing={2}>
-          <Grid size={6}>
-            <GenericAutoComplete
-              label="User"
-              options={memberOptions}
-              name="user"
-              control={form.control}
-            />
-          </Grid>
-          <Grid size={6}>
-            <GenericAutoComplete
-              label="Section"
-              options={sectionOptions}
-              name="sectionId"
-              control={form.control}
-            />
-          </Grid>
+        {/* Tabs bar */}
+        <Tabs
+          value={activeTab}
+          onChange={(_, v) => setActiveTab(v)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{ borderBottom: 1, borderColor: "divider", flexShrink: 0 }}
+        >
+          {TABS.map((t) => (
+            <Tab key={t.value} label={t.label} value={t.value} sx={{ minWidth: 90 }} />
+          ))}
+        </Tabs>
 
-          <Grid size={6}>
-            <GenericTextField
-              name="date"
-              label="Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              control={form.control}
-            />
-          </Grid>
-          <Grid size={6}>
-            <GenericTextField
-              name="storyPoints"
-              label="Story Points"
-              control={form.control}
-              type="number"
-              slotProps={{
-                input: {
-                  inputProps: {
-                    min: 0,
-                    step: 1,
-                  },
-                },
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <GenericTextField
-              name="priority"
-              label="Priority"
-              control={form.control}
-              type="number"
-              slotProps={{
-                input: {
-                  inputProps: {
-                    min: 0,
-                    step: 1,
-                  },
-                },
-              }}
-            />
-          </Grid>
+        {/* Tab content */}
+        <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+          {/* Tab 0 — Details */}
+          {activeTab === 0 && (
+            <Grid container spacing={2}>
+              <Grid size={6}>
+                <GenericAutoComplete
+                  label="User"
+                  options={memberOptions}
+                  name="user"
+                  control={form.control}
+                />
+              </Grid>
+              <Grid size={6}>
+                <GenericAutoComplete
+                  label="Section"
+                  options={sectionOptions}
+                  name="sectionId"
+                  control={form.control}
+                />
+              </Grid>
+              <Grid size={6}>
+                <GenericTextField
+                  name="date"
+                  label="Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  control={form.control}
+                />
+              </Grid>
+              <Grid size={6}>
+                <GenericTextField
+                  name="storyPoints"
+                  label="Story Points"
+                  control={form.control}
+                  type="number"
+                  slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
+                />
+              </Grid>
+              <Grid size={6}>
+                <GenericTextField
+                  name="priority"
+                  label="Priority"
+                  control={form.control}
+                  type="number"
+                  slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <GenericTextField
+                  name="description"
+                  label="Description"
+                  multiline
+                  minRows={isFullScreen ? 8 : 5}
+                  maxRows={isFullScreen ? 20 : 10}
+                  control={form.control}
+                />
+              </Grid>
+            </Grid>
+          )}
 
-          <Grid size={12}>
-            <Divider />
-          </Grid>
+          {/* Tab 1 — Tasks */}
+          {activeTab === 1 && <CardTasksSection control={form.control} />}
 
-          <Grid size={12}>
-            <GenericTextField
-              name="description"
-              label="Description"
-              multiline
-              minRows={5}
-              maxRows={10}
-              control={form.control}
-            />
-          </Grid>
+          {/* Tab 2 — Approvers & Dependencies */}
+          {activeTab === 2 && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <CardApproversSection control={form.control} />
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                  Dependências
+                </Typography>
+                <CardDependenciesSection
+                  cardId={card?.id ?? 0}
+                  projectId={projectId}
+                  onOpenCard={onOpenCard}
+                />
+              </Box>
+            </Box>
+          )}
 
-          {/* ── Tags ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
-            <CardTagsSection control={form.control} />
-          </Grid>
-
-          {/* ── Tasks ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
-            <CardTasksSection control={form.control} />
-          </Grid>
-
-          {/* ── Approvers ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
-            <CardApproversSection control={form.control} />
-          </Grid>
-
-          {/* ── Dependências ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
-            <Typography variant="subtitle2" gutterBottom>
-              Dependências
-            </Typography>
-            <CardDependenciesSection
-              cardId={card?.id ?? 0}
-              projectId={projectId}
-              onOpenCard={onOpenCard}
-            />
-          </Grid>
-
-          {/* ── Comments ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
+          {/* Tab 3 — Comments */}
+          {activeTab === 3 && (
             <CardCommentsSection
               cardId={card?.id ?? 0}
               initialComments={initialComments}
             />
-          </Grid>
+          )}
 
-          {/* ── Histórico ── */}
-          <Grid size={12}>
-            <Divider />
-          </Grid>
-          <Grid size={12}>
-            <Typography variant="subtitle2" gutterBottom>
-              Histórico
-            </Typography>
-            <CardHistorySection cardId={card?.id ?? 0} />
-          </Grid>
-        </Grid>
+          {/* Tab 4 — History */}
+          {activeTab === 4 && <CardHistorySection cardId={card?.id ?? 0} />}
+        </Box>
       </Box>
     </GenericDrawer>
   );

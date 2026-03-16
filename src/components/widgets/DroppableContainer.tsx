@@ -35,7 +35,9 @@ export function DroppableContainer({
   forceExpand,
   onAddTriggerHandled,
 }: ColumnProps) {
-  const taskIds = tasks.map((task) => task.id);
+  // Ignora possíveis tarefas corrompidas e pega os ids
+  const validTasks = tasks.filter(Boolean);
+  const taskIds = validTasks.map((task) => task.id);
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const [isAdding, setIsAdding] = useState(false);
@@ -92,14 +94,14 @@ export function DroppableContainer({
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          alignItems: tasks.length === 0 && !isAdding ? "center" : "stretch",
+          alignItems: validTasks.length === 0 && !isAdding ? "center" : "stretch",
           justifyContent:
-            tasks.length === 0 && !isAdding ? "center" : "flex-start",
+            validTasks.length === 0 && !isAdding ? "center" : "flex-start",
           transition: "background-color 0.2s ease",
         }}
       >
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
-          {tasks.map((task) => (
+          {validTasks.map((task) => (
             <Task
               key={task.id}
               id={task.id}

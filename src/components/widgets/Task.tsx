@@ -22,11 +22,10 @@ export function Task({ id, title, onClick }: TaskProps) {
     isDragging,
   } = useSortable({ id });
 
-  // Estilos para o dnd-kit controlar a posição
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.7 : 1,
+    opacity: isDragging ? 0.4 : 1, // Não some 100%, fica fantasma para provar que a lista ainda o possui
     cursor: "grab",
     marginBottom: "10px",
   };
@@ -34,11 +33,27 @@ export function Task({ id, title, onClick }: TaskProps) {
   return (
     <GenericCard
       title={title}
-      ref={setNodeRef} // Conecta o dnd-kit ao elemento
+      ref={setNodeRef}
       style={style}
       onClick={onClick}
-      {...attributes} // Permite o dnd-kit controlar
-      {...listeners} // Adiciona os eventos de mouse/toque
+      {...attributes}
+      {...listeners}
+    ></GenericCard>
+  );
+}
+
+// Card visual isolado para o momento do clique+arraste
+export function StaticTask({ title }: { title: string }) {
+  return (
+    <GenericCard
+      title={title}
+      style={{
+        cursor: "grabbing",
+        boxShadow: "0 10px 20px rgba(0,0,0,0.15)",
+        transform: "rotate(2deg)",
+        backgroundColor: "#fff",
+        marginBottom: "10px",
+      }}
     ></GenericCard>
   );
 }

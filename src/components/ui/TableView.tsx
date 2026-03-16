@@ -26,6 +26,7 @@ import {
   Typography,
 } from "@mui/material";
 import { TaskProps } from "../widgets/Task";
+import { cardService } from "@/common/services";
 
 interface TableViewProps {
   containers: Record<string, TaskProps[]>;
@@ -35,20 +36,19 @@ interface TableViewProps {
 }
 
 export function TableView({ containers, setContainers }: TableViewProps) {
-  // 🔹 Agrupa todas as tarefas e garante que tenham 'order'
   const allTasks = Object.entries(containers)
     .flatMap(([column, tasks]) =>
-      tasks.map((task, index) => ({
+      tasks.filter(Boolean).map((task, index) => ({
         ...task,
         column,
         order: task.order ?? index + 1,
       }))
     )
-    .sort((a, b) => a.order - b.order); // sempre mostra ordenado
+    .sort((a, b) => a.order - b.order);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -60,15 +60,27 @@ export function TableView({ containers, setContainers }: TableViewProps) {
       order: idx + 1,
     }));
 
-    // 🔹 Reagrupa por container (mantendo id original)
     const updatedContainers: Record<string, TaskProps[]> = {};
     Object.keys(containers).forEach((key) => {
       updatedContainers[key] = reordered
-        .filter((t) => containers[key].some((ct) => ct.id === t.id))
+        .filter((t) => containers[key].some((ct) => ct?.id === t?.id))
         .map(({ column, ...rest }) => rest);
     });
 
     setContainers(updatedContainers);
+
+    // --- MANDA PARA A API ---
+    const movedTask = reordered.find((t) => t.id === active.id);
+    if (movedTask) {
+      try {
+        await cardService.update(Number(movedTask.id), {
+          listId: Number(movedTask.column),
+          sortIndex: movedTask.order,
+        });
+      } catch (error) {
+        console.error("Erro na atualização da API:", error);
+      }
+    }
   }
 
   return (
@@ -111,6 +123,7 @@ function SortableRow({ task }: { task: TaskProps & { column: string } }) {
     transition,
     cursor: "grab",
     backgroundColor: isDragging ? "#f0f8ff" : "inherit",
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (

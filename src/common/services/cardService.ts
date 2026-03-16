@@ -24,7 +24,11 @@ interface CardApiResponse {
     lastName: string;
     email: string;
   };
-  tagCards?: { id: number; tagId: number; tag?: { id: number; name: string } }[];
+  tagCards?: {
+    id: number;
+    tagId: number;
+    tag?: { id: number; name: string };
+  }[];
   tasksCard?: {
     id: number;
     title: string;
@@ -152,6 +156,7 @@ export const cardService = {
       date?: string;
       listId?: number;
       userId?: number;
+      sortIndex?: number;
     },
   ): Promise<Card> {
     const data = await apiClient.put<CardApiResponse>(
@@ -181,10 +186,15 @@ export const cardService = {
    * Search cards by title or card number (up to 10 results).
    * GET /api/cards/search?q=...&project_id=...
    */
-  async searchCards(q: string, projectId?: number): Promise<CardSearchResult[]> {
+  async searchCards(
+    q: string,
+    projectId?: number,
+  ): Promise<CardSearchResult[]> {
     const params = new URLSearchParams({ q });
     if (projectId) params.append("project_id", String(projectId));
-    return apiClient.get<CardSearchResult[]>(`/cards/search?${params.toString()}`);
+    return apiClient.get<CardSearchResult[]>(
+      `/cards/search?${params.toString()}`,
+    );
   },
 
   /**
@@ -192,7 +202,9 @@ export const cardService = {
    * GET /api/cards/{cardId}/dependencies
    */
   async getDependencies(cardId: number): Promise<CardDependenciesResponse> {
-    return apiClient.get<CardDependenciesResponse>(`/cards/${cardId}/dependencies`);
+    return apiClient.get<CardDependenciesResponse>(
+      `/cards/${cardId}/dependencies`,
+    );
   },
 
   /**

@@ -79,6 +79,7 @@ export function DroppableContainer({
 
   return (
     <GenericAccordion
+      data-test="droppable-container-accordion"
       orientation="horizontal"
       header={title}
       height={"500px"}
@@ -94,24 +95,13 @@ export function DroppableContainer({
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          alignItems: validTasks.length === 0 && !isAdding ? "center" : "stretch",
+          alignItems:
+            validTasks.length === 0 && !isAdding ? "center" : "stretch",
           justifyContent:
             validTasks.length === 0 && !isAdding ? "center" : "flex-start",
           transition: "background-color 0.2s ease",
         }}
       >
-        <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
-          {validTasks.map((task) => (
-            <Task
-              key={task.id}
-              id={task.id}
-              title={task.title}
-              order={task.order}
-              onClick={() => onTaskClick?.(task.id)}
-            />
-          ))}
-        </SortableContext>
-
         {isAdding && (
           <Box sx={{ p: 1 }}>
             <TextField
@@ -142,6 +132,17 @@ export function DroppableContainer({
             </Box>
           </Box>
         )}
+        <SortableContext items={taskIds} strategy={verticalListSortingStrategy} data-test="sortable-context">
+          {validTasks.map((task) => (
+            <Task
+              key={task.id}
+              id={task.id}
+              title={task.title}
+              order={task.order}
+              onClick={() => onTaskClick?.(task.id)}
+            />
+          ))}
+        </SortableContext>
       </Box>
     </GenericAccordion>
   );

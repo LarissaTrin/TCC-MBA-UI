@@ -13,7 +13,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { createPortal } from "react-dom";
 import { Task, TaskProps, StaticTask } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
@@ -23,7 +23,10 @@ import { cardService } from "@/common/services";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
-function mapCardsToBoard(sections: Section[], cards: TaskModel[]): KanbanContainers {
+function mapCardsToBoard(
+  sections: Section[],
+  cards: TaskModel[],
+): KanbanContainers {
   const result: KanbanContainers = {};
   sections.forEach((s) => {
     result[s.id] = [];
@@ -61,6 +64,7 @@ export function BoardContent({
   const [containers, setContainers] = useState<KanbanContainers>({});
   const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [triggerAddFirst, setTriggerAddFirst] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
   useEffect(() => {
@@ -87,7 +91,7 @@ export function BoardContent({
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const id = String(active.id);
-    
+
     // Procura o card em todas as colunas para garantir que não fique null
     let foundTask = null;
     for (const col of Object.values(containers)) {
@@ -110,7 +114,11 @@ export function BoardContent({
     const activeContainer = findContainer(activeId);
     const overContainer = findContainer(overId);
 
-    if (!activeContainer || !overContainer || activeContainer === overContainer) {
+    if (
+      !activeContainer ||
+      !overContainer ||
+      activeContainer === overContainer
+    ) {
       return;
     }
 
@@ -233,9 +241,41 @@ export function BoardContent({
     return <Box>Carregando board...</Box>;
   }
 
+  if (sections.length === 0) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          py: 10,
+          gap: 1,
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          Nenhuma lista criada ainda
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Acesse <strong>Configurações → Listas</strong> para criar suas
+          primeiras listas.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Box justifyContent={"flex-end"} display={"flex"}>
+      <Box justifyContent={"flex-end"} display={"flex"} gap={1}>
+        {viewMode === "board" && sections.length > 0 && (
+          <Button
+            variant="outlined"
+            onClick={() => setTriggerAddFirst(true)}
+            sx={{ mb: 2 }}
+          >
+            + Add Card
+          </Button>
+        )}
         <Button
           variant="contained"
           onClick={() =>
@@ -270,6 +310,11 @@ export function BoardContent({
                   activeColapsed={isFirstOrLast}
                   onTaskClick={handleCardClick}
                   onAddCard={handleAddCard}
+                  triggerAdd={index === 0 ? triggerAddFirst : false}
+                  forceExpand={index === 0 ? triggerAddFirst : false}
+                  onAddTriggerHandled={
+                    index === 0 ? () => setTriggerAddFirst(false) : undefined
+                  }
                 />
               );
             })}
@@ -277,10 +322,8 @@ export function BoardContent({
             {/* O zIndex garante que o DragOverlay passe por cima de tudo e não suma */}
             {mounted &&
               createPortal(
-                <DragOverlay zIndex={9999}>
-                  {activeTask ? (
-                    <StaticTask title={activeTask.title} />
-                  ) : null}
+                <DragOverlay zIndex={9999} data-test="drag-overlay">
+                  {activeTask ? <StaticTask title={activeTask.title} /> : null}
                 </DragOverlay>,
                 document.body,
               )}

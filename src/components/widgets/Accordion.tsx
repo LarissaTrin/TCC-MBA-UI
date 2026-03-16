@@ -63,6 +63,7 @@ export function GenericAccordion({
 
   return (
     <Box
+    id='generic-accordion'
       display="flex"
       flexDirection="column"
       border={`1px solid ${theme.palette.divider}`}

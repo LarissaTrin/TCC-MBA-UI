@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,13 +15,9 @@ import { projectService } from "@/common/services";
 import { ButtonVariant } from "@/common/enum";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/common/context/LoadingContext";
+import { useTranslation } from "@/common/provider";
 
-const newProjectSchema = z.object({
-  projectName: z
-    .string()
-    .min(3, "O nome do projeto deve ter no mínimo 3 caracteres."),
-});
-type NewProjectFormData = z.infer<typeof newProjectSchema>;
+type NewProjectFormData = { projectName: string };
 
 interface NewProjectModalProps {
   open: boolean;
@@ -28,8 +25,14 @@ interface NewProjectModalProps {
 }
 
 export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { withLoading } = useLoading();
+
+  const newProjectSchema = useMemo(
+    () => z.object({ projectName: z.string().min(3, t("newProject.nameMin")) }),
+    [t],
+  );
 
   const {
     control,
@@ -49,32 +52,32 @@ export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
       handleClose();
       router.push(`/project/${newProject.id}`);
     } catch (error) {
-      console.error("Falha ao criar projeto", error);
+      console.error("Failed to create project", error);
     }
   };
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Create a New Project</DialogTitle>
+      <DialogTitle>{t("newProject.title")}</DialogTitle>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <GenericTextField
               name="projectName"
               control={control}
-              label="Project Name"
+              label={t("newProject.nameLabel")}
               autoFocus
             />
           </Stack>
         </DialogContent>
         <DialogActions>
           <GenericButton
-            label="Cancel"
+            label={t("newProject.cancel")}
             onClick={handleClose}
             variant={ButtonVariant.Text}
           />
           <GenericButton
-            label={isSubmitting ? "Creating..." : "Create Project"}
+            label={isSubmitting ? t("newProject.creating") : t("newProject.create")}
             type="submit"
             disabled={isSubmitting}
           />

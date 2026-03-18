@@ -4,6 +4,7 @@ import { Box, Badge, TextField } from "@mui/material";
 import { GenericPopover, GenericButton } from "@/components/widgets";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { DashboardFilterValues } from "./useDashboardFilters";
+import { useTranslation } from "@/common/provider";
 
 interface DashboardFiltersProps {
   draft: DashboardFilterValues;
@@ -22,13 +23,15 @@ export function DashboardFilters({
   onApply,
   onClear,
 }: DashboardFiltersProps) {
+  const { t } = useTranslation();
+
   return (
     <GenericPopover
       reactOpenPopover={
         <Badge color="primary" variant="dot" invisible={!isFiltered}>
           <GenericButton
             startIcon="filter_list"
-            label="Período"
+            label={t("filter.period")}
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
           />
@@ -37,7 +40,7 @@ export function DashboardFilters({
     >
       <Box sx={{ p: 3, width: 300, display: "flex", flexDirection: "column", gap: 2 }}>
         <TextField
-          label="Início"
+          label={t("filter.start")}
           type="date"
           size="small"
           fullWidth
@@ -46,7 +49,7 @@ export function DashboardFilters({
           slotProps={{ inputLabel: { shrink: true } }}
         />
         <TextField
-          label="Fim"
+          label={t("filter.end")}
           type="date"
           size="small"
           fullWidth
@@ -56,13 +59,13 @@ export function DashboardFilters({
         />
         <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
           <GenericButton
-            label="Limpar"
+            label={t("filter.clear")}
             variant={ButtonVariant.Text}
             size={GeneralSize.Small}
             onClick={onClear}
           />
           <GenericButton
-            label="Aplicar"
+            label={t("filter.apply")}
             variant={ButtonVariant.Contained}
             size={GeneralSize.Small}
             startIcon="check"

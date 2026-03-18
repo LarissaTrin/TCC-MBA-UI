@@ -16,6 +16,7 @@ import {
   buildByPriorityChart,
   buildByTagChart,
 } from "@/common/utils/dashboardUtils";
+import { useTranslation } from "@/common/provider";
 
 import dynamic from "next/dynamic";
 import { DashboardFilters } from "./DashboardFilters";
@@ -23,10 +24,7 @@ import { useDashboardFilters } from "./useDashboardFilters";
 
 const DynamicGenericChart = dynamic(
   () => import("@/components/widgets/Chart").then((mod) => mod.GenericChart),
-  {
-    ssr: false,
-    loading: () => <Typography>Carregando gráfico...</Typography>,
-  },
+  { ssr: false },
 );
 
 interface DashboardContentProps {
@@ -34,6 +32,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ projectId }: DashboardContentProps) {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<ProjectStatsResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [burndown, setBurndown] = useState<BurndownResponse | null>(null);
@@ -42,7 +41,6 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
   const { applied, draft, isFiltered, setDraftStart, setDraftEnd, onApply, onClear } =
     useDashboardFilters();
 
-  // Carrega stats gerais do projeto (sempre projeto inteiro)
   useEffect(() => {
     dashboardService
       .getProjectStats(projectId)
@@ -51,7 +49,6 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
       .finally(() => setStatsLoading(false));
   }, [projectId]);
 
-  // Carrega burndown sempre que o período aplicado mudar
   useEffect(() => {
     if (!applied.start || !applied.end) return;
     setBurndownLoading(true);
@@ -75,14 +72,13 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
       : 0;
 
   const kpis: GenericCardProps[] = [
-    { title: "Total de cards", value: stats.totalCards, color: "primary" },
-    { title: "Em andamento", value: inProgress, color: "warning.main" },
-    { title: "Concluídos", value: completed, color: "success.main" },
+    { title: t("dashboard.totalCards"), value: stats.totalCards, color: "primary" },
+    { title: t("dashboard.inProgress"), value: inProgress, color: "warning.main" },
+    { title: t("dashboard.completed"), value: completed, color: "success.main" },
   ];
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Filtro de período — topo do dashboard */}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <DashboardFilters
           draft={draft}
@@ -94,7 +90,6 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
         />
       </Box>
 
-      {/* KPIs */}
       <Grid container spacing={2}>
         {kpis.map((kpi) => (
           <Grid size={{ xs: 12, md: 4 }} key={kpi.title}>
@@ -103,43 +98,43 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
         ))}
       </Grid>
 
-      {/* Taxa de conclusão + Lead Time + Cycle Time */}
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
           <GenericCard
-            title="Taxa de conclusão"
+            title={t("dashboard.completionRate")}
             value={`${completionRate}%`}
-            description={`${completed} de ${stats.totalCards} cards finalizados`}
+            description={t("dashboard.completedOf")
+              .replace("{completed}", String(completed))
+              .replace("{total}", String(stats.totalCards))}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <GenericCard
-            title="Lead Time médio"
-            value={stats.leadTimeDays !== null ? `${stats.leadTimeDays} dias` : "—"}
+            title={t("dashboard.avgLeadTime")}
+            value={stats.leadTimeDays !== null ? `${stats.leadTimeDays} days` : "—"}
             description={
               stats.leadTimeDays !== null
-                ? "Criação → conclusão"
-                : "Nenhum card concluído"
+                ? t("dashboard.creationToCompletion")
+                : t("dashboard.noCompletedCards")
             }
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <GenericCard
-            title="Cycle Time médio"
-            value={stats.cycleTimeDays !== null ? `${stats.cycleTimeDays} dias` : "—"}
+            title={t("dashboard.avgCycleTime")}
+            value={stats.cycleTimeDays !== null ? `${stats.cycleTimeDays} days` : "—"}
             description={
               stats.cycleTimeDays !== null
-                ? "Início do trabalho → conclusão"
-                : "Histórico insuficiente"
+                ? t("dashboard.startToCompletion")
+                : t("dashboard.insufficientHistory")
             }
           />
         </Grid>
       </Grid>
 
-      {/* Burndown Chart */}
       <Box>
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Burndown Chart
+          {t("dashboard.burndownChart")}
           <Typography
             component="span"
             variant="caption"
@@ -151,7 +146,7 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
         </Typography>
         {burndownLoading && (
           <Typography variant="body2" color="text.secondary">
-            Carregando burndown...
+            {t("dashboard.loadingBurndown")}
           </Typography>
         )}
         {!burndownLoading && burndown && burndown.points.length > 0 && (
@@ -162,31 +157,28 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
         )}
         {!burndownLoading && burndown && burndown.points.length === 0 && (
           <Typography variant="body2" color="text.secondary">
-            Nenhum card encontrado no período selecionado.
+            {t("dashboard.noCardsInPeriod")}
           </Typography>
         )}
       </Box>
 
-      {/* Cards por lista */}
       {stats.byList.length > 0 && (
         <DynamicGenericChart
-          title="Cards por coluna"
+          title={t("dashboard.cardsByColumn")}
           options={buildByListChart(stats)}
         />
       )}
 
-      {/* Cards por prioridade */}
       {stats.byPriority.length > 0 && (
         <DynamicGenericChart
-          title="Cards por prioridade"
+          title={t("dashboard.cardsByPriority")}
           options={buildByPriorityChart(stats)}
         />
       )}
 
-      {/* Cards por tag */}
       {stats.byTag.length > 0 && (
         <DynamicGenericChart
-          title="Cards por tag"
+          title={t("dashboard.cardsByTag")}
           options={buildByTagChart(stats)}
         />
       )}

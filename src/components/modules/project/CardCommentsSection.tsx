@@ -7,6 +7,7 @@ import { GeneralSize, ButtonVariant } from "@/common/enum";
 import { GenericButton, GenericIcon } from "@/components/widgets";
 import { Box, IconButton, TextField, Typography } from "@mui/material";
 import dayjs from "dayjs";
+import { useTranslation } from "@/common/provider";
 
 interface CardCommentsSectionProps {
   cardId: number;
@@ -17,6 +18,7 @@ export function CardCommentsSection({
   cardId,
   initialComments,
 }: CardCommentsSectionProps) {
+  const { t } = useTranslation();
   const [comments, setComments] = useState<Comments[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -29,7 +31,6 @@ export function CardCommentsSection({
   const handleAdd = async () => {
     if (!newComment.trim()) return;
 
-    // Optimistic update
     const optimistic: Comments = {
       id: Date.now(),
       description: newComment.trim(),
@@ -46,7 +47,6 @@ export function CardCommentsSection({
         prev.map((c) => (c.id === optimistic.id ? created : c))
       );
     } catch {
-      // Rollback on failure
       setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
     }
   };
@@ -60,7 +60,6 @@ export function CardCommentsSection({
     const previous = comments.find((c) => c.id === commentId);
     if (!previous) return;
 
-    // Optimistic update
     setComments((prev) =>
       prev.map((c) =>
         c.id === commentId
@@ -74,7 +73,6 @@ export function CardCommentsSection({
     try {
       await commentService.update(commentId, editingText);
     } catch {
-      // Rollback on failure
       setComments((prev) =>
         prev.map((c) => (c.id === commentId ? previous : c))
       );
@@ -85,7 +83,6 @@ export function CardCommentsSection({
     const previous = comments.find((c) => c.id === commentId);
     if (!previous) return;
 
-    // Optimistic update
     setComments((prev) => prev.filter((c) => c.id !== commentId));
     if (editingId === commentId) {
       setEditingId(null);
@@ -95,7 +92,6 @@ export function CardCommentsSection({
     try {
       await commentService.delete(commentId);
     } catch {
-      // Rollback on failure
       setComments((prev) => [...prev, previous]);
     }
   };
@@ -103,13 +99,13 @@ export function CardCommentsSection({
   return (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-        Comments
+        {t("card.comments.title")}
       </Typography>
 
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
         <TextField
           size="small"
-          placeholder="Write a comment..."
+          placeholder={t("card.comments.placeholder")}
           multiline
           minRows={2}
           maxRows={4}
@@ -118,7 +114,7 @@ export function CardCommentsSection({
           sx={{ flex: 1 }}
         />
         <GenericButton
-          label="Add"
+          label={t("card.comments.add")}
           size={GeneralSize.Small}
           variant={ButtonVariant.Outlined}
           onClick={handleAdd}
@@ -195,7 +191,7 @@ export function CardCommentsSection({
 
       {comments.length === 0 && (
         <Typography variant="body2" color="text.secondary">
-          No comments yet.
+          {t("card.comments.none")}
         </Typography>
       )}
     </Box>

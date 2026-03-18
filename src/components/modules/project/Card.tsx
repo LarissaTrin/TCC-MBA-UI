@@ -27,6 +27,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
 import dayjs from "dayjs";
+import { useTranslation } from "@/common/provider";
 
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
@@ -46,14 +47,6 @@ interface CardContentProps {
   extraZIndex?: number;
 }
 
-const TABS = [
-  { label: "Details", value: 0 },
-  { label: "Tasks", value: 1 },
-  { label: "Approvers & Deps", value: 2 },
-  { label: "Comments", value: 3 },
-  { label: "History", value: 4 },
-];
-
 export function CardContent({
   id,
   sections,
@@ -64,6 +57,7 @@ export function CardContent({
   onOpenCard,
   extraZIndex = 0,
 }: CardContentProps) {
+  const { t } = useTranslation();
   const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -73,6 +67,14 @@ export function CardContent({
   const anchorRef = useRef<HTMLDivElement>(null);
   const [openOptions, setOpenOptions] = useState(false);
   const [initialComments, setInitialComments] = useState<Comments[]>([]);
+
+  const TABS = [
+    { label: t("card.tabs.details"), value: 0 },
+    { label: t("card.tabs.tasks"), value: 1 },
+    { label: t("card.tabs.approversAndDeps"), value: 2 },
+    { label: t("card.tabs.comments"), value: 3 },
+    { label: t("card.tabs.history"), value: 4 },
+  ];
 
   const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
   const memberOptions = useMemo(
@@ -212,7 +214,6 @@ export function CardContent({
 
     return (
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", gap: 0.75 }}>
-        {/* Row 1: ID + title + actions */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
             #{card.sortIndex}
@@ -225,7 +226,7 @@ export function CardContent({
               control={form.control}
             />
           </Box>
-          <Tooltip title={isFullScreen ? "Sair do full screen" : "Expandir"}>
+          <Tooltip title={isFullScreen ? t("card.exitFullscreen") : t("card.expand")}>
             <IconButton size="small" onClick={() => setIsFullScreen((v) => !v)}>
               <span className="material-icons" style={{ fontSize: 20 }}>
                 {isFullScreen ? "fullscreen_exit" : "fullscreen"}
@@ -238,7 +239,7 @@ export function CardContent({
             ref={anchorRef}
           >
             <GenericButton
-              label="Save"
+              label={t("card.save")}
               onClick={handleSubmit(onSubmit)}
               disabled={!isValid || isSubmitting}
             />
@@ -249,17 +250,16 @@ export function CardContent({
             open={openOptions}
             onClose={handleCloseOptions}
           >
-            <MenuItem onClick={handleSubmit(onSubmit)}>Save and Close</MenuItem>
-            <MenuItem onClick={handleClose}>Close</MenuItem>
+            <MenuItem onClick={handleSubmit(onSubmit)}>{t("card.saveAndClose")}</MenuItem>
+            <MenuItem onClick={handleClose}>{t("card.close")}</MenuItem>
             {canDeleteCard && (
               <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
-                Deletar card
+                {t("card.delete")}
               </MenuItem>
             )}
           </GenericPoper>
         </Box>
 
-        {/* Row 2: Tags */}
         <CardTagsSection control={form.control} />
       </Box>
     );
@@ -282,7 +282,7 @@ export function CardContent({
         sx={drawerSx}
         disableIcon
       >
-        <Box sx={{ padding: 2 }}>Carregando...</Box>
+        <Box sx={{ padding: 2 }}>{t("card.loading")}</Box>
       </GenericDrawer>
     );
   }
@@ -301,7 +301,6 @@ export function CardContent({
         onSubmit={handleSubmit(onSubmit)}
         sx={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
       >
-        {/* Tabs bar */}
         <Tabs
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}
@@ -309,19 +308,17 @@ export function CardContent({
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: "divider", flexShrink: 0 }}
         >
-          {TABS.map((t) => (
-            <Tab key={t.value} label={t.label} value={t.value} sx={{ minWidth: 90 }} />
+          {TABS.map((tab) => (
+            <Tab key={tab.value} label={tab.label} value={tab.value} sx={{ minWidth: 90 }} />
           ))}
         </Tabs>
 
-        {/* Tab content */}
         <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
-          {/* Tab 0 — Details */}
           {activeTab === 0 && (
             <Grid container spacing={2}>
               <Grid size={6}>
                 <GenericAutoComplete
-                  label="User"
+                  label={t("card.details.user")}
                   options={memberOptions}
                   name="user"
                   control={form.control}
@@ -329,7 +326,7 @@ export function CardContent({
               </Grid>
               <Grid size={6}>
                 <GenericAutoComplete
-                  label="Section"
+                  label={t("card.details.section")}
                   options={sectionOptions}
                   name="sectionId"
                   control={form.control}
@@ -338,7 +335,7 @@ export function CardContent({
               <Grid size={6}>
                 <GenericTextField
                   name="date"
-                  label="Date"
+                  label={t("card.details.date")}
                   type="date"
                   InputLabelProps={{ shrink: true }}
                   control={form.control}
@@ -347,7 +344,7 @@ export function CardContent({
               <Grid size={6}>
                 <GenericTextField
                   name="storyPoints"
-                  label="Story Points"
+                  label={t("card.details.storyPoints")}
                   control={form.control}
                   type="number"
                   slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
@@ -356,7 +353,7 @@ export function CardContent({
               <Grid size={6}>
                 <GenericTextField
                   name="priority"
-                  label="Priority"
+                  label={t("card.details.priority")}
                   control={form.control}
                   type="number"
                   slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
@@ -365,7 +362,7 @@ export function CardContent({
               <Grid size={12}>
                 <GenericTextField
                   name="description"
-                  label="Description"
+                  label={t("card.details.description")}
                   multiline
                   minRows={isFullScreen ? 8 : 5}
                   maxRows={isFullScreen ? 20 : 10}
@@ -375,16 +372,14 @@ export function CardContent({
             </Grid>
           )}
 
-          {/* Tab 1 — Tasks */}
           {activeTab === 1 && <CardTasksSection control={form.control} />}
 
-          {/* Tab 2 — Approvers & Dependencies */}
           {activeTab === 2 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <CardApproversSection control={form.control} memberOptions={memberOptions} />
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-                  Dependências
+                  {t("card.dependencies.title")}
                 </Typography>
                 <CardDependenciesSection
                   cardId={card?.id ?? 0}
@@ -395,7 +390,6 @@ export function CardContent({
             </Box>
           )}
 
-          {/* Tab 3 — Comments */}
           {activeTab === 3 && (
             <CardCommentsSection
               cardId={card?.id ?? 0}
@@ -403,7 +397,6 @@ export function CardContent({
             />
           )}
 
-          {/* Tab 4 — History */}
           {activeTab === 4 && <CardHistorySection cardId={card?.id ?? 0} />}
         </Box>
       </Box>

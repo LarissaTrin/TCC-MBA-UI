@@ -25,6 +25,7 @@ import { addUserSchema, AddUserData } from "@/common/schemas/projectSettingsSche
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { InviteUserResult, ProjectMember } from "@/common/model";
 import { projectService } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
 interface StagingEntry {
   email: string;
@@ -37,12 +38,6 @@ interface ProjectSettingsUsersProps {
   onMembersUpdate: (members: ProjectMember[]) => void;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  User: "Usuário",
-  Leader: "Líder",
-  Admin: "Admin",
-};
-
 const INVITABLE_ROLES = ["User", "Leader", "Admin"];
 
 export function ProjectSettingsUsers({
@@ -50,6 +45,7 @@ export function ProjectSettingsUsers({
   currentMembers,
   onMembersUpdate,
 }: ProjectSettingsUsersProps) {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const [stagingList, setStagingList] = useState<StagingEntry[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("User");
@@ -57,6 +53,12 @@ export function ProjectSettingsUsers({
   const [saving, setSaving] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [stagingError, setStagingError] = useState<string | null>(null);
+
+  const ROLE_LABELS: Record<string, string> = {
+    User: t("settings.users.roles.User"),
+    Leader: t("settings.users.roles.Leader"),
+    Admin: t("settings.users.roles.Admin"),
+  };
 
   const { control, handleSubmit, reset } = useForm<AddUserData>({
     resolver: zodResolver(addUserSchema),
@@ -70,7 +72,7 @@ export function ProjectSettingsUsers({
       (m) => m.user.email.toLowerCase() === email,
     );
     if (alreadyMember) {
-      setStagingError("Este usuário já é membro do projeto.");
+      setStagingError(t("settings.users.alreadyMember"));
       return;
     }
     if (!stagingList.some((s) => s.email === email)) {
@@ -135,10 +137,9 @@ export function ProjectSettingsUsers({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* ── Formulário de convite ── */}
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Convidar por e-mail
+          {t("settings.users.inviteTitle")}
         </Typography>
         <Box
           component="form"
@@ -148,14 +149,14 @@ export function ProjectSettingsUsers({
           <GenericTextField
             name="email"
             control={control}
-            label="E-mail do usuário"
+            label={t("settings.users.emailLabel")}
             size={GeneralSize.Small}
           />
           <FormControl size="small" sx={{ minWidth: 120, mt: "4px" }}>
-            <InputLabel>Papel</InputLabel>
+            <InputLabel>{t("settings.users.roleLabel")}</InputLabel>
             <Select
               value={selectedRole}
-              label="Papel"
+              label={t("settings.users.roleLabel")}
               onChange={(e) => setSelectedRole(e.target.value)}
             >
               {INVITABLE_ROLES.map((r) => (
@@ -166,7 +167,7 @@ export function ProjectSettingsUsers({
             </Select>
           </FormControl>
           <GenericButton
-            label="Adicionar"
+            label={t("settings.users.add")}
             type="submit"
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
@@ -180,11 +181,10 @@ export function ProjectSettingsUsers({
         )}
       </Box>
 
-      {/* ── Staging list ── */}
       {stagingList.length > 0 && (
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Emails a convidar
+            {t("settings.users.pendingTitle")}
           </Typography>
           <List dense disablePadding>
             {stagingList.map((entry) => {
@@ -227,15 +227,15 @@ export function ProjectSettingsUsers({
                       result ? (
                         result.alreadyMember ? (
                           <Typography variant="caption" color="info.main">
-                            Já é membro do projeto.
+                            {t("settings.users.resultAlreadyMember")}
                           </Typography>
                         ) : result.registered ? (
                           <Typography variant="caption" color="success.main">
-                            Adicionado ao projeto.
+                            {t("settings.users.resultAdded")}
                           </Typography>
                         ) : (
                           <Typography variant="caption" color="warning.main">
-                            ⚠ Não possui conta cadastrada. Um convite foi enviado por e-mail.
+                            {t("settings.users.resultInviteSent")}
                           </Typography>
                         )
                       ) : null
@@ -248,7 +248,7 @@ export function ProjectSettingsUsers({
 
           <Box sx={{ mt: 1 }}>
             <GenericButton
-              label={saving ? "Enviando..." : "Enviar convites"}
+              label={saving ? t("settings.users.sending") : t("settings.users.send")}
               variant={ButtonVariant.Contained}
               size={GeneralSize.Small}
               disabled={saving}
@@ -261,10 +261,9 @@ export function ProjectSettingsUsers({
 
       <Divider />
 
-      {/* ── Membros atuais ── */}
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Membros do projeto
+          {t("settings.users.membersTitle")}
         </Typography>
         <List dense>
           {currentMembers.map((member) => {
@@ -309,7 +308,7 @@ export function ProjectSettingsUsers({
           {currentMembers.length === 0 && (
             <ListItem>
               <ListItemText
-                primary="Nenhum membro no projeto."
+                primary={t("settings.users.noMembers")}
                 sx={{ color: "text.secondary" }}
               />
             </ListItem>

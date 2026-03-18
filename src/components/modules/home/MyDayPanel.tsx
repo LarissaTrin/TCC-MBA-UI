@@ -5,23 +5,15 @@ import { Box, Chip, Divider, Typography } from "@mui/material";
 import { useMyDay } from "@/common/hooks";
 import { DashboardCard } from "@/common/services";
 import { GenericLoading, DashboardPanel } from "@/components";
+import { useTranslation } from "@/common/provider";
 
-function CardRow({ card }: { card: DashboardCard }) {
+function CardRow({ card, locale }: { card: DashboardCard; locale: string }) {
   const formattedDate = card.date
-    ? new Date(card.date).toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-      })
+    ? new Date(card.date).toLocaleDateString(locale, { day: "2-digit", month: "2-digit" })
     : null;
 
   return (
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      py={1}
-      gap={1}
-    >
+    <Box display="flex" justifyContent="space-between" alignItems="center" py={1} gap={1}>
       <Box minWidth={0}>
         <Typography variant="body2" fontWeight="medium" noWrap>
           {card.title}
@@ -51,6 +43,7 @@ function EmptyState({ label }: { label: string }) {
 }
 
 export function MyDayPanel({ embedded = false }: { embedded?: boolean }) {
+  const { t, locale } = useTranslation();
   const { dueToday, overdue, isLoading } = useMyDay();
 
   const content = isLoading ? (
@@ -58,28 +51,28 @@ export function MyDayPanel({ embedded = false }: { embedded?: boolean }) {
   ) : (
     <>
       <Typography variant="subtitle2" color="primary" gutterBottom>
-        Vence hoje {dueToday.length > 0 && `(${dueToday.length})`}
+        {t("home.myDay.dueToday")} {dueToday.length > 0 && `(${dueToday.length})`}
       </Typography>
       {dueToday.length === 0 ? (
-        <EmptyState label="Nenhum card vence hoje" />
+        <EmptyState label={t("home.myDay.noDueToday")} />
       ) : (
-        dueToday.map((c) => <CardRow key={c.id} card={c} />)
+        dueToday.map((c) => <CardRow key={c.id} card={c} locale={locale} />)
       )}
 
       <Divider sx={{ my: 1.5 }} />
 
       <Typography variant="subtitle2" color="error" gutterBottom>
-        Atrasados {overdue.length > 0 && `(${overdue.length})`}
+        {t("home.myDay.overdue")} {overdue.length > 0 && `(${overdue.length})`}
       </Typography>
       {overdue.length === 0 ? (
-        <EmptyState label="Nenhum card atrasado" />
+        <EmptyState label={t("home.myDay.noOverdue")} />
       ) : (
-        overdue.map((c) => <CardRow key={c.id} card={c} />)
+        overdue.map((c) => <CardRow key={c.id} card={c} locale={locale} />)
       )}
     </>
   );
 
   if (embedded) return content;
 
-  return <DashboardPanel title="Meu Dia">{content}</DashboardPanel>;
+  return <DashboardPanel title={t("home.myDay.title")}>{content}</DashboardPanel>;
 }

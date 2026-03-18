@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import { useRouter, useParams } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -8,22 +9,29 @@ import { z } from "zod";
 
 import { resetPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { useTranslation } from "@/common/provider";
 
-const changePasswordSchema = z
-  .object({
-    password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+type ChangePasswordFormData = { password: string; confirmPassword: string };
+
 export default function ChangePasswordPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
-  
   const token = Array.isArray(params.token) ? params.token[0] : params.token;
+
+  const changePasswordSchema = useMemo(
+    () =>
+      z
+        .object({
+          password: z.string().min(6, t("auth.changePassword.validation.passwordMin")),
+          confirmPassword: z.string(),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t("auth.changePassword.validation.passwordsMismatch"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
 
   const {
     control,
@@ -33,11 +41,11 @@ export default function ChangePasswordPage() {
 
   const onSubmit: SubmitHandler<ChangePasswordFormData> = async (data) => {
     if (!token) {
-      alert("Token de redefinição inválido ou não encontrado.");
+      alert(t("auth.changePassword.invalidToken"));
       return;
     }
     await resetPassword(token, data.password);
-    alert("Senha alterada com sucesso!");
+    alert(t("auth.changePassword.success"));
     router.push("/login");
   };
 
@@ -46,7 +54,7 @@ export default function ChangePasswordPage() {
       <GenericPanel sx={{ width: 380, p: 4 }}>
         <Box textAlign="center" mb={3}>
           <Typography variant="h5" component="h1" fontWeight="bold" gutterBottom>
-            Crie uma Nova Senha
+            {t("auth.changePassword.title")}
           </Typography>
         </Box>
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
@@ -54,19 +62,19 @@ export default function ChangePasswordPage() {
             <GenericTextField
               name="password"
               control={control}
-              label="Nova Senha"
+              label={t("auth.changePassword.newPassword")}
               type="password"
               autoFocus
             />
             <GenericTextField
               name="confirmPassword"
               control={control}
-              label="Confirme a Nova Senha"
+              label={t("auth.changePassword.confirmPassword")}
               type="password"
             />
             <GenericButton
               type="submit"
-              label={isSubmitting ? "Salvando..." : "Salvar Nova Senha"}
+              label={isSubmitting ? t("auth.changePassword.submitting") : t("auth.changePassword.submit")}
               disabled={isSubmitting}
             />
           </Stack>

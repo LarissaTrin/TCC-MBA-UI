@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 import { Box, Button } from "@mui/material";
@@ -10,6 +10,7 @@ import { Section, Task as TaskModel } from "@/common/model";
 import { cardService } from "@/common/services";
 import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
+import { useTranslation } from "@/common/provider";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
@@ -24,11 +25,12 @@ export function BoardContent({
   loading: boolean;
   setSelectCardId: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const [containers, setContainers] = useState<KanbanContainers>({});
+  const containersRef = useRef<KanbanContainers>({});
   const [triggerAddFirst, setTriggerAddFirst] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
-  // Inicializa os containers baseados nas secções e tasks da API
   useEffect(() => {
     const result: KanbanContainers = {};
     sections.forEach((s) => {
@@ -46,52 +48,47 @@ export function BoardContent({
       }
     });
 
-    // Ordena inicialmente
     Object.keys(result).forEach((key) => {
       result[key].sort((a, b) => a.index - b.index);
     });
 
+    containersRef.current = result;
     setContainers(result);
   }, [sections, tasks]);
 
   const handleAddCard = async (sectionId: string, title: string) => {
     const listId = Number(sectionId);
     const created = await cardService.create(title, listId);
-    const currentTasks = containers[sectionId] ?? [];
+    const currentTasks = containersRef.current[sectionId] ?? [];
     const newTask: TaskProps = {
       id: String(created.id),
       title: created.name,
       columnId: sectionId,
       index: currentTasks.length,
     };
-    setContainers((prev) => ({
-      ...prev,
-      [sectionId]: [...(prev[sectionId] ?? []), newTask],
-    }));
+    setContainers((prev) => {
+      const next = { ...prev, [sectionId]: [...(prev[sectionId] ?? []), newTask] };
+      containersRef.current = next;
+      return next;
+    });
   };
 
-  if (loading) return <Box>Carregando...</Box>;
+  if (loading) return <Box>{t("common.loading")}</Box>;
 
   return (
     <Box>
       <Box justifyContent={"flex-end"} display={"flex"} gap={1}>
         {viewMode === "board" && sections.length > 0 && (
-          <Button
-            variant="outlined"
-            onClick={() => setTriggerAddFirst(true)}
-            sx={{ mb: 2 }}
-          >
-            + Add Card
+          <Button variant="outlined" onClick={() => setTriggerAddFirst(true)} sx={{ mb: 2 }}>
+            {t("project.addCard")}
           </Button>
         )}
         <Button
           variant="contained"
-          onClick={() =>
-            setViewMode((m) => (m === "board" ? "table" : "board"))
-          }
+          onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
           sx={{ mb: 2 }}
         >
-          {viewMode === "board" ? "Ver como Tabela" : "Ver como Board"}
+          {viewMode === "board" ? t("project.tableView") : t("project.boardView")}
         </Button>
       </Box>
 
@@ -99,17 +96,21 @@ export function BoardContent({
         <Box sx={{ p: 2 }}>
           <DragDropProvider
             onDragOver={(event) => {
-              // A função move do @dnd-kit/helpers faz todo o trabalho de reorder e transfer
-              setContainers((prev) => move(prev, event));
+              setContainers((prev) => {
+                const next = move(prev, event);
+                containersRef.current = next;
+                return next;
+              });
             }}
             onDragEnd={async (event) => {
               const { active } = event;
+              if (!active) return;
               const activeId = String(active.id);
 
               // Search updated containers state (over.id may be an item ID, not a container ID)
               let destContainerId: string | null = null;
               let newIndex = -1;
-              for (const [containerId, items] of Object.entries(containers)) {
+              for (const [containerId, items] of Object.entries(containersRef.current)) {
                 const idx = items.findIndex((t) => t.id === activeId);
                 if (idx !== -1) {
                   destContainerId = containerId;
@@ -119,8 +120,7 @@ export function BoardContent({
               }
               if (!destContainerId || newIndex === -1) return;
 
-              const isLastSection =
-                sections[sections.length - 1]?.id === destContainerId;
+              const isLastSection = sections[sections.length - 1]?.id === destContainerId;
               try {
                 await cardService.update(Number(activeId), {
                   listId: Number(destContainerId),
@@ -128,7 +128,7 @@ export function BoardContent({
                   ...(isLastSection ? { status: Status.Done } : {}),
                 });
               } catch (error) {
-                console.error("Erro ao salvar posição:", error);
+                console.error("Failed to save card position:", error);
               }
             }}
           >
@@ -142,9 +142,7 @@ export function BoardContent({
                   onAddCard={handleAddCard}
                   triggerAdd={idx === 0 ? triggerAddFirst : false}
                   forceExpand={idx === 0 ? triggerAddFirst : false}
-                  onAddTriggerHandled={
-                    idx === 0 ? () => setTriggerAddFirst(false) : undefined
-                  }
+                  onAddTriggerHandled={idx === 0 ? () => setTriggerAddFirst(false) : undefined}
                 >
                   {(containers[section.id] || []).map((task, index) => (
                     <Task

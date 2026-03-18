@@ -20,8 +20,10 @@ import { Card, ProjectMember, Section, Task } from "@/common/model";
 import { projectService, sectionService } from "@/common/services";
 import { useLoading } from "@/common/context/LoadingContext";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
+import { useTranslation } from "@/common/provider";
 
 export default function ProjectPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { withLoading } = useLoading();
   const searchParams = useSearchParams();
@@ -149,7 +151,7 @@ export default function ProjectPage() {
           )}
           <GenericButton
             startIcon="settings"
-            label="Configurações"
+            label={t("project.settings")}
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
             onClick={() => setSettingsOpen(true)}

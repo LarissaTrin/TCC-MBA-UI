@@ -11,8 +11,10 @@ import { GeneralSize } from "@/common/enum";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
+import { useTranslation } from "@/common/provider";
 
 export default function LoginCardFullScreen() {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const { navigate } = useNavigation();
   const [error, setError] = useState<string | null>(null);
@@ -23,10 +25,7 @@ export default function LoginCardFullScreen() {
     formState: { isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
@@ -42,7 +41,7 @@ export default function LoginCardFullScreen() {
     );
 
     if (result?.error) {
-      setError("Email ou senha inválidos.");
+      setError(t("auth.login.invalidCredentials"));
       return;
     }
 
@@ -53,25 +52,14 @@ export default function LoginCardFullScreen() {
   const handleRegister = () => navigate("/login/register");
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={2}
-    >
+    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" p={2}>
       <GenericPanel sx={{ width: 360, p: 4 }}>
         <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
-          <Typography
-            variant="h5"
-            component="h1"
-            fontWeight="bold"
-            gutterBottom
-          >
-            Login
+          <Typography variant="h5" component="h1" fontWeight="bold" gutterBottom>
+            {t("auth.login.title")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Sign in to your account
+            {t("auth.login.subtitle")}
           </Typography>
         </Box>
 
@@ -81,16 +69,12 @@ export default function LoginCardFullScreen() {
           </Alert>
         )}
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          sx={{ width: "100%" }}
-        >
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: "100%" }}>
           <Stack spacing={2}>
             <GenericTextField
               name="email"
               control={control}
-              label="Email Address"
+              label={t("auth.login.email")}
               type="email"
               autoFocus
               size={GeneralSize.Small}
@@ -99,36 +83,26 @@ export default function LoginCardFullScreen() {
             <GenericTextField
               name="password"
               control={control}
-              label="Password"
+              label={t("auth.login.password")}
               type="password"
               size={GeneralSize.Small}
             />
 
             <Box display="flex" justifyContent="flex-end" alignItems="center">
               <Link component="button" type="button" variant="body2" onClick={handleForgot}>
-                Forgot password?
+                {t("auth.login.forgotPassword")}
               </Link>
             </Box>
 
             <GenericButton
               type="submit"
-              label={isSubmitting ? "Signing..." : "Sign In"}
+              label={isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
               disabled={isSubmitting}
             />
 
-            <Box
-              textAlign="center"
-              mt={2}
-              pt={2}
-              borderTop={1}
-              borderColor="grey.200"
-            >
-              <Typography
-                variant="body2"
-                display="inline"
-                color="text.secondary"
-              >
-                Don&apos;t have an account?{" "}
+            <Box textAlign="center" mt={2} pt={2} borderTop={1} borderColor="grey.200">
+              <Typography variant="body2" display="inline" color="text.secondary">
+                {t("auth.login.noAccount")}{" "}
               </Typography>
               <Link
                 component="button"
@@ -137,7 +111,7 @@ export default function LoginCardFullScreen() {
                 onClick={handleRegister}
                 sx={{ verticalAlign: "baseline" }}
               >
-                Sign up
+                {t("auth.login.signUp")}
               </Link>
             </Box>
           </Stack>

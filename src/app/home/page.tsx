@@ -14,17 +14,19 @@ import {
   ProjectsPanel,
 } from "@/components/modules/home";
 import { CardContent } from "@/components/modules/project/Card";
-
-const TABS = [
-  { label: "Assigned to Me", value: 0 },
-  { label: "Meu Dia", value: 1 },
-  { label: "Aprovações Pendentes", value: 2 },
-];
+import { useTranslation } from "@/common/provider";
 
 export default function HomePage() {
+  const { t } = useTranslation();
   const { projects, cards, isLoading, error } = useHomePageData();
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    { label: t("home.tabs.assignedToMe"), value: 0 },
+    { label: t("home.tabs.myDay"), value: 1 },
+    { label: t("home.tabs.pendingApprovals"), value: 2 },
+  ];
 
   if (isLoading) {
     return <GenericLoading fullPage />;
@@ -57,7 +59,6 @@ export default function HomePage() {
           flex={1}
           minHeight={0}
         >
-          {/* Bloco único com 3 tabs */}
           <GenericPanel sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
             <Tabs
               value={activeTab}
@@ -66,8 +67,8 @@ export default function HomePage() {
               scrollButtons="auto"
               sx={{ borderBottom: 1, borderColor: "divider", px: 1 }}
             >
-              {TABS.map((t) => (
-                <Tab key={t.value} label={t.label} value={t.value} />
+              {tabs.map((tab) => (
+                <Tab key={tab.value} label={tab.label} value={tab.value} />
               ))}
             </Tabs>
             <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>

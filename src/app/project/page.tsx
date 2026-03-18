@@ -9,8 +9,10 @@ import { Project } from "@/common/model";
 import { useNavigation } from "@/common/hooks";
 import { NewProjectModal } from "@/components/modules/home/NewProjectModal";
 import { ButtonVariant } from "@/common/enum";
+import { useTranslation } from "@/common/provider";
 
 export default function ProjectSelectionPage() {
+  const { t } = useTranslation();
   const { navigate } = useNavigation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,9 +35,9 @@ export default function ProjectSelectionPage() {
   return (
     <GenericPage>
       <GenericPage.Header>
-        <GenericPage.Title>Selecionar Projeto</GenericPage.Title>
+        <GenericPage.Title>{t("project.selectTitle")}</GenericPage.Title>
         <GenericButton
-          label="New Project"
+          label={t("project.newProject")}
           startIcon="add"
           variant={ButtonVariant.Contained}
           onClick={() => setIsModalOpen(true)}
@@ -43,9 +45,7 @@ export default function ProjectSelectionPage() {
       </GenericPage.Header>
 
       {projects.length === 0 ? (
-        <Typography color="text.secondary">
-          Nenhum projeto encontrado. Crie seu primeiro projeto.
-        </Typography>
+        <Typography color="text.secondary">{t("project.noProjects")}</Typography>
       ) : (
         <Box
           display="grid"

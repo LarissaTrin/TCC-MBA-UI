@@ -5,6 +5,7 @@ import { CardFormData } from "@/common/schemas/cardSchema";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
 import { GenericButton, GenericIcon } from "@/components/widgets";
 import { Autocomplete, Box, IconButton, TextField, Typography } from "@mui/material";
+import { useTranslation } from "@/common/provider";
 
 interface CardApproversSectionProps {
   control: Control<CardFormData>;
@@ -12,35 +13,21 @@ interface CardApproversSectionProps {
 }
 
 export function CardApproversSection({ control, memberOptions }: CardApproversSectionProps) {
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: "approvers",
-  });
+  const { t } = useTranslation();
+  const { fields, append, remove, update } = useFieldArray({ control, name: "approvers" });
 
   const handleAdd = () => {
-    append({
-      id: Date.now(),
-      environment: "",
-      userName: "",
-      userId: "",
-    });
+    append({ id: Date.now(), environment: "", userName: "", userId: "" });
   };
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 1,
-        }}
-      >
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
         <Typography variant="subtitle1" fontWeight={600}>
-          Approvers
+          {t("card.approvers.title")}
         </Typography>
         <GenericButton
-          label="Add Approver"
+          label={t("card.approvers.addApprover")}
           startIcon="add"
           size={GeneralSize.Small}
           variant={ButtonVariant.Outlined}
@@ -49,22 +36,12 @@ export function CardApproversSection({ control, memberOptions }: CardApproversSe
       </Box>
 
       {fields.map((field, index) => (
-        <Box
-          key={field.id}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 1,
-          }}
-        >
+        <Box key={field.id} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
           <TextField
             size="small"
-            placeholder="Environment"
+            placeholder={t("card.approvers.environment")}
             value={field.environment}
-            onChange={(e) =>
-              update(index, { ...field, environment: e.target.value })
-            }
+            onChange={(e) => update(index, { ...field, environment: e.target.value })}
             sx={{ flex: 1 }}
           />
           <Autocomplete
@@ -81,15 +58,11 @@ export function CardApproversSection({ control, memberOptions }: CardApproversSe
             getOptionLabel={(option) => option.label}
             isOptionEqualToValue={(option, value) => option.value === value.value}
             renderInput={(params) => (
-              <TextField {...params} placeholder="Assigned user" />
+              <TextField {...params} placeholder={t("card.approvers.assignedUser")} />
             )}
             sx={{ flex: 1 }}
           />
-          <IconButton
-            size="small"
-            color="error"
-            onClick={() => remove(index)}
-          >
+          <IconButton size="small" color="error" onClick={() => remove(index)}>
             <GenericIcon icon="delete" size={20} />
           </IconButton>
         </Box>
@@ -97,7 +70,7 @@ export function CardApproversSection({ control, memberOptions }: CardApproversSe
 
       {fields.length === 0 && (
         <Typography variant="body2" color="text.secondary">
-          No approvers yet.
+          {t("card.approvers.noApprovers")}
         </Typography>
       )}
     </Box>

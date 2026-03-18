@@ -20,6 +20,7 @@ import {
 } from "@/common/schemas/projectSettingsSchema";
 import { ButtonVariant, GeneralSize, GeneralColor } from "@/common/enum";
 import { projectService } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
 interface ProjectSettingsDetailsProps {
   projectId: number;
@@ -36,6 +37,7 @@ export function ProjectSettingsDetails({
   onDeleteProject,
   canEdit,
 }: ProjectSettingsDetailsProps) {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -84,13 +86,13 @@ export function ProjectSettingsDetails({
           <GenericTextField
             name="projectName"
             control={control}
-            label="Nome do Projeto"
+            label={t("settings.details.projectName")}
             size={GeneralSize.Small}
           />
           <GenericTextField
             name="description"
             control={control}
-            label="Descrição"
+            label={t("settings.details.description")}
             rows={4}
             size={GeneralSize.Small}
           />
@@ -99,7 +101,7 @@ export function ProjectSettingsDetails({
         {canEdit && (
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <GenericButton
-              label={isSubmitting ? "Salvando..." : "Salvar"}
+              label={isSubmitting ? t("settings.details.saving") : t("settings.details.save")}
               type="submit"
               variant={ButtonVariant.Contained}
               size={GeneralSize.Small}
@@ -118,7 +120,7 @@ export function ProjectSettingsDetails({
             }}
           >
             <GenericButton
-              label="Excluir Projeto"
+              label={t("settings.details.deleteProject")}
               variant={ButtonVariant.Outlined}
               color={GeneralColor.Error}
               size={GeneralSize.Small}
@@ -130,21 +132,20 @@ export function ProjectSettingsDetails({
       </Box>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Excluir Projeto</DialogTitle>
+        <DialogTitle>{t("settings.details.confirmTitle")}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem certeza que deseja excluir este projeto? Esta ação não pode ser
-            desfeita.
+            {t("settings.details.confirmText")}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <GenericButton
-            label="Cancelar"
+            label={t("settings.details.cancel")}
             variant={ButtonVariant.Text}
             onClick={() => setConfirmOpen(false)}
           />
           <GenericButton
-            label="Excluir"
+            label={t("settings.details.delete")}
             variant={ButtonVariant.Contained}
             color={GeneralColor.Error}
             onClick={handleConfirmDelete}

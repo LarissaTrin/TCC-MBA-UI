@@ -10,6 +10,7 @@ import {
 import { AutocompleteOption } from "@/common/model";
 import { BoardFilterData } from "@/common/schemas/boardFilterSchema";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
+import { useTranslation } from "@/common/provider";
 
 interface BoardFiltersProps {
   form: UseFormReturn<BoardFilterData>;
@@ -28,6 +29,7 @@ export function BoardFilters({
   onApply,
   onClear,
 }: BoardFiltersProps) {
+  const { t } = useTranslation();
   const { control, register } = form;
 
   return (
@@ -36,7 +38,7 @@ export function BoardFilters({
         <Badge color="primary" variant="dot" invisible={!isFiltered}>
           <GenericButton
             startIcon="filter_list"
-            label="Filtros"
+            label={t("filter.title")}
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
           />
@@ -45,16 +47,16 @@ export function BoardFilters({
     >
       <Box sx={{ p: 3, width: 340, display: "flex", flexDirection: "column", gap: 2 }}>
         <TextField
-          label="Buscar"
-          placeholder="Título ou ID..."
+          label={t("filter.search")}
+          placeholder={t("filter.searchPlaceholder")}
           size="small"
           fullWidth
           {...register("search")}
         />
 
         <GenericAutoComplete
-          label="Tags"
-          placeholder="Selecionar tags..."
+          label={t("filter.tags")}
+          placeholder={t("filter.tagsPlaceholder")}
           options={tagOptions}
           multiple
           checkboxSelection
@@ -64,8 +66,8 @@ export function BoardFilters({
         />
 
         <GenericAutoComplete
-          label="Responsáveis"
-          placeholder="Selecionar usuários..."
+          label={t("filter.assignees")}
+          placeholder={t("filter.assigneesPlaceholder")}
           options={userOptions}
           multiple
           checkboxSelection
@@ -76,7 +78,7 @@ export function BoardFilters({
 
         <Box sx={{ display: "flex", gap: 1 }}>
           <TextField
-            label="Data início"
+            label={t("filter.startDate")}
             type="date"
             size="small"
             fullWidth
@@ -84,7 +86,7 @@ export function BoardFilters({
             {...register("dateFrom")}
           />
           <TextField
-            label="Data fim"
+            label={t("filter.endDate")}
             type="date"
             size="small"
             fullWidth
@@ -95,13 +97,13 @@ export function BoardFilters({
 
         <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
           <GenericButton
-            label="Limpar"
+            label={t("filter.clear")}
             variant={ButtonVariant.Text}
             size={GeneralSize.Small}
             onClick={onClear}
           />
           <GenericButton
-            label="Filtrar"
+            label={t("filter.apply")}
             variant={ButtonVariant.Contained}
             size={GeneralSize.Small}
             startIcon="search"

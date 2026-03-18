@@ -21,6 +21,7 @@ import {
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { Section } from "@/common/model";
 import { sectionService } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
 interface ProjectSettingsListsProps {
   projectId: number;
@@ -35,6 +36,7 @@ export function ProjectSettingsLists({
   onSectionsChange,
   canDelete = true,
 }: ProjectSettingsListsProps) {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const [lists, setLists] = useState<Section[]>(sections);
   const [saving, setSaving] = useState(false);
@@ -78,9 +80,9 @@ export function ProjectSettingsLists({
       const apiErr = err as { body?: string; message?: string };
       try {
         const parsed = JSON.parse(apiErr.body ?? "{}");
-        setDeleteError(parsed.detail ?? "Erro ao excluir lista.");
+        setDeleteError(parsed.detail ?? t("settings.lists.deleteError"));
       } catch {
-        setDeleteError(apiErr.message ?? "Erro ao excluir lista.");
+        setDeleteError(apiErr.message ?? t("settings.lists.deleteError"));
       }
     } finally {
       setDeletingId(null);
@@ -128,11 +130,11 @@ export function ProjectSettingsLists({
         <GenericTextField
           name="name"
           control={control}
-          label="Nome da nova lista"
+          label={t("settings.lists.newListLabel")}
           size={GeneralSize.Small}
         />
         <GenericButton
-          label={creating ? "Criando..." : "Criar"}
+          label={creating ? t("settings.lists.creating") : t("settings.lists.create")}
           type="submit"
           variant={ButtonVariant.Contained}
           size={GeneralSize.Small}
@@ -151,7 +153,7 @@ export function ProjectSettingsLists({
                   size="small"
                   disabled={index === 0 || deletingId === section.id}
                   onClick={() => onMoveList(index, "up")}
-                  aria-label="mover para cima"
+                  aria-label={t("settings.lists.moveUp")}
                 >
                   <GenericIcon icon="arrow_upward" size={GeneralSize.Small} />
                 </IconButton>
@@ -159,7 +161,7 @@ export function ProjectSettingsLists({
                   size="small"
                   disabled={index === lists.length - 1 || deletingId === section.id}
                   onClick={() => onMoveList(index, "down")}
-                  aria-label="mover para baixo"
+                  aria-label={t("settings.lists.moveDown")}
                 >
                   <GenericIcon icon="arrow_downward" size={GeneralSize.Small} />
                 </IconButton>
@@ -168,7 +170,7 @@ export function ProjectSettingsLists({
                     size="small"
                     disabled={deletingId === section.id}
                     onClick={() => onDeleteList(section.id)}
-                    aria-label="excluir lista"
+                    aria-label={t("settings.lists.delete")}
                   >
                     {deletingId === section.id ? (
                       <CircularProgress size={16} />
@@ -182,14 +184,14 @@ export function ProjectSettingsLists({
           >
             <ListItemText
               primary={section.name}
-              secondary={section.isFinal ? "Lista final" : undefined}
+              secondary={section.isFinal ? t("settings.lists.finalList") : undefined}
             />
           </ListItem>
         ))}
         {lists.length === 0 && (
           <ListItem>
             <ListItemText
-              primary="Nenhuma lista criada."
+              primary={t("settings.lists.noLists")}
               sx={{ color: "text.secondary" }}
             />
           </ListItem>
@@ -205,7 +207,7 @@ export function ProjectSettingsLists({
       {lists.length > 0 && (
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <GenericButton
-            label={saving ? "Salvando..." : "Salvar ordem"}
+            label={saving ? t("settings.lists.saving") : t("settings.lists.saveOrder")}
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
             disabled={saving}

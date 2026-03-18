@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { GenericButton } from "@/components/widgets";
 import { ButtonVariant } from "@/common/enum";
+import { useTranslation } from "@/common/provider";
 
 interface PolicyModalProps {
   type: "terms" | "privacy";
@@ -101,7 +102,8 @@ const PRIVACY_CONTENT = (
 );
 
 export function PolicyModal({ type, open, onClose }: PolicyModalProps) {
-  const title = type === "terms" ? "Terms of Service" : "Privacy Policy";
+  const { t } = useTranslation();
+  const title = type === "terms" ? t("auth.policy.termsTitle") : t("auth.policy.privacyTitle");
   const content = type === "terms" ? TERMS_CONTENT : PRIVACY_CONTENT;
 
   return (
@@ -110,7 +112,7 @@ export function PolicyModal({ type, open, onClose }: PolicyModalProps) {
       <DialogContent dividers>{content}</DialogContent>
       <DialogActions>
         <GenericButton
-          label="Close"
+          label={t("common.close")}
           variant={ButtonVariant.Contained}
           onClick={onClose}
         />

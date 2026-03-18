@@ -4,20 +4,9 @@ import { useEffect, useState } from "react";
 import { Box, Chip, Typography } from "@mui/material";
 
 import { cardService, CardHistoryEntry } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
-const ACTION_LABEL: Record<string, string> = {
-  moved: "Movido",
-  assigned: "Atribuído",
-  priority_changed: "Prioridade alterada",
-  due_date_changed: "Data alterada",
-  dependency_added: "Dependência adicionada",
-  dependency_removed: "Dependência removida",
-};
-
-const ACTION_COLOR: Record<
-  string,
-  "default" | "primary" | "warning" | "info" | "success"
-> = {
+const ACTION_COLOR: Record<string, "default" | "primary" | "warning" | "info" | "success"> = {
   moved: "primary",
   assigned: "info",
   priority_changed: "warning",
@@ -31,8 +20,18 @@ interface CardHistorySectionProps {
 }
 
 export function CardHistorySection({ cardId }: CardHistorySectionProps) {
+  const { t, locale } = useTranslation();
   const [history, setHistory] = useState<CardHistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const ACTION_LABEL: Record<string, string> = {
+    moved: t("card.history.actions.moved"),
+    assigned: t("card.history.actions.assigned"),
+    priority_changed: t("card.history.actions.priorityChanged"),
+    due_date_changed: t("card.history.actions.dateChanged"),
+    dependency_added: t("card.history.actions.dependencyAdded"),
+    dependency_removed: t("card.history.actions.dependencyRemoved"),
+  };
 
   useEffect(() => {
     cardService
@@ -43,19 +42,11 @@ export function CardHistorySection({ cardId }: CardHistorySectionProps) {
   }, [cardId]);
 
   if (isLoading) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        Carregando histórico...
-      </Typography>
-    );
+    return <Typography variant="body2" color="text.secondary">{t("card.history.loading")}</Typography>;
   }
 
   if (history.length === 0) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        Nenhuma movimentação registrada.
-      </Typography>
-    );
+    return <Typography variant="body2" color="text.secondary">{t("card.history.none")}</Typography>;
   }
 
   return (
@@ -69,7 +60,7 @@ export function CardHistorySection({ cardId }: CardHistorySectionProps) {
               color={ACTION_COLOR[entry.action] ?? "default"}
             />
             <Typography variant="caption" color="text.secondary">
-              {new Date(entry.createdAt).toLocaleString("pt-BR")}
+              {new Date(entry.createdAt).toLocaleString(locale)}
             </Typography>
           </Box>
 

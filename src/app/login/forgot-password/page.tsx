@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,17 +11,20 @@ import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
 import { BackToLogin } from "@/components/modules/auth/BackToLogin";
+import { useTranslation } from "@/common/provider";
 
-// Schema e Tipo
-const forgotSchema = z.object({
-  email: z.string().email("Por favor, insira um email válido."),
-});
-type ForgotFormData = z.infer<typeof forgotSchema>;
+type ForgotFormData = { email: string };
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const { navigate } = useNavigation();
   const [submitted, setSubmitted] = useState(false);
+
+  const forgotSchema = useMemo(
+    () => z.object({ email: z.string().email(t("auth.forgotPassword.validation.emailInvalid")) }),
+    [t],
+  );
 
   const {
     control,
@@ -35,25 +38,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={2}
-    >
+    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" p={2}>
       <GenericPanel sx={{ width: 380, p: 4 }}>
         {submitted ? (
           <Box textAlign="center">
             <Typography variant="h5" fontWeight="bold" gutterBottom>
-              Verifique seu Email
+              {t("auth.forgotPassword.successTitle")}
             </Typography>
             <Typography color="text.secondary">
-              Se uma conta com este email existir, enviamos um link para você
-              redefinir sua senha.
+              {t("auth.forgotPassword.successDescription")}
             </Typography>
             <GenericButton
-              label="Voltar para o Login"
+              label={t("auth.forgotPassword.returnButton")}
               onClick={() => navigate("/login")}
               sx={{ mt: 3 }}
             />
@@ -61,17 +57,11 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <Box textAlign="center" mb={3}>
-              <Typography
-                variant="h5"
-                component="h1"
-                fontWeight="bold"
-                gutterBottom
-              >
-                Redefinir Senha
+              <Typography variant="h5" component="h1" fontWeight="bold" gutterBottom>
+                {t("auth.forgotPassword.title")}
               </Typography>
               <Typography color="text.secondary">
-                Insira seu email e enviaremos um link para você voltar a acessar
-                sua conta.
+                {t("auth.forgotPassword.description")}
               </Typography>
             </Box>
             <Box component="form" onSubmit={handleSubmit(onSubmit)}>
@@ -79,16 +69,15 @@ export default function ForgotPasswordPage() {
                 <GenericTextField
                   name="email"
                   control={control}
-                  label="Email Address"
+                  label={t("auth.forgotPassword.emailLabel")}
                   type="email"
                   autoFocus
                 />
                 <GenericButton
                   type="submit"
-                  label={isSubmitting ? "Enviando..." : "Enviar Link"}
+                  label={isSubmitting ? t("auth.forgotPassword.submitting") : t("auth.forgotPassword.submit")}
                   disabled={isSubmitting}
                 />
-
                 <BackToLogin />
               </Stack>
             </Box>

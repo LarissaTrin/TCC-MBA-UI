@@ -15,6 +15,7 @@ import { ProjectMember, Section } from "@/common/model";
 import { ProjectSettingsUsers } from "./ProjectSettingsUsers";
 import { ProjectSettingsLists } from "./ProjectSettingsLists";
 import { ProjectSettingsDetails } from "./ProjectSettingsDetails";
+import { useTranslation } from "@/common/provider";
 
 interface ProjectSettingsDialogProps {
   open: boolean;
@@ -29,22 +30,10 @@ interface ProjectSettingsDialogProps {
   onMembersUpdate: (members: ProjectMember[]) => void;
 }
 
-// SuperAdmin e Admin podem gerenciar usuários
 const canManageUsers = (role: string) => ["SuperAdmin", "Admin"].includes(role);
-// SuperAdmin, Admin e Leader podem ver/gerenciar listas
 const canManageLists = (role: string) => ["SuperAdmin", "Admin", "Leader"].includes(role);
-// Apenas SuperAdmin e Admin podem deletar listas
 const canDeleteLists = (role: string) => ["SuperAdmin", "Admin"].includes(role);
-// Apenas SuperAdmin e Admin podem editar/excluir o projeto
 const canEditProject = (role: string) => ["SuperAdmin", "Admin"].includes(role);
-
-function buildTabs(role: string) {
-  const tabs = [];
-  if (canManageUsers(role)) tabs.push({ label: "Usuários", value: "users" });
-  if (canManageLists(role)) tabs.push({ label: "Listas", value: "lists" });
-  tabs.push({ label: "Detalhes", value: "details" });
-  return tabs;
-}
 
 export function ProjectSettingsDialog({
   open,
@@ -58,8 +47,14 @@ export function ProjectSettingsDialog({
   projectMembers,
   onMembersUpdate,
 }: ProjectSettingsDialogProps) {
+  const { t } = useTranslation();
   const { navigate } = useNavigation();
-  const tabs = buildTabs(userRole);
+
+  const tabs = [];
+  if (canManageUsers(userRole)) tabs.push({ label: t("settings.tabs.users"), value: "users" });
+  if (canManageLists(userRole)) tabs.push({ label: t("settings.tabs.lists"), value: "lists" });
+  tabs.push({ label: t("settings.tabs.details"), value: "details" });
+
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.value ?? "details");
 
   const handleDeleteProject = () => {
@@ -76,8 +71,8 @@ export function ProjectSettingsDialog({
           justifyContent: "space-between",
         }}
       >
-        Configurações do Projeto
-        <IconButton onClick={onClose} aria-label="fechar">
+        {t("settings.title")}
+        <IconButton onClick={onClose} aria-label="close">
           <GenericIcon icon="close" size={GeneralSize.Medium} />
         </IconButton>
       </DialogTitle>

@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   useEffect,
   useRef,
@@ -51,6 +53,7 @@ import {
   NewCardFormData,
 } from "@/common/schemas/newCardSchema";
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
+import { useTranslation } from "@/common/provider";
 
 function pickColorByStatus(card: Card): string {
   switch (card.status) {
@@ -82,6 +85,7 @@ export function TimelineContent({
   setTasks,
   setSelectCardId,
 }: TimelineContentProps) {
+  const { t } = useTranslation();
   const now = useMemo(() => new Date(), []);
   const [months, setMonths] = useState<Month[]>([]);
   const [timelineStartDate, setTimelineStartDate] = useState<Date | null>(null);
@@ -94,7 +98,6 @@ export function TimelineContent({
 
   const initializedRef = useRef(false);
 
-  // ── New Card Dialog ──
   const [newCardOpen, setNewCardOpen] = useState(false);
   const newCardForm = useForm<NewCardFormData>({
     resolver: zodResolver(newCardSchema),
@@ -120,7 +123,6 @@ export function TimelineContent({
     }
   }, [now]);
 
-  useEffect(() => {}, []);
 
   const totalDays = useMemo(() => {
     return months.reduce((acc, month) => acc + month.days.length, 0);
@@ -204,7 +206,6 @@ export function TimelineContent({
     [sections],
   );
 
-  // --- DND KIT EVENTS ---
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -263,9 +264,7 @@ export function TimelineContent({
     }
   };
 
-  // --- SCROLL INICIAL AUTOMÁTICO (CORRIGIDO) ---
   useEffect(() => {
-    // 1. Timeout para garantir que o DOM renderizou e tem largura
     const timer = setTimeout(() => {
       if (
         !initializedRef.current &&
@@ -324,7 +323,6 @@ export function TimelineContent({
           height: "600px",
         }}
       >
-        {/* --- HEADER WRAPPER --- */}
         <Box
           sx={{
             display: "flex",
@@ -333,7 +331,6 @@ export function TimelineContent({
             zIndex: 10,
           }}
         >
-          {/* Canto Fixo */}
           <Box
             sx={{
               width: TIMELINE_CONFIG.sidebarWidth,
@@ -350,7 +347,7 @@ export function TimelineContent({
               variant="h6"
               sx={{ fontSize: "1rem", fontWeight: "bold" }}
             >
-              Tarefas
+              {t("timeline.tasks")}
             </Typography>
             <IconButton
               size="small"
@@ -361,7 +358,6 @@ export function TimelineContent({
             </IconButton>
           </Box>
 
-          {/* Header Rolável (Controlado) */}
           <Box
             ref={headerRef}
             sx={{ flex: 1, overflow: "hidden", display: "flex" }}
@@ -403,7 +399,6 @@ export function TimelineContent({
           </Box>
         </Box>
 
-        {/* --- BODY WRAPPER --- */}
         <Box
           sx={{
             display: "flex",
@@ -537,7 +532,6 @@ export function TimelineContent({
         </Box>
       </GenericPanel>
 
-      {/* ── New Card Dialog ── */}
       <Dialog
         open={newCardOpen}
         onClose={() => {
@@ -547,14 +541,14 @@ export function TimelineContent({
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>New Card</DialogTitle>
+        <DialogTitle>{t("timeline.newCard")}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             fullWidth
             size="small"
-            label="Title"
-            placeholder="Enter card title..."
+            label={t("timeline.titleLabel")}
+            placeholder={t("timeline.titlePlaceholder")}
             sx={{ mt: 1 }}
             error={!!newCardForm.formState.errors.title}
             helperText={newCardForm.formState.errors.title?.message}
@@ -569,7 +563,7 @@ export function TimelineContent({
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <GenericButton
-            label="Cancel"
+            label={t("common.cancel")}
             variant={ButtonVariant.Text}
             size={GeneralSize.Small}
             onClick={() => {
@@ -578,7 +572,7 @@ export function TimelineContent({
             }}
           />
           <GenericButton
-            label="Create"
+            label={t("common.create")}
             variant={ButtonVariant.Contained}
             size={GeneralSize.Small}
             onClick={newCardForm.handleSubmit(handleCreateCard)}

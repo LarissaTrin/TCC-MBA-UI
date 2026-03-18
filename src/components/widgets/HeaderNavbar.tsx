@@ -1,4 +1,6 @@
-﻿import {
+"use client";
+
+import {
   AppBar,
   Box,
   IconButton,
@@ -10,19 +12,16 @@
 import { GenericHeaderProps } from "@/common/model";
 import { GenericAvatar, GenericIcon, GenericMenu, LanguagePicker, ThemePicker } from "./";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/common/provider";
 
 /**
- * A generic and reusable Drawer component, based on Material UI's Drawer.
+ * Application top navigation bar.
  *
- * This component wraps the MUI Drawer to provide a standardized interface
- * for navigation panels or temporary content that slides in from the edge of the screen.
+ * Renders the app logo, language picker, theme picker, and user avatar menu
+ * with profile and logout actions.
  *
- * @param {boolean} open - Controls whether the Drawer is visible or not.
- * @param {() => void} onClose - Callback function triggered when the Drawer requests to be closed (e.g., by clicking the backdrop).
- * @param {'left' | 'top' | 'right' | 'bottom'} [anchor='left'] - The edge of the screen from which the Drawer should appear.
- * @param {'permanent' | 'persistent' | 'temporary'} [variant='temporary'] - The operating mode of the Drawer.
- * @param {React.ReactNode} children - The content to be rendered inside the Drawer.
- * @param {object} props - Other valid props for the MUI Drawer component to be passed through.
+ * @param onMenuClick - Callback to open the side drawer on mobile.
+ * @param fullName - The current user's full name, used by the avatar.
  */
 export function GenericHeader({
   onMenuClick,
@@ -30,10 +29,11 @@ export function GenericHeader({
   ...props
 }: GenericHeaderProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const settings = [
-    { name: "Profile", onClick: () => router.push("/profile") },
-    { name: "Logout", onClick: () => router.push("/login") },
+    { name: t("nav.profile"), onClick: () => router.push("/profile") },
+    { name: t("nav.logout"), onClick: () => router.push("/login") },
   ];
 
   return (
@@ -73,7 +73,7 @@ export function GenericHeader({
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <LanguagePicker />
           <ThemePicker />
-          <Tooltip title="Open settings">
+          <Tooltip title={t("nav.openSettings")}>
             <GenericMenu items={settings}>
               <IconButton sx={{ p: 0 }}>
                 <GenericAvatar fullName={fullName} />

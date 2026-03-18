@@ -15,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { cardService, CardDependencyItem, CardSearchResult } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
 interface CardDependenciesSectionProps {
   cardId: number;
@@ -27,6 +28,7 @@ export function CardDependenciesSection({
   projectId,
   onOpenCard,
 }: CardDependenciesSectionProps) {
+  const { t } = useTranslation();
   const [dependencies, setDependencies] = useState<CardDependencyItem[]>([]);
   const [loadingDeps, setLoadingDeps] = useState(true);
 
@@ -66,11 +68,9 @@ export function CardDependenciesSection({
       setSearching(true);
       try {
         const results = await cardService.searchCards(value.trim(), projectId);
-        // Exclui o próprio card e os já adicionados
+        // Exclude the current card and already-added dependencies
         const depIds = new Set(dependencies.map((d) => d.id));
-        setSearchResults(
-          results.filter((r) => r.id !== cardId && !depIds.has(r.id)),
-        );
+        setSearchResults(results.filter((r) => r.id !== cardId && !depIds.has(r.id)));
       } catch {
         setSearchResults([]);
       } finally {
@@ -87,7 +87,7 @@ export function CardDependenciesSection({
       await cardService.addDependency(cardId, result.id);
       reloadDependencies();
     } catch {
-      // dependency already exists or other error — silently ignore
+      // Dependency already exists or other error — silently ignore
     }
   };
 
@@ -98,12 +98,11 @@ export function CardDependenciesSection({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-      {/* Campo de busca */}
       <Box sx={{ position: "relative" }}>
         <TextField
           size="small"
           fullWidth
-          placeholder="Buscar card por ID ou nome..."
+          placeholder={t("card.dependencies.search")}
           value={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
           onBlur={() => setTimeout(() => setShowResults(false), 150)}
@@ -119,7 +118,6 @@ export function CardDependenciesSection({
           }}
         />
 
-        {/* Dropdown de resultados */}
         {showResults && searchResults.length > 0 && (
           <Paper
             elevation={4}
@@ -161,21 +159,16 @@ export function CardDependenciesSection({
         {showResults && !searching && searchQuery && searchResults.length === 0 && (
           <Paper elevation={4} sx={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10, p: 1.5 }}>
             <Typography variant="body2" color="text.secondary">
-              Nenhum card encontrado.
+              {t("card.dependencies.noResults")}
             </Typography>
           </Paper>
         )}
       </Box>
 
-      {/* Lista de dependências */}
       {loadingDeps ? (
-        <Typography variant="body2" color="text.secondary">
-          Carregando...
-        </Typography>
+        <Typography variant="body2" color="text.secondary">{t("card.dependencies.loading")}</Typography>
       ) : dependencies.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          Nenhuma dependência adicionada.
-        </Typography>
+        <Typography variant="body2" color="text.secondary">{t("card.dependencies.none")}</Typography>
       ) : (
         <List dense disablePadding>
           {dependencies.map((dep, idx) => (
@@ -187,7 +180,7 @@ export function CardDependenciesSection({
                     {onOpenCard && (
                       <IconButton
                         size="small"
-                        title="Abrir card"
+                        title={t("card.dependencies.open")}
                         onClick={() => onOpenCard(dep.id)}
                       >
                         <span className="material-icons" style={{ fontSize: 18 }}>open_in_new</span>
@@ -195,7 +188,7 @@ export function CardDependenciesSection({
                     )}
                     <IconButton
                       size="small"
-                      title="Remover dependência"
+                      title={t("card.dependencies.remove")}
                       onClick={() => handleRemove(dep.id)}
                     >
                       <span className="material-icons" style={{ fontSize: 18 }}>close</span>

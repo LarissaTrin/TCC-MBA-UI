@@ -19,18 +19,22 @@
     "profile": "Profile",
     "login": "Login",
     "logout": "Logout",
-    "settings": "Settings"
+    "settings": "Settings",
+    "openSettings": "Open settings"
   },
   "auth": {
     "backToLogin": "Back to Login",
     "login": {
       "title": "Sign In",
-      "email": "Email",
+      "subtitle": "Sign in to your account",
+      "email": "Email Address",
       "password": "Password",
       "submit": "Sign In",
+      "submitting": "Signing in...",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
-      "signUp": "Sign up"
+      "signUp": "Sign up",
+      "invalidCredentials": "Invalid email or password."
     },
     "register": {
       "title": "Create Account",
@@ -46,7 +50,17 @@
       "privacyLink": "Privacy Policy",
       "submit": "Create Account",
       "submitting": "Registering...",
-      "error": "Error creating account. Check your details and try again."
+      "error": "Error creating account. Check your details and try again.",
+      "validation": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "usernameMin": "Username must be at least 3 characters",
+        "emailInvalid": "Invalid email address",
+        "passwordMin": "Password must be at least 6 characters",
+        "confirmRequired": "Please confirm your password",
+        "termsRequired": "You must accept the terms",
+        "passwordsMismatch": "Passwords do not match"
+      }
     },
     "forgotPassword": {
       "title": "Reset Password",
@@ -56,8 +70,54 @@
       "submitting": "Sending...",
       "successTitle": "Check your Email",
       "successDescription": "If an account with this email exists, we sent you a link to reset your password.",
-      "returnButton": "Back to Login"
+      "returnButton": "Back to Login",
+      "validation": {
+        "emailInvalid": "Please enter a valid email."
+      }
+    },
+    "changePassword": {
+      "title": "Create a New Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Save New Password",
+      "submitting": "Saving...",
+      "invalidToken": "Invalid or not found reset token.",
+      "success": "Password changed successfully!",
+      "validation": {
+        "passwordMin": "Password must be at least 6 characters.",
+        "passwordsMismatch": "Passwords do not match"
+      }
+    },
+    "policy": {
+      "termsTitle": "Terms of Service",
+      "privacyTitle": "Privacy Policy"
     }
+  },
+  "home": {
+    "tabs": {
+      "assignedToMe": "Assigned to Me",
+      "myDay": "My Day",
+      "pendingApprovals": "Pending Approvals"
+    },
+    "myDay": {
+      "title": "My Day",
+      "dueToday": "Due Today",
+      "noDueToday": "No cards due today",
+      "overdue": "Overdue",
+      "noOverdue": "No overdue cards"
+    },
+    "pendingApprovals": {
+      "title": "Pending Approvals",
+      "none": "No pending approvals"
+    }
+  },
+  "newProject": {
+    "title": "Create a New Project",
+    "nameLabel": "Project Name",
+    "nameMin": "Project name must be at least 3 characters.",
+    "cancel": "Cancel",
+    "create": "Create Project",
+    "creating": "Creating..."
   },
   "project": {
     "selectTitle": "Select Project",
@@ -74,12 +134,30 @@
     "add": "Add",
     "cancel": "Cancel"
   },
+  "filter": {
+    "title": "Filters",
+    "search": "Search",
+    "searchPlaceholder": "Title or ID...",
+    "tags": "Tags",
+    "tagsPlaceholder": "Select tags...",
+    "assignees": "Assignees",
+    "assigneesPlaceholder": "Select users...",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "clear": "Clear",
+    "apply": "Apply",
+    "period": "Period",
+    "start": "Start",
+    "end": "End"
+  },
   "card": {
     "save": "Save",
     "saveAndClose": "Save and Close",
     "close": "Close",
     "delete": "Delete card",
     "loading": "Loading...",
+    "expand": "Expand",
+    "exitFullscreen": "Exit full screen",
     "tabs": {
       "details": "Details",
       "tasks": "Tasks",
@@ -103,10 +181,67 @@
       "noApprovers": "No approvers yet."
     },
     "dependencies": {
-      "title": "Dependencies"
+      "title": "Dependencies",
+      "search": "Search card by ID or name...",
+      "noResults": "No cards found.",
+      "loading": "Loading...",
+      "none": "No dependencies added.",
+      "open": "Open card",
+      "remove": "Remove dependency"
+    },
+    "tasks": {
+      "title": "Tasks",
+      "add": "Add Task",
+      "titlePlaceholder": "Task title",
+      "assignedUser": "Assigned user",
+      "none": "No tasks yet."
+    },
+    "comments": {
+      "title": "Comments",
+      "placeholder": "Write a comment...",
+      "add": "Add",
+      "none": "No comments yet."
+    },
+    "history": {
+      "loading": "Loading history...",
+      "none": "No activity recorded.",
+      "actions": {
+        "moved": "Moved",
+        "assigned": "Assigned",
+        "priorityChanged": "Priority changed",
+        "dateChanged": "Date changed",
+        "dependencyAdded": "Dependency added",
+        "dependencyRemoved": "Dependency removed"
+      }
     }
   },
+  "dashboard": {
+    "loadingChart": "Loading chart...",
+    "totalCards": "Total cards",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "completionRate": "Completion rate",
+    "completedOf": "{completed} of {total} cards completed",
+    "avgLeadTime": "Avg Lead Time",
+    "creationToCompletion": "Creation → completion",
+    "noCompletedCards": "No completed cards",
+    "avgCycleTime": "Avg Cycle Time",
+    "startToCompletion": "Work start → completion",
+    "insufficientHistory": "Insufficient history",
+    "burndownChart": "Burndown Chart",
+    "loadingBurndown": "Loading burndown...",
+    "noCardsInPeriod": "No cards found in the selected period.",
+    "cardsByColumn": "Cards by column",
+    "cardsByPriority": "Cards by priority",
+    "cardsByTag": "Cards by tag"
+  },
   "settings": {
+    "title": "Project Settings",
+    "tabs": {
+      "users": "Users",
+      "lists": "Lists",
+      "details": "Details"
+    },
     "lists": {
       "newListLabel": "New list name",
       "create": "Create",
@@ -114,8 +249,67 @@
       "saveOrder": "Save order",
       "saving": "Saving...",
       "noLists": "No lists created.",
-      "finalList": "Final list"
+      "finalList": "Final list",
+      "moveUp": "move up",
+      "moveDown": "move down",
+      "delete": "delete list",
+      "deleteError": "Error deleting list."
+    },
+    "details": {
+      "projectName": "Project Name",
+      "description": "Description",
+      "save": "Save",
+      "saving": "Saving...",
+      "deleteProject": "Delete Project",
+      "confirmTitle": "Delete Project",
+      "confirmText": "Are you sure you want to delete this project? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "users": {
+      "inviteTitle": "Invite by email",
+      "emailLabel": "User email",
+      "roleLabel": "Role",
+      "add": "Add",
+      "pendingTitle": "Emails to invite",
+      "alreadyMember": "This user is already a member of the project.",
+      "send": "Send invitations",
+      "sending": "Sending...",
+      "membersTitle": "Project members",
+      "noMembers": "No members in the project.",
+      "resultAdded": "Added to project.",
+      "resultAlreadyMember": "Already a project member.",
+      "resultInviteSent": "⚠ No registered account. An invitation was sent by email.",
+      "roles": {
+        "User": "User",
+        "Leader": "Leader",
+        "Admin": "Admin"
+      }
     }
+  },
+  "profile": {
+    "title": "My Profile",
+    "username": "Username:",
+    "firstName": "First Name:",
+    "lastName": "Last Name:",
+    "email": "Email:",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "save": "Save New Password",
+    "saving": "Saving...",
+    "validationRequired": "Please fill in the new password field.",
+    "successMessage": "Password changed successfully!",
+    "validation": {
+      "passwordMin": "New password must be at least 6 characters.",
+      "passwordsMismatch": "Passwords do not match"
+    }
+  },
+  "timeline": {
+    "tasks": "Tasks",
+    "newCard": "New Card",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Enter card title..."
   },
   "theme": {
     "title": "Customize Theme",

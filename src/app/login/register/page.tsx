@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Path, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,44 +20,51 @@ import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
 import { BackToLogin } from "@/components/modules/auth/BackToLogin";
 import { PolicyModal } from "@/components/modules/auth/PolicyModal";
+import { useTranslation } from "@/common/provider";
 
-// Schema Zod
-const registerSchema = z
-  .object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-    terms: z
-      .boolean()
-      .refine((val) => val === true, "You must accept the terms"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  terms: boolean;
+};
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const { withLoading } = useLoading();
   const { navigate } = useNavigation();
   const [error, setError] = useState<string | null>(null);
   const [policyModal, setPolicyModal] = useState<"terms" | "privacy" | null>(null);
 
-  const formFields: {
-    name: Path<RegisterFormData>;
-    label: string;
-    type?: React.HTMLInputTypeAttribute;
-  }[] = [
-    { name: "firstName", label: "First Name" },
-    { name: "lastName", label: "Last Name" },
-    { name: "username", label: "Username" },
-    { name: "email", label: "Email", type: "email" },
-    { name: "password", label: "Password", type: "password" },
-    { name: "confirmPassword", label: "Confirm Password", type: "password" },
+  const registerSchema = useMemo(
+    () =>
+      z
+        .object({
+          firstName: z.string().min(1, t("auth.register.validation.firstNameRequired")),
+          lastName: z.string().min(1, t("auth.register.validation.lastNameRequired")),
+          username: z.string().min(3, t("auth.register.validation.usernameMin")),
+          email: z.string().email(t("auth.register.validation.emailInvalid")),
+          password: z.string().min(6, t("auth.register.validation.passwordMin")),
+          confirmPassword: z.string().min(1, t("auth.register.validation.confirmRequired")),
+          terms: z.boolean().refine((val) => val === true, t("auth.register.validation.termsRequired")),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t("auth.register.validation.passwordsMismatch"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
+
+  const formFields: { name: Path<RegisterFormData>; label: string; type?: React.HTMLInputTypeAttribute }[] = [
+    { name: "firstName", label: t("auth.register.firstName") },
+    { name: "lastName", label: t("auth.register.lastName") },
+    { name: "username", label: t("auth.register.username") },
+    { name: "email", label: t("auth.register.email"), type: "email" },
+    { name: "password", label: t("auth.register.password"), type: "password" },
+    { name: "confirmPassword", label: t("auth.register.confirmPassword"), type: "password" },
   ];
 
   const {
@@ -65,9 +72,7 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-  });
+  } = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
 
   const onSubmit = async (data: RegisterFormData) => {
     setError(null);
@@ -83,30 +88,20 @@ export default function RegisterPage() {
       );
       navigate("/login");
     } catch {
-      setError("Erro ao criar conta. Verifique os dados e tente novamente.");
+      setError(t("auth.register.error"));
     }
   };
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={2}
-    >
+    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" p={2}>
       <GenericPanel sx={{ width: 400, p: 4 }}>
         <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
           <Typography variant="h5" fontWeight="bold" mb={2}>
-            Create Account
+            {t("auth.register.title")}
           </Typography>
         </Box>
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          sx={{ width: "100%" }}
-        >
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: "100%" }}>
           <Stack spacing={2}>
             {formFields.map((field) => (
               <GenericTextField
@@ -123,23 +118,23 @@ export default function RegisterPage() {
               control={<Checkbox {...register("terms")} />}
               label={
                 <Typography variant="body2">
-                  I agree to the{" "}
+                  {t("auth.register.terms")}{" "}
                   <Link
                     component="button"
                     type="button"
                     variant="body2"
                     onClick={() => setPolicyModal("terms")}
                   >
-                    Terms of Service
+                    {t("auth.register.termsLink")}
                   </Link>{" "}
-                  and{" "}
+                  {t("auth.register.and")}{" "}
                   <Link
                     component="button"
                     type="button"
                     variant="body2"
                     onClick={() => setPolicyModal("privacy")}
                   >
-                    Privacy Policy
+                    {t("auth.register.privacyLink")}
                   </Link>
                   .
                 </Typography>
@@ -159,7 +154,7 @@ export default function RegisterPage() {
 
             <GenericButton
               type="submit"
-              label={isSubmitting ? "Registering..." : "Create Account"}
+              label={isSubmitting ? t("auth.register.submitting") : t("auth.register.submit")}
               disabled={isSubmitting}
             />
 

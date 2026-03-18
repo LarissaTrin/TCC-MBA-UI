@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { Card, Project } from "@/common/model";
-import { projectService, sectionService } from "@/common/services";
+import { Project } from "@/common/model";
+import { dashboardService, DashboardCard, projectService } from "@/common/services";
 import { useLoading } from "@/common/context/LoadingContext";
 
 export function useHomePageData() {
   const { withLoading } = useLoading();
+
   const [projects, setProjects] = useState<Project[]>([]);
-  const [cards, setCards] = useState<Card[]>([]);
-  const [cardProjectMap, setCardProjectMap] = useState<Record<number, number>>({});
-  const [sectionNameMap, setSectionNameMap] = useState<Record<string, string>>({});
+  const [assignedCards, setAssignedCards] = useState<DashboardCard[]>([]);
+  const [dueTodayCards, setDueTodayCards] = useState<DashboardCard[]>([]);
+  const [overdueCards, setOverdueCards] = useState<DashboardCard[]>([]);
+  const [pendingApprovalCards, setPendingApprovalCards] = useState<DashboardCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,38 +19,16 @@ export function useHomePageData() {
       try {
         setIsLoading(true);
 
-        const projectsData = await withLoading(() => projectService.getAll());
+        const [projectsData, myCards] = await Promise.all([
+          withLoading(() => projectService.getAll()),
+          withLoading(() => dashboardService.getMyCards()),
+        ]);
+
         setProjects(projectsData);
-
-        const allCards: Card[] = [];
-        const cardProject: Record<number, number> = {};
-        const sectionName: Record<string, string> = {};
-
-        const results = await Promise.allSettled(
-          projectsData.map((p) =>
-            withLoading(() => sectionService.getListsWithCards(p.id)).then((res) => ({
-              projectId: p.id,
-              ...res,
-            })),
-          ),
-        );
-
-        for (const result of results) {
-          if (result.status === "fulfilled") {
-            const { projectId, sections, cards } = result.value;
-            for (const card of cards) {
-              allCards.push(card);
-              cardProject[card.id] = projectId;
-            }
-            for (const section of sections) {
-              sectionName[section.id] = section.name;
-            }
-          }
-        }
-
-        setCards(allCards);
-        setCardProjectMap(cardProject);
-        setSectionNameMap(sectionName);
+        setAssignedCards(myCards.assigned);
+        setDueTodayCards(myCards.dueToday);
+        setOverdueCards(myCards.overdue);
+        setPendingApprovalCards(myCards.pendingApprovals);
       } catch (err) {
         setError("Failed to fetch data.");
         console.error(err);
@@ -60,5 +40,20 @@ export function useHomePageData() {
     fetchData();
   }, [withLoading]);
 
-  return { projects, cards, cardProjectMap, sectionNameMap, isLoading, error };
+  // Build sectionNameMap from the cards returned by the API (listId → listName)
+  const sectionNameMap: Record<string, string> = {};
+  for (const card of [...assignedCards, ...pendingApprovalCards]) {
+    sectionNameMap[String(card.listId)] = card.listName;
+  }
+
+  return {
+    projects,
+    assignedCards,
+    dueTodayCards,
+    overdueCards,
+    pendingApprovalCards,
+    sectionNameMap,
+    isLoading,
+    error,
+  };
 }

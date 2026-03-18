@@ -28,6 +28,13 @@ export interface PendingApprovalsResponse {
   pending: DashboardCard[];
 }
 
+export interface MyCardsResponse {
+  assigned: DashboardCard[];
+  dueToday: DashboardCard[];
+  overdue: DashboardCard[];
+  pendingApprovals: DashboardCard[];
+}
+
 export interface ListDistribution {
   listName: string;
   isFinal: boolean;
@@ -67,6 +74,10 @@ export interface BurndownResponse {
 }
 
 export const dashboardService = {
+  async getMyCards(): Promise<MyCardsResponse> {
+    return apiClient.get<MyCardsResponse>("/dashboard/my-cards");
+  },
+
   async getMyDay(): Promise<MyDayResponse> {
     return apiClient.get<MyDayResponse>("/dashboard/my-day");
   },

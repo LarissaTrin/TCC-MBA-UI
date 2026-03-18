@@ -18,7 +18,17 @@ import { useTranslation } from "@/common/provider";
 
 export default function HomePage() {
   const { t } = useTranslation();
-  const { projects, cards, cardProjectMap, sectionNameMap, isLoading, error } = useHomePageData();
+  const {
+    projects,
+    assignedCards,
+    dueTodayCards,
+    overdueCards,
+    pendingApprovalCards,
+    sectionNameMap,
+    isLoading,
+    error,
+  } = useHomePageData();
+
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
   const [selectCardProjectId, setSelectCardProjectId] = useState<number | undefined>();
   const [activeTab, setActiveTab] = useState(0);
@@ -75,17 +85,30 @@ export default function HomePage() {
             <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
               {activeTab === 0 && (
                 <AssignedCardsPanel
-                  cards={cards}
+                  cards={assignedCards}
                   isLoading={isLoading}
-                  onCardClick={(id) => {
+                  onCardClick={(id, projectId) => {
                     setSelectCardId(id);
-                    setSelectCardProjectId(cardProjectMap[Number(id)]);
+                    setSelectCardProjectId(projectId);
                   }}
                   embedded
                 />
               )}
-              {activeTab === 1 && <MyDayPanel embedded />}
-              {activeTab === 2 && <PendingApprovalsPanel embedded />}
+              {activeTab === 1 && (
+                <MyDayPanel
+                  dueToday={dueTodayCards}
+                  overdue={overdueCards}
+                  isLoading={isLoading}
+                  embedded
+                />
+              )}
+              {activeTab === 2 && (
+                <PendingApprovalsPanel
+                  pending={pendingApprovalCards}
+                  isLoading={isLoading}
+                  embedded
+                />
+              )}
             </Box>
           </GenericPanel>
 

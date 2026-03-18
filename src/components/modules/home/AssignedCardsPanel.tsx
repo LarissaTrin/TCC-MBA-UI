@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
-import { Card } from "@/common/model";
+import { DashboardCard } from "@/common/services";
 import {
   GenericList,
   GenericLoading,
@@ -10,9 +10,9 @@ import {
 } from "@/components";
 
 interface AssignedCardsPanelProps {
-  cards: Card[];
+  cards: DashboardCard[];
   isLoading: boolean;
-  onCardClick: (id: string) => void;
+  onCardClick: (id: string, projectId: number) => void;
   embedded?: boolean;
 }
 
@@ -22,7 +22,7 @@ export function AssignedCardsPanel({
   onCardClick,
   embedded = false,
 }: AssignedCardsPanelProps) {
-  function renderCardLabel(card: Card) {
+  function renderCardLabel(card: DashboardCard) {
     return (
       <Box
         display="flex"
@@ -31,28 +31,22 @@ export function AssignedCardsPanel({
         gap={1}
       >
         <Typography variant="body2" fontWeight="bold">
-          {card.name}
+          {card.title}
         </Typography>
         <GenericChip
-          label={card.status}
+          label={card.listName}
           size={GeneralSize.Small}
-          color={
-            card.status === "pending"
-              ? GeneralColor.Warning
-              : card.status === "in_progress"
-              ? GeneralColor.Info
-              : GeneralColor.Success
-          }
+          color={GeneralColor.Primary}
         />
       </Box>
     );
   }
 
-  function renderCardList(cards: Card[]) {
+  function renderCardList(cards: DashboardCard[]) {
     const items = cards.map((card) => ({
       label: renderCardLabel(card),
-      onClick: () => onCardClick(String(card.id)),
-      secondary: card.status,
+      onClick: () => onCardClick(String(card.id), card.projectId),
+      secondary: card.listName,
     }));
 
     return <GenericList items={items} loading={false} collapsed={false} />;

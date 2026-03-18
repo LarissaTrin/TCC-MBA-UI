@@ -2,7 +2,6 @@
 
 import { Box, Chip, Typography } from "@mui/material";
 
-import { usePendingApprovals } from "@/common/hooks";
 import { DashboardCard } from "@/common/services";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
@@ -23,9 +22,14 @@ function ApprovalRow({ card }: { card: DashboardCard }) {
   );
 }
 
-export function PendingApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
+interface PendingApprovalsPanelProps {
+  pending: DashboardCard[];
+  isLoading: boolean;
+  embedded?: boolean;
+}
+
+export function PendingApprovalsPanel({ pending, isLoading, embedded = false }: PendingApprovalsPanelProps) {
   const { t } = useTranslation();
-  const { pending, isLoading } = usePendingApprovals();
 
   const content = isLoading ? (
     <GenericLoading />

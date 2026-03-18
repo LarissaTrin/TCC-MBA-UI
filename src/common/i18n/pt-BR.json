@@ -132,7 +132,8 @@
   "board": {
     "cardPlaceholder": "Título do card...",
     "add": "Adicionar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "noSections": "Nenhuma lista encontrada. Acesse as Configurações para criar sua primeira lista."
   },
   "filter": {
     "title": "Filtros",

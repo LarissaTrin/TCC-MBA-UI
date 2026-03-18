@@ -2,7 +2,6 @@
 
 import { Box, Chip, Divider, Typography } from "@mui/material";
 
-import { useMyDay } from "@/common/hooks";
 import { DashboardCard } from "@/common/services";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
@@ -42,9 +41,15 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-export function MyDayPanel({ embedded = false }: { embedded?: boolean }) {
+interface MyDayPanelProps {
+  dueToday: DashboardCard[];
+  overdue: DashboardCard[];
+  isLoading: boolean;
+  embedded?: boolean;
+}
+
+export function MyDayPanel({ dueToday, overdue, isLoading, embedded = false }: MyDayPanelProps) {
   const { t, locale } = useTranslation();
-  const { dueToday, overdue, isLoading } = useMyDay();
 
   const content = isLoading ? (
     <GenericLoading />

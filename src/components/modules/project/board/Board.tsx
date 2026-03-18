@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { Section, Task as TaskModel } from "@/common/model";
@@ -74,6 +74,28 @@ export function BoardContent({
   };
 
   if (loading) return <Box>{t("common.loading")}</Box>;
+
+  if (sections.length === 0) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          py: 8,
+        }}
+      >
+        <span className="material-icons" style={{ fontSize: 48, opacity: 0.3 }}>
+          view_column
+        </span>
+        <Typography variant="body1" color="text.secondary" textAlign="center">
+          {t("board.noSections")}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

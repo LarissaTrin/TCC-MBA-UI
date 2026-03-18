@@ -8,6 +8,7 @@ import {
   ListItemText,
   IconButton,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,6 +40,7 @@ export function ProjectSettingsLists({
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { control, handleSubmit, reset } = useForm<NewListData>({
     resolver: zodResolver(newListSchema),
@@ -61,6 +63,7 @@ export function ProjectSettingsLists({
   };
 
   const onDeleteList = async (sectionId: string) => {
+    setDeleteError(null);
     setDeletingId(sectionId);
     try {
       await withLoading(() =>
@@ -71,6 +74,14 @@ export function ProjectSettingsLists({
         .map((s, i) => ({ ...s, order: i }));
       setLists(updated);
       onSectionsChange(updated);
+    } catch (err: unknown) {
+      const apiErr = err as { body?: string; message?: string };
+      try {
+        const parsed = JSON.parse(apiErr.body ?? "{}");
+        setDeleteError(parsed.detail ?? "Erro ao excluir lista.");
+      } catch {
+        setDeleteError(apiErr.message ?? "Erro ao excluir lista.");
+      }
     } finally {
       setDeletingId(null);
     }
@@ -184,6 +195,12 @@ export function ProjectSettingsLists({
           </ListItem>
         )}
       </List>
+
+      {deleteError && (
+        <Typography variant="body2" color="error">
+          {deleteError}
+        </Typography>
+      )}
 
       {lists.length > 0 && (
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

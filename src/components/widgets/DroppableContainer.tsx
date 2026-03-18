@@ -78,7 +78,7 @@ export function DroppableContainer({
     <GenericAccordion
       orientation="horizontal"
       header={title}
-      height={"500px"}
+      height={"calc(100vh - 240px)"}
       disableCollapse={!activeColapsed}
       forceExpand={forceExpand}
     >

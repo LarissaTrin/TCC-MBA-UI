@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Path, useForm } from "react-hook-form";
@@ -18,6 +18,8 @@ import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { register as registerUser } from "@/common/services/userService";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
+import { BackToLogin } from "@/components/modules/auth/BackToLogin";
+import { PolicyModal } from "@/components/modules/auth/PolicyModal";
 
 // Schema Zod
 const registerSchema = z
@@ -43,6 +45,7 @@ export default function RegisterPage() {
   const { withLoading } = useLoading();
   const { navigate } = useNavigation();
   const [error, setError] = useState<string | null>(null);
+  const [policyModal, setPolicyModal] = useState<"terms" | "privacy" | null>(null);
 
   const formFields: {
     name: Path<RegisterFormData>;
@@ -121,11 +124,21 @@ export default function RegisterPage() {
               label={
                 <Typography variant="body2">
                   I agree to the{" "}
-                  <Link href="#" target="_blank">
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => setPolicyModal("terms")}
+                  >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="#" target="_blank">
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => setPolicyModal("privacy")}
+                  >
                     Privacy Policy
                   </Link>
                   .
@@ -149,9 +162,17 @@ export default function RegisterPage() {
               label={isSubmitting ? "Registering..." : "Create Account"}
               disabled={isSubmitting}
             />
+
+            <BackToLogin />
           </Stack>
         </Box>
       </GenericPanel>
+
+      <PolicyModal
+        type={policyModal ?? "terms"}
+        open={policyModal !== null}
+        onClose={() => setPolicyModal(null)}
+      />
     </Box>
   );
 }

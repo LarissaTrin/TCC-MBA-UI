@@ -4,13 +4,14 @@ import { useFieldArray, Control } from "react-hook-form";
 import { CardFormData } from "@/common/schemas/cardSchema";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
 import { GenericButton, GenericIcon } from "@/components/widgets";
-import { Box, IconButton, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, IconButton, TextField, Typography } from "@mui/material";
 
 interface CardApproversSectionProps {
   control: Control<CardFormData>;
+  memberOptions: { value: string; label: string }[];
 }
 
-export function CardApproversSection({ control }: CardApproversSectionProps) {
+export function CardApproversSection({ control, memberOptions }: CardApproversSectionProps) {
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: "approvers",
@@ -21,6 +22,7 @@ export function CardApproversSection({ control }: CardApproversSectionProps) {
       id: Date.now(),
       environment: "",
       userName: "",
+      userId: "",
     });
   };
 
@@ -65,13 +67,22 @@ export function CardApproversSection({ control }: CardApproversSectionProps) {
             }
             sx={{ flex: 1 }}
           />
-          <TextField
+          <Autocomplete
             size="small"
-            placeholder="Assigned user"
-            value={field.userName ?? ""}
-            onChange={(e) =>
-              update(index, { ...field, userName: e.target.value })
+            options={memberOptions}
+            value={memberOptions.find((o) => o.value === field.userId) ?? null}
+            onChange={(_, newValue) =>
+              update(index, {
+                ...field,
+                userId: newValue?.value ?? "",
+                userName: newValue?.label ?? "",
+              })
             }
+            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            renderInput={(params) => (
+              <TextField {...params} placeholder="Assigned user" />
+            )}
             sx={{ flex: 1 }}
           />
           <IconButton

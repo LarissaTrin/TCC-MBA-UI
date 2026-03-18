@@ -69,6 +69,7 @@ export function GenericMenu({ items, children, ...props }: GenericMenuProps) {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        sx={{ zIndex: 1600 }}
         slotProps={{
           list: {
             "aria-labelledby": "basic-button",

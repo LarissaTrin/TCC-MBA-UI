@@ -12,6 +12,7 @@ const approverItemSchema = z.object({
   id: z.number(),
   environment: z.string(),
   userName: z.string().optional(),
+  userId: z.string().optional(),
 });
 
 const tagItemSchema = z.object({

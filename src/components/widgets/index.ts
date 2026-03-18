@@ -21,4 +21,5 @@ export * from "./Sidebar";
 export * from "./Switch";
 export * from "./Tabs";
 export * from "./TextField";
+export * from "./ThemePicker";
 export * from "./Tooltip";

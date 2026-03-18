@@ -71,7 +71,7 @@ export function GenericSidebar({
               icon: "bar_chart_4_bars",
               dividerBelow: true,
               onClick: () => {
-                router.push("/project/1");
+                router.push("/project");
               },
             },
             {
@@ -87,7 +87,6 @@ export function GenericSidebar({
               onClick: () => {
                 router.push("/profile");
               },
-              href: "#simple-list",
             },
           ]}
         />

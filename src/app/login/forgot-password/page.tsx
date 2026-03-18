@@ -10,6 +10,7 @@ import { forgotPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
+import { BackToLogin } from "@/components/modules/auth/BackToLogin";
 
 // Schema e Tipo
 const forgotSchema = z.object({
@@ -87,6 +88,8 @@ export default function ForgotPasswordPage() {
                   label={isSubmitting ? "Enviando..." : "Enviar Link"}
                   disabled={isSubmitting}
                 />
+
+                <BackToLogin />
               </Stack>
             </Box>
           </>

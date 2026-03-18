@@ -43,6 +43,7 @@ interface CardContentProps {
   projectMembers?: ProjectMember[];
   projectId?: number;
   onOpenCard?: (cardId: number) => void;
+  extraZIndex?: number;
 }
 
 const TABS = [
@@ -61,6 +62,7 @@ export function CardContent({
   projectMembers = [],
   projectId,
   onOpenCard,
+  extraZIndex = 0,
 }: CardContentProps) {
   const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -135,7 +137,7 @@ export function CardContent({
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id,
         environment: a.environment,
-        user: { id: 0, firstName: a.userName ?? "", lastName: "", email: "" },
+        user: { id: a.userId ? Number(a.userId) : 0, firstName: a.userName ?? "", lastName: "", email: "" },
       })),
       tags: (data.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
     };
@@ -192,7 +194,8 @@ export function CardContent({
             approvers: (loadedCard.approvers ?? []).map((a) => ({
               id: a.id,
               environment: a.environment,
-              userName: a.user?.firstName ?? "",
+              userName: a.user ? `${a.user.firstName} ${a.user.lastName}`.trim() : "",
+              userId: a.user?.id ? String(a.user.id) : "",
             })),
             tags: (loadedCard.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
           });
@@ -263,7 +266,7 @@ export function CardContent({
   };
 
   const drawerSx = {
-    zIndex: 1501,
+    zIndex: 1501 + extraZIndex,
     "& .MuiDrawer-paper": {
       width: isFullScreen ? "100vw" : { xs: "100%", sm: 540 },
       transition: "width 0.25s ease",
@@ -378,7 +381,7 @@ export function CardContent({
           {/* Tab 2 — Approvers & Dependencies */}
           {activeTab === 2 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <CardApproversSection control={form.control} />
+              <CardApproversSection control={form.control} memberOptions={memberOptions} />
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
                   Dependências

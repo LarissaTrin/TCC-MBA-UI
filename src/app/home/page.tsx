@@ -36,7 +36,7 @@ export default function HomePage() {
 
   return (
     <GenericPage sx={{ height: "100%" }}>
-      <Box display="flex" flexDirection="column" gap={3} height="100%">
+      <Box display="flex" flexDirection="column" gap={3} height="100%" overflow="hidden">
         <GenericPanel
           sx={{
             display: "flex",
@@ -52,16 +52,18 @@ export default function HomePage() {
 
         <Box
           display="grid"
-          gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
+          gridTemplateColumns={{ xs: "1fr", md: "minmax(0, 1fr) minmax(0, 1fr)" }}
           gap={3}
           flex={1}
-          minHeight={300}
+          minHeight={0}
         >
           {/* Bloco único com 3 tabs */}
           <GenericPanel sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
             <Tabs
               value={activeTab}
               onChange={(_, v) => setActiveTab(v)}
+              variant="scrollable"
+              scrollButtons="auto"
               sx={{ borderBottom: 1, borderColor: "divider", px: 1 }}
             >
               {TABS.map((t) => (

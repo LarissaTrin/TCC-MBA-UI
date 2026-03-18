@@ -105,7 +105,7 @@ export default function LoginCardFullScreen() {
             />
 
             <Box display="flex" justifyContent="flex-end" alignItems="center">
-              <Link component="button" variant="body2" onClick={handleForgot}>
+              <Link component="button" type="button" variant="body2" onClick={handleForgot}>
                 Forgot password?
               </Link>
             </Box>
@@ -133,6 +133,7 @@ export default function LoginCardFullScreen() {
               <Link
                 component="button"
                 variant="body2"
+                type="button"
                 onClick={handleRegister}
                 sx={{ verticalAlign: "baseline" }}
               >

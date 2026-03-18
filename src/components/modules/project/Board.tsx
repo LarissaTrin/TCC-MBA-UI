@@ -9,6 +9,7 @@ import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { Section, Task as TaskModel } from "@/common/model";
 import { cardService } from "@/common/services";
 import { TableView } from "@/components/ui";
+import { Status } from "@/common/enum";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
@@ -102,25 +103,30 @@ export function BoardContent({
               setContainers((prev) => move(prev, event));
             }}
             onDragEnd={async (event) => {
-              const { active, over } = event;
-              if (!over) return;
-
+              const { active } = event;
               const activeId = String(active.id);
-              const overContainerId = String(over.id);
 
-              // Aqui podes disparar a chamada para a API para persistir a mudança
-              // O estado 'containers' já foi atualizado pelo onDragOver
-              try {
-                const destItems = containers[overContainerId] || [];
-                const movedItem = destItems.find((t) => t.id === activeId);
-                const newIndex = destItems.findIndex((t) => t.id === activeId);
-
-                if (movedItem) {
-                  await cardService.update(Number(activeId), {
-                    listId: Number(overContainerId),
-                    sortIndex: newIndex + 1,
-                  });
+              // Search updated containers state (over.id may be an item ID, not a container ID)
+              let destContainerId: string | null = null;
+              let newIndex = -1;
+              for (const [containerId, items] of Object.entries(containers)) {
+                const idx = items.findIndex((t) => t.id === activeId);
+                if (idx !== -1) {
+                  destContainerId = containerId;
+                  newIndex = idx;
+                  break;
                 }
+              }
+              if (!destContainerId || newIndex === -1) return;
+
+              const isLastSection =
+                sections[sections.length - 1]?.id === destContainerId;
+              try {
+                await cardService.update(Number(activeId), {
+                  listId: Number(destContainerId),
+                  sortIndex: newIndex + 1,
+                  ...(isLastSection ? { status: Status.Done } : {}),
+                });
               } catch (error) {
                 console.error("Erro ao salvar posição:", error);
               }

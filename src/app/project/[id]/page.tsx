@@ -29,7 +29,9 @@ export default function ProjectPage() {
   const projectId = Number(params.id);
   const { data: session } = useSession();
 
-  const [selectCardId, setSelectCardId] = useState<string | undefined>();
+  const [cardStack, setCardStack] = useState<string[]>([]);
+  const openCard = (id: string) => setCardStack((prev) => [...prev, id]);
+  const closeTopCard = () => setCardStack((prev) => prev.slice(0, -1));
   const [sections, setSections] = useState<Section[]>([]);
   const [rawCards, setRawCards] = useState<Card[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -93,7 +95,7 @@ export default function ProjectPage() {
       content: (
         <BoardContent
           sections={sections}
-          setSelectCardId={(cardId: string) => setSelectCardId(cardId)}
+          setSelectCardId={(cardId: string) => openCard(cardId)}
           tasks={filteredTasks}
           loading={loading}
         />
@@ -104,7 +106,7 @@ export default function ProjectPage() {
       value: "timeline",
       content: (
         <TimelineContent
-          setSelectCardId={(cardId: string) => setSelectCardId(cardId)}
+          setSelectCardId={(cardId: string) => openCard(cardId)}
           sections={sections}
           tasks={filteredTasks}
           setTasks={setTasks}
@@ -158,17 +160,19 @@ export default function ProjectPage() {
       <Box sx={{ p: 2, flexGrow: 1 }}>
         {tabsConfig[selectedTabIndex]?.content}
       </Box>
-      {!!selectCardId && (
+      {cardStack.map((cardId, idx) => (
         <CardContent
-          id={selectCardId}
+          key={`${idx}-${cardId}`}
+          id={cardId}
           sections={sections}
-          onClose={() => setSelectCardId(undefined)}
+          onClose={closeTopCard}
           userRole={userRole}
           projectMembers={projectMembers}
           projectId={projectId}
-          onOpenCard={(id) => setSelectCardId(String(id))}
+          onOpenCard={(id) => openCard(String(id))}
+          extraZIndex={idx * 50}
         />
-      )}
+      ))}
       <ProjectSettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

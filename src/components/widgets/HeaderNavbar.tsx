@@ -8,7 +8,7 @@
 } from "@mui/material";
 
 import { GenericHeaderProps } from "@/common/model";
-import { GenericAvatar, GenericIcon, GenericMenu } from "./";
+import { GenericAvatar, GenericIcon, GenericMenu, ThemePicker } from "./";
 import { useRouter } from "next/navigation";
 
 /**
@@ -70,7 +70,8 @@ export function GenericHeader({
           LOGO
         </Typography>
 
-        <Box sx={{ flexGrow: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <ThemePicker />
           <Tooltip title="Open settings">
             <GenericMenu items={settings}>
               <IconButton sx={{ p: 0 }}>

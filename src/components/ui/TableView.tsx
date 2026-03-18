@@ -41,7 +41,7 @@ export function TableView({ containers, setContainers }: TableViewProps) {
       tasks.filter(Boolean).map((task, index) => ({
         ...task,
         column,
-        order: task.order ?? index + 1,
+        order: task.index ?? index,
       }))
     )
     .sort((a, b) => a.order - b.order);
@@ -114,7 +114,7 @@ export function TableView({ containers, setContainers }: TableViewProps) {
   );
 }
 
-function SortableRow({ task }: { task: TaskProps & { column: string } }) {
+function SortableRow({ task }: { task: TaskProps & { column: string; order: number } }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 

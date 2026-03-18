@@ -1,7 +1,7 @@
 import React from 'react';
 import {useSortable} from '@dnd-kit/react/sortable';
 
-export function Item({id, column, index}) {
+export function Item({id, column, index}: {id: string; column: string; index: number}) {
   const {ref} = useSortable({
     id,
     index,

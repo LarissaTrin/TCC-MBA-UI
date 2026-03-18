@@ -5,7 +5,7 @@ import {move} from '@dnd-kit/helpers';
 import {Column} from './Column';
 import {Item} from './Item';
 
-const styles = {display: 'inline-flex', flexDirection: 'row', gap: 20};
+const styles: React.CSSProperties = {display: 'inline-flex', flexDirection: 'row', gap: 20};
 
 export function Example({style = styles}) {
   const [items, setItems] = useState({
@@ -24,7 +24,7 @@ export function Example({style = styles}) {
         {Object.entries(items).map(([column, items]) => (
           <Column key={column} id={column}>
             {items.map((id, index) => (
-              <Item key={id} id={id} index={index} />
+              <Item key={id} id={id} index={index} column={column} />
             ))}
           </Column>
         ))}

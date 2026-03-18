@@ -37,7 +37,7 @@ export function useThemeMode() {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<"light" | "dark">("light");
-  const [primaryColor, setPrimaryColorState] = useState(DEFAULT_PRIMARY);
+  const [primaryColor, setPrimaryColorState] = useState<string>(DEFAULT_PRIMARY);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

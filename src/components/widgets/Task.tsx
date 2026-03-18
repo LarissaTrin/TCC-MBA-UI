@@ -2,19 +2,18 @@
 
 import React from "react";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { GenericCard } from "./Card";
 
 export interface TaskProps {
   id: string;
   title: string;
-  columnId: string; // Equivalente ao 'group' no exemplo
-  index: number;    // Posição no array
+  columnId: string;
+  index: number;
   onClick?: () => void;
 }
 
 export function Task({ id, title, columnId, index, onClick }: TaskProps) {
-  const { ref, transform, transition, isDragging } = useSortable({
+  const { ref, isDragging } = useSortable({
     id,
     index,
     group: columnId,
@@ -23,8 +22,6 @@ export function Task({ id, title, columnId, index, onClick }: TaskProps) {
   });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
     opacity: isDragging ? 0.5 : 1,
     cursor: "grab",
     marginBottom: "10px",

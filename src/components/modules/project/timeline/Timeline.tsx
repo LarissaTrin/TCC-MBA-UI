@@ -30,19 +30,19 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import { GenericButton, GenericIcon, GenericPanel } from "../../widgets";
-import { TimelineTaskBar } from "../../ui/TimelineTaskBar";
-import { SidebarSection } from "../../ui/SidebarSection";
+import { GenericButton, GenericIcon, GenericPanel } from "../../../widgets";
+import { TimelineTaskBar } from "../../../ui/TimelineTaskBar";
+import { SidebarSection } from "../../../ui/SidebarSection";
 
-import { Task, Month } from "../../../common/model/timeline";
+import { Task, Month } from "../../../../common/model/timeline";
 import {
   TIMELINE_CONFIG,
   MONTH_NAMES,
-} from "../../../common/constants/timeline";
+} from "../../../../common/constants/timeline";
 import {
   getDaysDiff,
   generateTimelineMonths,
-} from "../../../common/utils/timelineUtils";
+} from "../../../../common/utils/timelineUtils";
 import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
 import { Card, Section } from "@/common/model";
 import { cardService } from "@/common/services";

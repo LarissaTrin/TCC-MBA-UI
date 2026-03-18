@@ -24,7 +24,7 @@ export function LanguagePicker() {
           <Typography fontSize="1.1rem" lineHeight={1}>
             {current.flag}
           </Typography>
-          <GenericIcon icon="expand_more" size={16} sx={{ ml: 0.25 }} />
+          <GenericIcon icon="arrow_drop_down" size={16} sx={{ ml: 0.25 }} />
         </IconButton>
       </Tooltip>
 

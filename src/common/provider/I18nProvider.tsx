@@ -45,7 +45,7 @@ function loadMessages(lang: Language): Messages {
   } catch {
     // cache inválido — reconstrói
   }
-  const flat = flattenMessages(RAW_MESSAGES[lang] as Record<string, unknown>);
+  const flat = flattenMessages(RAW_MESSAGES[lang] as Parameters<typeof flattenMessages>[0]);
   try {
     localStorage.setItem(cacheKey, JSON.stringify(flat));
   } catch {
@@ -69,7 +69,7 @@ export function useTranslation() {
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 // Pré-carrega inglês sem esperar o mount (sem flash, sem null)
-const defaultMessages = flattenMessages(enMessages as Record<string, unknown>);
+const defaultMessages = flattenMessages(enMessages as Parameters<typeof flattenMessages>[0]);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Language>(Language.EN);

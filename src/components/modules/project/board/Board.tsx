@@ -103,9 +103,9 @@ export function BoardContent({
               });
             }}
             onDragEnd={async (event) => {
-              const { active } = event;
-              if (!active) return;
-              const activeId = String(active.id);
+              const source = event.operation.source;
+              if (!source) return;
+              const activeId = String(source.id);
 
               // Search updated containers state (over.id may be an item ID, not a container ID)
               let destContainerId: string | null = null;

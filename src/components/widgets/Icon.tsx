@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
-import { GenericIconProps } from "@/common/model/components";
+import { GenericIconProps } from "@/common/model";
 import { iconSizeMap } from "@/common/styles";
 
 /**

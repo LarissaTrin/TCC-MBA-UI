@@ -16,8 +16,10 @@ import {
 import { useState } from "react";
 import { useThemeMode, useTranslation } from "@/common/provider";
 import { COLOR_PRESETS } from "@/common/provider/theme";
+import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { GenericButton } from "./Button";
 import { GenericIcon } from "./Icon";
+import { GenericIconProps } from "@/common/model";
 
 // ─── Painel principal ─────────────────────────────────────────────────────────
 
@@ -186,7 +188,7 @@ function ModeCard({
   onClick,
 }: {
   label: string;
-  icon: string;
+  icon: GenericIconProps["icon"];
   selected: boolean;
   onClick: () => void;
 }) {
@@ -354,8 +356,8 @@ function ComponentPreview() {
     <Stack spacing={1.5}>
       {/* Buttons */}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        <GenericButton label={t("theme.light")} variant="contained" size="small" />
-        <GenericButton label={t("theme.dark")} variant="outlined" size="small" />
+        <GenericButton label={t("theme.light")} variant={ButtonVariant.Contained} size={GeneralSize.Small} />
+        <GenericButton label={t("theme.dark")} variant={ButtonVariant.Outlined} size={GeneralSize.Small} />
       </Box>
 
       {/* Chips */}

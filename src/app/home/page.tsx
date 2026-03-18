@@ -13,7 +13,7 @@ import {
   PendingApprovalsPanel,
   ProjectsPanel,
 } from "@/components/modules/home";
-import { CardContent } from "@/components/modules/project/Card";
+import { CardContent } from "@/components/modules/project/card/Card";
 import { useTranslation } from "@/common/provider";
 
 export default function HomePage() {

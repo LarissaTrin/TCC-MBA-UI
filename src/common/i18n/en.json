@@ -1,0 +1,140 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "create": "Create",
+    "add": "Add",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "confirm": "Confirm",
+    "back": "Back",
+    "noResults": "No results found."
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout",
+    "settings": "Settings"
+  },
+  "auth": {
+    "backToLogin": "Back to Login",
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "register": {
+      "title": "Create Account",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "terms": "I agree to the",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "submit": "Create Account",
+      "submitting": "Registering...",
+      "error": "Error creating account. Check your details and try again."
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "description": "Enter your email and we'll send you a link to get back into your account.",
+      "emailLabel": "Email Address",
+      "submit": "Send Link",
+      "submitting": "Sending...",
+      "successTitle": "Check your Email",
+      "successDescription": "If an account with this email exists, we sent you a link to reset your password.",
+      "returnButton": "Back to Login"
+    }
+  },
+  "project": {
+    "selectTitle": "Select Project",
+    "newProject": "New Project",
+    "noProjects": "No projects found. Create your first project.",
+    "settings": "Settings",
+    "addCard": "+ Add Card",
+    "tableView": "Table View",
+    "boardView": "Board View",
+    "loading": "Loading..."
+  },
+  "board": {
+    "cardPlaceholder": "Card title...",
+    "add": "Add",
+    "cancel": "Cancel"
+  },
+  "card": {
+    "save": "Save",
+    "saveAndClose": "Save and Close",
+    "close": "Close",
+    "delete": "Delete card",
+    "loading": "Loading...",
+    "tabs": {
+      "details": "Details",
+      "tasks": "Tasks",
+      "approversAndDeps": "Approvers & Deps",
+      "comments": "Comments",
+      "history": "History"
+    },
+    "details": {
+      "user": "User",
+      "section": "Section",
+      "date": "Date",
+      "storyPoints": "Story Points",
+      "priority": "Priority",
+      "description": "Description"
+    },
+    "approvers": {
+      "title": "Approvers",
+      "addApprover": "Add Approver",
+      "environment": "Environment",
+      "assignedUser": "Assigned user",
+      "noApprovers": "No approvers yet."
+    },
+    "dependencies": {
+      "title": "Dependencies"
+    }
+  },
+  "settings": {
+    "lists": {
+      "newListLabel": "New list name",
+      "create": "Create",
+      "creating": "Creating...",
+      "saveOrder": "Save order",
+      "saving": "Saving...",
+      "noLists": "No lists created.",
+      "finalList": "Final list"
+    }
+  },
+  "theme": {
+    "title": "Customize Theme",
+    "demoMode": "Demo mode — not saved to database",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "primaryColor": "Primary Color",
+    "preview": "Preview",
+    "previewCard": {
+      "title": "Example card",
+      "description": "This is how cards look with this color."
+    },
+    "lightLabel": "Light theme",
+    "darkLabel": "Dark theme"
+  },
+  "language": {
+    "tooltip": "Language",
+    "en": "English",
+    "ptBR": "Português (BR)"
+  }
+}

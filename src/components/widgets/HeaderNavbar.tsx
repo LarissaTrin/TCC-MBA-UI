@@ -8,7 +8,7 @@
 } from "@mui/material";
 
 import { GenericHeaderProps } from "@/common/model";
-import { GenericAvatar, GenericIcon, GenericMenu, ThemePicker } from "./";
+import { GenericAvatar, GenericIcon, GenericMenu, LanguagePicker, ThemePicker } from "./";
 import { useRouter } from "next/navigation";
 
 /**
@@ -71,6 +71,7 @@ export function GenericHeader({
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <LanguagePicker />
           <ThemePicker />
           <Tooltip title="Open settings">
             <GenericMenu items={settings}>

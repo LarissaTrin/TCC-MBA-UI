@@ -14,7 +14,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
-import { useThemeMode } from "@/common/provider";
+import { useThemeMode, useTranslation } from "@/common/provider";
 import { COLOR_PRESETS } from "@/common/provider/theme";
 import { GenericButton } from "./Button";
 import { GenericIcon } from "./Icon";
@@ -23,10 +23,11 @@ import { GenericIcon } from "./Icon";
 
 export function ThemePicker() {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
-      <Tooltip title="Personalizar tema">
+      <Tooltip title={t("theme.title")}>
         <IconButton size="small" onClick={() => setOpen(true)}>
           <GenericIcon icon="palette" />
         </IconButton>
@@ -48,6 +49,7 @@ function ThemePickerDrawer({
 }) {
   const theme = useTheme();
   const { mode, toggleMode, primaryColor, setPrimaryColor } = useThemeMode();
+  const { t } = useTranslation();
   const isLight = mode === "light";
 
   return (
@@ -93,7 +95,7 @@ function ThemePickerDrawer({
             <GenericIcon icon="palette" size={16} />
           </Box>
           <Typography variant="subtitle1" fontWeight={700}>
-            Personalizar Tema
+            {t("theme.title")}
           </Typography>
         </Box>
         <IconButton size="small" onClick={onClose}>
@@ -104,7 +106,7 @@ function ThemePickerDrawer({
       {/* Badge demonstração */}
       <Box sx={{ px: 2.5, pt: 2, flexShrink: 0 }}>
         <Chip
-          label="✦ Modo demonstração — não salvo no banco"
+          label={`✦ ${t("theme.demoMode")}`}
           size="small"
           sx={{
             width: "100%",
@@ -121,16 +123,16 @@ function ThemePickerDrawer({
       {/* Conteúdo com scroll */}
       <Box sx={{ flex: 1, overflowY: "auto", px: 2.5, pb: 3 }}>
         {/* Aparência */}
-        <SectionTitle>Aparência</SectionTitle>
+        <SectionTitle>{t("theme.appearance")}</SectionTitle>
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
           <ModeCard
-            label="Claro"
+            label={t("theme.lightLabel")}
             icon="light_mode"
             selected={isLight}
             onClick={() => !isLight && toggleMode()}
           />
           <ModeCard
-            label="Escuro"
+            label={t("theme.darkLabel")}
             icon="dark_mode"
             selected={!isLight}
             onClick={() => isLight && toggleMode()}
@@ -140,7 +142,7 @@ function ThemePickerDrawer({
         <Divider sx={{ my: 2.5 }} />
 
         {/* Cor primária */}
-        <SectionTitle>Cor primária</SectionTitle>
+        <SectionTitle>{t("theme.primaryColor")}</SectionTitle>
         <Box
           sx={{
             display: "grid",
@@ -168,7 +170,7 @@ function ThemePickerDrawer({
         <Divider sx={{ my: 2.5 }} />
 
         {/* Preview */}
-        <SectionTitle>Preview</SectionTitle>
+        <SectionTitle>{t("theme.preview")}</SectionTitle>
         <ComponentPreview />
       </Box>
     </Drawer>
@@ -346,13 +348,14 @@ function CustomColorInput({
 
 function ComponentPreview() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Stack spacing={1.5}>
       {/* Buttons */}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        <GenericButton label="Primário" variant="contained" size="small" />
-        <GenericButton label="Outlined" variant="outlined" size="small" />
+        <GenericButton label={t("theme.light")} variant="contained" size="small" />
+        <GenericButton label={t("theme.dark")} variant="outlined" size="small" />
       </Box>
 
       {/* Chips */}
@@ -392,10 +395,10 @@ function ComponentPreview() {
         }}
       >
         <Typography variant="caption" color="primary" fontWeight={700}>
-          Card de exemplo
+          {t("theme.previewCard.title")}
         </Typography>
         <Typography variant="caption" color="text.secondary" display="block" mt={0.25}>
-          Assim ficam os cards com esta cor.
+          {t("theme.previewCard.description")}
         </Typography>
       </Box>
     </Stack>

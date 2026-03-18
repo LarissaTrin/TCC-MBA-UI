@@ -1,0 +1,140 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "delete": "Excluir",
+    "create": "Criar",
+    "add": "Adicionar",
+    "edit": "Editar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "noResults": "Nenhum resultado encontrado."
+  },
+  "nav": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "profile": "Perfil",
+    "login": "Entrar",
+    "logout": "Sair",
+    "settings": "Configurações"
+  },
+  "auth": {
+    "backToLogin": "Voltar para o Login",
+    "login": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueci minha senha",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se"
+    },
+    "register": {
+      "title": "Criar Conta",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "username": "Usuário",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "terms": "Concordo com os",
+      "termsLink": "Termos de Serviço",
+      "and": "e a",
+      "privacyLink": "Política de Privacidade",
+      "submit": "Criar Conta",
+      "submitting": "Cadastrando...",
+      "error": "Erro ao criar conta. Verifique os dados e tente novamente."
+    },
+    "forgotPassword": {
+      "title": "Redefinir Senha",
+      "description": "Insira seu e-mail e enviaremos um link para você voltar a acessar sua conta.",
+      "emailLabel": "Endereço de E-mail",
+      "submit": "Enviar Link",
+      "submitting": "Enviando...",
+      "successTitle": "Verifique seu E-mail",
+      "successDescription": "Se uma conta com este e-mail existir, enviamos um link para você redefinir sua senha.",
+      "returnButton": "Voltar para o Login"
+    }
+  },
+  "project": {
+    "selectTitle": "Selecionar Projeto",
+    "newProject": "Novo Projeto",
+    "noProjects": "Nenhum projeto encontrado. Crie seu primeiro projeto.",
+    "settings": "Configurações",
+    "addCard": "+ Adicionar Card",
+    "tableView": "Ver como Tabela",
+    "boardView": "Ver como Board",
+    "loading": "Carregando..."
+  },
+  "board": {
+    "cardPlaceholder": "Título do card...",
+    "add": "Adicionar",
+    "cancel": "Cancelar"
+  },
+  "card": {
+    "save": "Salvar",
+    "saveAndClose": "Salvar e Fechar",
+    "close": "Fechar",
+    "delete": "Deletar card",
+    "loading": "Carregando...",
+    "tabs": {
+      "details": "Detalhes",
+      "tasks": "Tarefas",
+      "approversAndDeps": "Aprovadores & Deps",
+      "comments": "Comentários",
+      "history": "Histórico"
+    },
+    "details": {
+      "user": "Responsável",
+      "section": "Seção",
+      "date": "Data",
+      "storyPoints": "Story Points",
+      "priority": "Prioridade",
+      "description": "Descrição"
+    },
+    "approvers": {
+      "title": "Aprovadores",
+      "addApprover": "Adicionar Aprovador",
+      "environment": "Ambiente",
+      "assignedUser": "Usuário responsável",
+      "noApprovers": "Nenhum aprovador ainda."
+    },
+    "dependencies": {
+      "title": "Dependências"
+    }
+  },
+  "settings": {
+    "lists": {
+      "newListLabel": "Nome da nova lista",
+      "create": "Criar",
+      "creating": "Criando...",
+      "saveOrder": "Salvar ordem",
+      "saving": "Salvando...",
+      "noLists": "Nenhuma lista criada.",
+      "finalList": "Lista final"
+    }
+  },
+  "theme": {
+    "title": "Personalizar Tema",
+    "demoMode": "Modo demonstração — não salvo no banco",
+    "appearance": "Aparência",
+    "light": "Claro",
+    "dark": "Escuro",
+    "primaryColor": "Cor Primária",
+    "preview": "Preview",
+    "previewCard": {
+      "title": "Card de exemplo",
+      "description": "Assim ficam os cards com esta cor."
+    },
+    "lightLabel": "Tema claro",
+    "darkLabel": "Tema escuro"
+  },
+  "language": {
+    "tooltip": "Idioma",
+    "en": "English",
+    "ptBR": "Português (BR)"
+  }
+}

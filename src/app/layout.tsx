@@ -5,7 +5,7 @@ import "material-symbols/outlined.css";
 
 import { SessionProvider } from "next-auth/react";
 import { BaseLayout } from "@/common/layout";
-import { ThemeProvider } from "@/common/provider";
+import { I18nProvider, ThemeProvider } from "@/common/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +33,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
-          <ThemeProvider>
-            <BaseLayout>{children}</BaseLayout>
-          </ThemeProvider>
+          <I18nProvider>
+            <ThemeProvider>
+              <BaseLayout>{children}</BaseLayout>
+            </ThemeProvider>
+          </I18nProvider>
         </SessionProvider>
       </body>
     </html>

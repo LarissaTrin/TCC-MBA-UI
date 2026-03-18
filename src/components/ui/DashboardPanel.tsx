@@ -6,9 +6,10 @@ interface DashboardPanelProps {
   title: string;
   children: React.ReactNode;
   sx?: SxProps<Theme>;
+  headerAction?: React.ReactNode;
 }
 
-export function DashboardPanel({ title, children, sx }: DashboardPanelProps) {
+export function DashboardPanel({ title, children, sx, headerAction }: DashboardPanelProps) {
   return (
     <GenericPanel
       sx={{
@@ -18,12 +19,20 @@ export function DashboardPanel({ title, children, sx }: DashboardPanelProps) {
         ...sx,
       }}
     >
-      <Typography
-        variant="h6"
-        sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider" }}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2,
+          py: 1.5,
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
       >
-        {title}
-      </Typography>
+        <Typography variant="h6">{title}</Typography>
+        {headerAction}
+      </Box>
       <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>{children}</Box>
     </GenericPanel>
   );

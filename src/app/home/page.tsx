@@ -18,8 +18,9 @@ import { useTranslation } from "@/common/provider";
 
 export default function HomePage() {
   const { t } = useTranslation();
-  const { projects, cards, isLoading, error } = useHomePageData();
+  const { projects, cards, cardProjectMap, sectionNameMap, isLoading, error } = useHomePageData();
   const [selectCardId, setSelectCardId] = useState<string | undefined>();
+  const [selectCardProjectId, setSelectCardProjectId] = useState<number | undefined>();
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
@@ -76,7 +77,10 @@ export default function HomePage() {
                 <AssignedCardsPanel
                   cards={cards}
                   isLoading={isLoading}
-                  onCardClick={(id) => setSelectCardId(id)}
+                  onCardClick={(id) => {
+                    setSelectCardId(id);
+                    setSelectCardProjectId(cardProjectMap[Number(id)]);
+                  }}
                   embedded
                 />
               )}
@@ -95,8 +99,14 @@ export default function HomePage() {
         <CardContent
           id={selectCardId}
           sections={[]}
-          onClose={() => setSelectCardId(undefined)}
+          onClose={() => {
+            setSelectCardId(undefined);
+            setSelectCardProjectId(undefined);
+          }}
           userRole="User"
+          homeMode
+          projectId={selectCardProjectId}
+          sectionNameMap={sectionNameMap}
         />
       )}
     </GenericPage>

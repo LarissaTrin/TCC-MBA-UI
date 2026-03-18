@@ -18,6 +18,7 @@ import {
   MenuItem,
   Tab,
   Tabs,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -28,6 +29,7 @@ import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
 import dayjs from "dayjs";
 import { useTranslation } from "@/common/provider";
+import { useNavigation } from "@/common/hooks";
 
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
@@ -45,6 +47,8 @@ interface CardContentProps {
   projectId?: number;
   onOpenCard?: (cardId: number) => void;
   extraZIndex?: number;
+  homeMode?: boolean;
+  sectionNameMap?: Record<string, string>;
 }
 
 export function CardContent({
@@ -56,9 +60,12 @@ export function CardContent({
   projectId,
   onOpenCard,
   extraZIndex = 0,
+  homeMode = false,
+  sectionNameMap = {},
 }: CardContentProps) {
   const { t } = useTranslation();
-  const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole);
+  const { navigate } = useNavigation();
+  const canDeleteCard = !homeMode && ["SuperAdmin", "Admin"].includes(userRole);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<Card | null>(null);
@@ -226,6 +233,13 @@ export function CardContent({
               control={form.control}
             />
           </Box>
+          {homeMode && projectId && (
+            <Tooltip title={t("card.viewInProject")}>
+              <IconButton size="small" onClick={() => navigate(`/project/${projectId}`)}>
+                <span className="material-icons" style={{ fontSize: 20 }}>open_in_new</span>
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title={isFullScreen ? t("card.exitFullscreen") : t("card.expand")}>
             <IconButton size="small" onClick={() => setIsFullScreen((v) => !v)}>
               <span className="material-icons" style={{ fontSize: 20 }}>
@@ -317,20 +331,40 @@ export function CardContent({
           {activeTab === 0 && (
             <Grid container spacing={2}>
               <Grid size={6}>
-                <GenericAutoComplete
-                  label={t("card.details.user")}
-                  options={memberOptions}
-                  name="user"
-                  control={form.control}
-                />
+                {homeMode ? (
+                  <TextField
+                    label={t("card.details.user")}
+                    value={card?.user ? `${card.user.firstName} ${card.user.lastName}`.trim() : "—"}
+                    size="small"
+                    fullWidth
+                    disabled
+                  />
+                ) : (
+                  <GenericAutoComplete
+                    label={t("card.details.user")}
+                    options={memberOptions}
+                    name="user"
+                    control={form.control}
+                  />
+                )}
               </Grid>
               <Grid size={6}>
-                <GenericAutoComplete
-                  label={t("card.details.section")}
-                  options={sectionOptions}
-                  name="sectionId"
-                  control={form.control}
-                />
+                {homeMode ? (
+                  <TextField
+                    label={t("card.details.section")}
+                    value={card?.sectionId ? (sectionNameMap[card.sectionId] ?? card.sectionId) : "—"}
+                    size="small"
+                    fullWidth
+                    disabled
+                  />
+                ) : (
+                  <GenericAutoComplete
+                    label={t("card.details.section")}
+                    options={sectionOptions}
+                    name="sectionId"
+                    control={form.control}
+                  />
+                )}
               </Grid>
               <Grid size={6}>
                 <GenericTextField
@@ -376,7 +410,11 @@ export function CardContent({
 
           {activeTab === 2 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <CardApproversSection control={form.control} memberOptions={memberOptions} />
+              <CardApproversSection
+                control={form.control}
+                memberOptions={memberOptions}
+                readOnly={homeMode}
+              />
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
                   {t("card.dependencies.title")}
@@ -385,6 +423,7 @@ export function CardContent({
                   cardId={card?.id ?? 0}
                   projectId={projectId}
                   onOpenCard={onOpenCard}
+                  readOnly={homeMode}
                 />
               </Box>
             </Box>

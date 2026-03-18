@@ -10,9 +10,10 @@ import { useTranslation } from "@/common/provider";
 interface CardApproversSectionProps {
   control: Control<CardFormData>;
   memberOptions: { value: string; label: string }[];
+  readOnly?: boolean;
 }
 
-export function CardApproversSection({ control, memberOptions }: CardApproversSectionProps) {
+export function CardApproversSection({ control, memberOptions, readOnly = false }: CardApproversSectionProps) {
   const { t } = useTranslation();
   const { fields, append, remove, update } = useFieldArray({ control, name: "approvers" });
 
@@ -26,13 +27,15 @@ export function CardApproversSection({ control, memberOptions }: CardApproversSe
         <Typography variant="subtitle1" fontWeight={600}>
           {t("card.approvers.title")}
         </Typography>
-        <GenericButton
-          label={t("card.approvers.addApprover")}
-          startIcon="add"
-          size={GeneralSize.Small}
-          variant={ButtonVariant.Outlined}
-          onClick={handleAdd}
-        />
+        {!readOnly && (
+          <GenericButton
+            label={t("card.approvers.addApprover")}
+            startIcon="add"
+            size={GeneralSize.Small}
+            variant={ButtonVariant.Outlined}
+            onClick={handleAdd}
+          />
+        )}
       </Box>
 
       {fields.map((field, index) => (
@@ -43,28 +46,41 @@ export function CardApproversSection({ control, memberOptions }: CardApproversSe
             value={field.environment}
             onChange={(e) => update(index, { ...field, environment: e.target.value })}
             sx={{ flex: 1 }}
+            disabled={readOnly}
           />
-          <Autocomplete
-            size="small"
-            options={memberOptions}
-            value={memberOptions.find((o) => o.value === field.userId) ?? null}
-            onChange={(_, newValue) =>
-              update(index, {
-                ...field,
-                userId: newValue?.value ?? "",
-                userName: newValue?.label ?? "",
-              })
-            }
-            getOptionLabel={(option) => option.label}
-            isOptionEqualToValue={(option, value) => option.value === value.value}
-            renderInput={(params) => (
-              <TextField {...params} placeholder={t("card.approvers.assignedUser")} />
-            )}
-            sx={{ flex: 1 }}
-          />
-          <IconButton size="small" color="error" onClick={() => remove(index)}>
-            <GenericIcon icon="delete" size={20} />
-          </IconButton>
+          {readOnly ? (
+            <TextField
+              size="small"
+              value={field.userName || "—"}
+              label={t("card.approvers.assignedUser")}
+              disabled
+              sx={{ flex: 1 }}
+            />
+          ) : (
+            <Autocomplete
+              size="small"
+              options={memberOptions}
+              value={memberOptions.find((o) => o.value === field.userId) ?? null}
+              onChange={(_, newValue) =>
+                update(index, {
+                  ...field,
+                  userId: newValue?.value ?? "",
+                  userName: newValue?.label ?? "",
+                })
+              }
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) => option.value === value.value}
+              renderInput={(params) => (
+                <TextField {...params} placeholder={t("card.approvers.assignedUser")} />
+              )}
+              sx={{ flex: 1 }}
+            />
+          )}
+          {!readOnly && (
+            <IconButton size="small" color="error" onClick={() => remove(index)}>
+              <GenericIcon icon="delete" size={20} />
+            </IconButton>
+          )}
         </Box>
       ))}
 

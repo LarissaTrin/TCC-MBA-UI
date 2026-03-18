@@ -38,37 +38,21 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
 
   return (
     <>
-      <DashboardPanel title="My Projects">
+      <DashboardPanel
+        title="My Projects"
+        headerAction={
+          <GenericButton
+            label="New Project"
+            variant={ButtonVariant.Outlined}
+            startIcon="add"
+            onClick={() => setIsModalOpen(true)}
+          />
+        }
+      >
         {isLoading ? (
           <GenericLoading />
         ) : (
           <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={1}>
-            <Box
-              onClick={() => setIsModalOpen(true)}
-              sx={{
-                p: 2,
-                cursor: "pointer",
-                border: "2px dashed",
-                borderColor: "divider",
-                borderRadius: 2,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                minHeight: 80,
-                "&:hover": {
-                  bgcolor: "action.hover",
-                  borderColor: "primary.main",
-                },
-              }}
-            >
-              <GenericButton
-                label="New Project"
-                variant={ButtonVariant.Text}
-                startIcon="add"
-              />
-            </Box>
             {projects.map((project) => renderProjectBox(project))}
           </Box>
         )}

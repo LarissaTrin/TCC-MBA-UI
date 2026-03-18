@@ -21,12 +21,14 @@ interface CardDependenciesSectionProps {
   cardId: number;
   projectId?: number;
   onOpenCard?: (cardId: number) => void;
+  readOnly?: boolean;
 }
 
 export function CardDependenciesSection({
   cardId,
   projectId,
   onOpenCard,
+  readOnly = false,
 }: CardDependenciesSectionProps) {
   const { t } = useTranslation();
   const [dependencies, setDependencies] = useState<CardDependencyItem[]>([]);
@@ -98,6 +100,7 @@ export function CardDependenciesSection({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      {!readOnly && (
       <Box sx={{ position: "relative" }}>
         <TextField
           size="small"
@@ -164,6 +167,7 @@ export function CardDependenciesSection({
           </Paper>
         )}
       </Box>
+      )}
 
       {loadingDeps ? (
         <Typography variant="body2" color="text.secondary">{t("card.dependencies.loading")}</Typography>
@@ -186,13 +190,15 @@ export function CardDependenciesSection({
                         <span className="material-icons" style={{ fontSize: 18 }}>open_in_new</span>
                       </IconButton>
                     )}
-                    <IconButton
-                      size="small"
-                      title={t("card.dependencies.remove")}
-                      onClick={() => handleRemove(dep.id)}
-                    >
-                      <span className="material-icons" style={{ fontSize: 18 }}>close</span>
-                    </IconButton>
+                    {!readOnly && (
+                      <IconButton
+                        size="small"
+                        title={t("card.dependencies.remove")}
+                        onClick={() => handleRemove(dep.id)}
+                      >
+                        <span className="material-icons" style={{ fontSize: 18 }}>close</span>
+                      </IconButton>
+                    )}
                   </Box>
                 }
               >

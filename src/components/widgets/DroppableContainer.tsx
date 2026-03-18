@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/react";
+import { CollisionPriority } from "@dnd-kit/abstract";
 import { Box, TextField } from "@mui/material";
-import { Task, TaskProps } from "./Task";
-import { useDroppable } from "@dnd-kit/core";
 import { GenericAccordion } from "./Accordion";
 import { GenericButton } from "./";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
@@ -15,9 +11,8 @@ import { GeneralSize, ButtonVariant } from "@/common/enum";
 interface ColumnProps {
   id: string;
   title: string;
-  tasks: TaskProps[];
-  activeColapsed: boolean;
-  onTaskClick?: (id: string) => void;
+  children: React.ReactNode;
+  activeColapsed?: boolean;
   onAddCard?: (sectionId: string, title: string) => void;
   triggerAdd?: boolean;
   forceExpand?: boolean;
@@ -27,18 +22,19 @@ interface ColumnProps {
 export function DroppableContainer({
   id,
   title,
-  tasks,
+  children,
   activeColapsed,
-  onTaskClick,
   onAddCard,
   triggerAdd,
   forceExpand,
   onAddTriggerHandled,
 }: ColumnProps) {
-  // Ignora possíveis tarefas corrompidas e pega os ids
-  const validTasks = tasks.filter(Boolean);
-  const taskIds = validTasks.map((task) => task.id);
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { ref } = useDroppable({
+    id,
+    type: "column",
+    accept: ["item"],
+    collisionPriority: CollisionPriority.Low,
+  });
 
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -78,8 +74,8 @@ export function DroppableContainer({
   };
 
   return (
+    <div ref={ref}>
     <GenericAccordion
-      data-test="droppable-container-accordion"
       orientation="horizontal"
       header={title}
       height={"500px"}
@@ -87,19 +83,15 @@ export function DroppableContainer({
       forceExpand={forceExpand}
     >
       <Box
-        ref={setNodeRef}
         sx={{
-          flex: 1,
-          backgroundColor: isOver ? "#e3f2fd" : "#fff",
-          minHeight: 120,
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          alignItems:
-            validTasks.length === 0 && !isAdding ? "center" : "stretch",
-          justifyContent:
-            validTasks.length === 0 && !isAdding ? "center" : "flex-start",
-          transition: "background-color 0.2s ease",
+          p: 1,
+          minHeight: 200,
+          backgroundColor: "rgba(0,0,0,0.02)",
+          borderRadius: 2,
         }}
       >
         {isAdding && (
@@ -132,18 +124,9 @@ export function DroppableContainer({
             </Box>
           </Box>
         )}
-        <SortableContext items={taskIds} strategy={verticalListSortingStrategy} data-test="sortable-context">
-          {validTasks.map((task) => (
-            <Task
-              key={task.id}
-              id={task.id}
-              title={task.title}
-              order={task.order}
-              onClick={() => onTaskClick?.(task.id)}
-            />
-          ))}
-        </SortableContext>
+        {children}
       </Box>
     </GenericAccordion>
+    </div>
   );
 }

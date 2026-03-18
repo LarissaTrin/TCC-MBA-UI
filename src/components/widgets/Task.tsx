@@ -1,48 +1,43 @@
 "use client";
 
 import React from "react";
-import { useSortable } from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/react/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GenericCard } from "./Card";
 
 export interface TaskProps {
   id: string;
   title: string;
-  order: number;
+  columnId: string; // Equivalente ao 'group' no exemplo
+  index: number;    // Posição no array
   onClick?: () => void;
 }
 
-export function Task({ id, title, onClick }: TaskProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+export function Task({ id, title, columnId, index, onClick }: TaskProps) {
+  const { ref, transform, transition, isDragging } = useSortable({
+    id,
+    index,
+    group: columnId,
+    type: "item",
+    accept: ["item"],
+  });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1, // Não some 100%, fica fantasma para provar que a lista ainda o possui
+    opacity: isDragging ? 0.5 : 1,
     cursor: "grab",
     marginBottom: "10px",
   };
 
   return (
-    <GenericCard
-      title={title}
-      ref={setNodeRef}
-      style={style}
-      onClick={onClick}
-      {...attributes}
-      {...listeners}
-    ></GenericCard>
+    <div ref={ref} style={style}>
+      <GenericCard title={title} onClick={onClick} />
+    </div>
   );
 }
 
-// Card visual isolado para o momento do clique+arraste
+// Card estático para o overlay (opcional com @dnd-kit/react)
 export function StaticTask({ title }: { title: string }) {
   return (
     <GenericCard
@@ -50,10 +45,8 @@ export function StaticTask({ title }: { title: string }) {
       style={{
         cursor: "grabbing",
         boxShadow: "0 10px 20px rgba(0,0,0,0.15)",
-        transform: "rotate(2deg)",
         backgroundColor: "#fff",
-        marginBottom: "10px",
       }}
-    ></GenericCard>
+    />
   );
 }

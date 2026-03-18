@@ -1,226 +1,57 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCorners,
-  DragOverlay,
-} from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
-import { Box, Button, Typography } from "@mui/material";
-import { createPortal } from "react-dom";
-import { Task, TaskProps, StaticTask } from "@/components/widgets/Task";
+import { DragDropProvider } from "@dnd-kit/react";
+import { move } from "@dnd-kit/helpers";
+import { Box, Button } from "@mui/material";
+import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
-import { TableView } from "@/components/ui";
 import { Section, Task as TaskModel } from "@/common/model";
 import { cardService } from "@/common/services";
+import { TableView } from "@/components/ui";
 
 type KanbanContainers = Record<string, TaskProps[]>;
-
-function mapCardsToBoard(
-  sections: Section[],
-  cards: TaskModel[],
-): KanbanContainers {
-  const result: KanbanContainers = {};
-  sections.forEach((s) => {
-    result[s.id] = [];
-  });
-
-  cards.forEach((card) => {
-    if (!result[card.sectionId]) return;
-    result[card.sectionId].push({
-      id: String(card.id),
-      title: card.title,
-      order: card.index,
-    });
-  });
-
-  Object.keys(result).forEach((key) => {
-    result[key] = result[key].sort((a, b) => a.order - b.order);
-  });
-
-  return result;
-}
-
-interface BoardContentProps {
-  sections: Section[];
-  tasks: TaskModel[];
-  loading: boolean;
-  setSelectCardId: (cardId: string) => void;
-}
 
 export function BoardContent({
   sections,
   tasks,
   loading,
   setSelectCardId,
-}: BoardContentProps) {
+}: {
+  sections: Section[];
+  tasks: TaskModel[];
+  loading: boolean;
+  setSelectCardId: (id: string) => void;
+}) {
   const [containers, setContainers] = useState<KanbanContainers>({});
-  const [activeTask, setActiveTask] = useState<TaskProps | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [triggerAddFirst, setTriggerAddFirst] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
+  // Inicializa os containers baseados nas secções e tasks da API
   useEffect(() => {
-    setContainers(mapCardsToBoard(sections, tasks));
-  }, [sections, tasks]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-  );
-
-  const findContainer = (id: string) => {
-    if (id in containers) return id;
-    return Object.keys(containers).find((key) =>
-      containers[key].some((task) => task?.id === id),
-    );
-  };
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const id = String(active.id);
-
-    // Procura o card em todas as colunas para garantir que não fique null
-    let foundTask = null;
-    for (const col of Object.values(containers)) {
-      const task = col.find((t) => t?.id === id);
-      if (task) {
-        foundTask = task;
-        break;
-      }
-    }
-    setActiveTask(foundTask);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeId = String(active.id);
-    const overId = String(over.id);
-
-    const activeContainer = findContainer(activeId);
-    const overContainer = findContainer(overId);
-
-    if (
-      !activeContainer ||
-      !overContainer ||
-      activeContainer === overContainer
-    ) {
-      return;
-    }
-
-    setContainers((prev) => {
-      const activeItems = [...prev[activeContainer]];
-      const overItems = [...prev[overContainer]];
-
-      const activeIndex = activeItems.findIndex((t) => t?.id === activeId);
-      const overIndex = overItems.findIndex((t) => t?.id === overId);
-
-      // Trava para evitar o bug de id undefined
-      if (activeIndex === -1) return prev;
-      const movedTask = activeItems[activeIndex];
-      if (!movedTask) return prev;
-
-      activeItems.splice(activeIndex, 1);
-
-      let newIndex;
-      if (overId in prev) {
-        // Soltou na lista vazia
-        newIndex = overItems.length;
-      } else {
-        const isBelowOverItem =
-          over &&
-          active.rect.current?.translated &&
-          active.rect.current.translated.top > over.rect.top + over.rect.height;
-        const modifier = isBelowOverItem ? 1 : 0;
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length;
-      }
-
-      overItems.splice(newIndex, 0, movedTask);
-
-      return {
-        ...prev,
-        [activeContainer]: activeItems,
-        [overContainer]: overItems,
-      };
+    const result: KanbanContainers = {};
+    sections.forEach((s) => {
+      result[s.id] = [];
     });
-  };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveTask(null); // Limpa o overlay independentemente de onde cair
-
-    if (!over) return;
-
-    const activeId = String(active.id);
-    const overId = String(over.id);
-
-    const activeContainer = findContainer(activeId);
-    const overContainer = findContainer(overId);
-
-    if (!activeContainer || !overContainer) return;
-
-    // Como o onDragOver já moveu de coluna, aqui elas sempre serão iguais
-    if (activeContainer === overContainer) {
-      const items = [...containers[activeContainer]];
-      const activeIndex = items.findIndex((t) => t?.id === activeId);
-      let overIndex = items.findIndex((t) => t?.id === overId);
-
-      if (activeIndex === -1) return;
-
-      // Se soltou na coluna vazia, o overIndex é -1, então vai pro final
-      if (overIndex === -1) {
-        overIndex = items.length - 1;
+    tasks.forEach((card) => {
+      if (result[card.sectionId]) {
+        result[card.sectionId].push({
+          id: String(card.id),
+          title: card.title,
+          columnId: String(card.sectionId),
+          index: card.index,
+        });
       }
+    });
 
-      let finalItems = items;
-      if (activeIndex !== overIndex) {
-        finalItems = arrayMove(items, activeIndex, overIndex);
-      }
+    // Ordena inicialmente
+    Object.keys(result).forEach((key) => {
+      result[key].sort((a, b) => a.index - b.index);
+    });
 
-      // filter(Boolean) previne definitivamente que objetos vazios quebrem o .map
-      finalItems = finalItems.filter(Boolean).map((item, idx) => ({
-        ...item,
-        order: idx + 1,
-      }));
-
-      setContainers((prev) => ({
-        ...prev,
-        [activeContainer]: finalItems,
-      }));
-
-      // --- MANDA PARA A API ---
-      const movedTask = finalItems.find((t) => t.id === activeId);
-      if (movedTask) {
-        try {
-          // Ajuste "update" para o nome do método real da sua API, se for diferente
-          await cardService.update(Number(activeId), {
-            listId: Number(activeContainer),
-            sortIndex: movedTask.order,
-          });
-        } catch (error) {
-          console.error("Erro ao comunicar mudança para a API:", error);
-        }
-      }
-    }
-  };
-
-  const handleCardClick = (id: string) => {
-    setSelectCardId(id);
-  };
+    setContainers(result);
+  }, [sections, tasks]);
 
   const handleAddCard = async (sectionId: string, title: string) => {
     const listId = Number(sectionId);
@@ -229,7 +60,8 @@ export function BoardContent({
     const newTask: TaskProps = {
       id: String(created.id),
       title: created.name,
-      order: currentTasks.length,
+      columnId: sectionId,
+      index: currentTasks.length,
     };
     setContainers((prev) => ({
       ...prev,
@@ -237,32 +69,7 @@ export function BoardContent({
     }));
   };
 
-  if (loading) {
-    return <Box>Carregando board...</Box>;
-  }
-
-  if (sections.length === 0) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          py: 10,
-          gap: 1,
-        }}
-      >
-        <Typography variant="h6" color="text.secondary">
-          Nenhuma lista criada ainda
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Acesse <strong>Configurações → Listas</strong> para criar suas
-          primeiras listas.
-        </Typography>
-      </Box>
-    );
-  }
+  if (loading) return <Box>Carregando...</Box>;
 
   return (
     <Box>
@@ -288,46 +95,65 @@ export function BoardContent({
       </Box>
 
       {viewMode === "board" ? (
-        <Box sx={{ display: "flex", gap: 3 }}>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-          >
-            {sections.map((section, index) => {
-              const total = sections.length;
-              const isFirstOrLast = index === 0 || index === total - 1;
-              const tasks = containers[section.id] ?? [];
+        <Box sx={{ p: 2 }}>
+          <DragDropProvider
+            onDragOver={(event) => {
+              // A função move do @dnd-kit/helpers faz todo o trabalho de reorder e transfer
+              setContainers((prev) => move(prev, event));
+            }}
+            onDragEnd={async (event) => {
+              const { active, over } = event;
+              if (!over) return;
 
-              return (
+              const activeId = String(active.id);
+              const overContainerId = String(over.id);
+
+              // Aqui podes disparar a chamada para a API para persistir a mudança
+              // O estado 'containers' já foi atualizado pelo onDragOver
+              try {
+                const destItems = containers[overContainerId] || [];
+                const movedItem = destItems.find((t) => t.id === activeId);
+                const newIndex = destItems.findIndex((t) => t.id === activeId);
+
+                if (movedItem) {
+                  await cardService.update(Number(activeId), {
+                    listId: Number(overContainerId),
+                    sortIndex: newIndex + 1,
+                  });
+                }
+              } catch (error) {
+                console.error("Erro ao salvar posição:", error);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
+              {sections.map((section, idx) => (
                 <DroppableContainer
                   key={section.id}
                   id={section.id}
                   title={section.name}
-                  tasks={tasks}
-                  activeColapsed={isFirstOrLast}
-                  onTaskClick={handleCardClick}
+                  activeColapsed={idx === 0 || idx === sections.length - 1}
                   onAddCard={handleAddCard}
-                  triggerAdd={index === 0 ? triggerAddFirst : false}
-                  forceExpand={index === 0 ? triggerAddFirst : false}
+                  triggerAdd={idx === 0 ? triggerAddFirst : false}
+                  forceExpand={idx === 0 ? triggerAddFirst : false}
                   onAddTriggerHandled={
-                    index === 0 ? () => setTriggerAddFirst(false) : undefined
+                    idx === 0 ? () => setTriggerAddFirst(false) : undefined
                   }
-                />
-              );
-            })}
-
-            {/* O zIndex garante que o DragOverlay passe por cima de tudo e não suma */}
-            {mounted &&
-              createPortal(
-                <DragOverlay zIndex={9999} data-test="drag-overlay">
-                  {activeTask ? <StaticTask title={activeTask.title} /> : null}
-                </DragOverlay>,
-                document.body,
-              )}
-          </DndContext>
+                >
+                  {(containers[section.id] || []).map((task, index) => (
+                    <Task
+                      key={task.id}
+                      id={task.id}
+                      title={task.title}
+                      columnId={section.id}
+                      index={index}
+                      onClick={() => setSelectCardId(task.id)}
+                    />
+                  ))}
+                </DroppableContainer>
+              ))}
+            </Box>
+          </DragDropProvider>
         </Box>
       ) : (
         <TableView containers={containers} setContainers={setContainers} />

@@ -54,24 +54,36 @@ export function TimelineTaskBar({
     const initialStart = new Date(localStart + "T00:00:00");
     const initialEnd = new Date(localEnd + "T00:00:00");
 
+    // Mutable locals shared by onMouseMove and onMouseUp — avoids stale React state in the closure
+    let currentStart = localStart;
+    let currentEnd = localEnd;
+
     const onMouseMove = (moveEvent: MouseEvent) => {
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
       const deltaDays = Math.round(deltaX / TIMELINE_CONFIG.dayWidth);
 
       if (action === "move") {
-        const newStart = addDays(initialStart, deltaDays);
-        const newEnd = addDays(initialEnd, deltaDays);
-        setLocalStart(formatDate(newStart));
-        setLocalEnd(formatDate(newEnd));
+        const newStart = formatDate(addDays(initialStart, deltaDays));
+        const newEnd = formatDate(addDays(initialEnd, deltaDays));
+        currentStart = newStart;
+        currentEnd = newEnd;
+        setLocalStart(newStart);
+        setLocalEnd(newEnd);
         setTranslateY(deltaY);
         setHoverInfo(getDropLocationAtY(moveEvent.clientY));
       } else if (action === "resize-right") {
         const newEnd = addDays(initialEnd, deltaDays);
-        if (newEnd >= initialStart) setLocalEnd(formatDate(newEnd));
+        if (newEnd >= initialStart) {
+          currentEnd = formatDate(newEnd);
+          setLocalEnd(currentEnd);
+        }
       } else if (action === "resize-left") {
         const newStart = addDays(initialStart, deltaDays);
-        if (newStart <= initialEnd) setLocalStart(formatDate(newStart));
+        if (newStart <= initialEnd) {
+          currentStart = formatDate(newStart);
+          setLocalStart(currentStart);
+        }
       }
     };
 
@@ -92,7 +104,8 @@ export function TimelineTaskBar({
           targetIndex = location.index;
         }
       }
-      onUpdate(task.id, localStart, localEnd, targetSectionId, targetIndex);
+      // Use mutable locals — always have the final drag values
+      onUpdate(task.id, currentStart, currentEnd, targetSectionId, targetIndex);
     };
 
     window.addEventListener("mousemove", onMouseMove);

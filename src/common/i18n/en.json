@@ -170,7 +170,9 @@
     "details": {
       "user": "User",
       "section": "Section",
-      "date": "Date",
+      "date": "Due Date",
+      "startDate": "Start Date",
+      "endDate": "End Date",
       "storyPoints": "Story Points",
       "priority": "Priority",
       "description": "Description"
@@ -306,6 +308,13 @@
       "passwordMin": "New password must be at least 6 characters.",
       "passwordsMismatch": "Passwords do not match"
     }
+  },
+  "table": {
+    "order": "Order",
+    "title": "Title",
+    "list": "List",
+    "priority": "Priority",
+    "noPriority": "—"
   },
   "timeline": {
     "tasks": "Tasks",

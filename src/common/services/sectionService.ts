@@ -11,6 +11,8 @@ interface CardApiResponse {
   priority?: number;
   storyPoints?: number;
   date?: string;
+  startDate?: string;
+  endDate?: string;
   listId?: number;
   userId?: number;
   createdAt: string;
@@ -65,8 +67,8 @@ function mapCardFromList(
     storyPoints: card.storyPoints,
     status: listStatusFromOrder(list.order),
     dueDate: card.date ? card.date.split("T")[0] : new Date().toISOString().split("T")[0],
-    startDate: card.date ? card.date.split("T")[0] : undefined,
-    endDate: card.date ? card.date.split("T")[0] : undefined,
+    startDate: card.startDate ? card.startDate.split("T")[0] : undefined,
+    endDate: card.endDate ? card.endDate.split("T")[0] : undefined,
     sectionId: String(list.id),
     sortIndex: card.cardNumber ?? 0,
     user: card.user,

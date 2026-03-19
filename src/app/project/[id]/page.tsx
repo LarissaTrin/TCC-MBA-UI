@@ -100,6 +100,7 @@ export default function ProjectPage() {
           setSelectCardId={(cardId: string) => openCard(cardId)}
           tasks={filteredTasks}
           loading={loading}
+          onCardCreated={(card) => setTasks((prev) => [...prev, ...mapCardsToTasks([card])])}
         />
       ),
     },

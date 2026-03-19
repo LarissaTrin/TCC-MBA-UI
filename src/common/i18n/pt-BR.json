@@ -170,7 +170,9 @@
     "details": {
       "user": "Responsável",
       "section": "Seção",
-      "date": "Data",
+      "date": "Data de Entrega",
+      "startDate": "Data de Início",
+      "endDate": "Data de Fim",
       "storyPoints": "Story Points",
       "priority": "Prioridade",
       "description": "Descrição"
@@ -306,6 +308,13 @@
       "passwordMin": "A nova senha deve ter no mínimo 6 caracteres.",
       "passwordsMismatch": "As senhas não coincidem"
     }
+  },
+  "table": {
+    "order": "Ordem",
+    "title": "Título",
+    "list": "Lista",
+    "priority": "Prioridade",
+    "noPriority": "—"
   },
   "timeline": {
     "tasks": "Tarefas",

@@ -27,6 +27,8 @@ export const cardSchema = z.object({
   user: z.string().optional(),
   status: z.string().optional(),
   date: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   priority: z.string().regex(/^\d*$/).optional(),
   storyPoints: z.string().regex(/^\d*$/).optional(),
   sectionId: z.string().min(1, "Section não pode estar vazio"),

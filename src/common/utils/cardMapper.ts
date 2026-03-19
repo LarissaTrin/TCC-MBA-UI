@@ -3,8 +3,9 @@ import { pickColorByStatus } from "./pickColor";
 
 export function mapCardsToTasks(cards: Card[]): Task[] {
   return cards.map((card) => {
-    const start = card.startDate ?? card.dueDate;
-    const end = card.endDate ?? card.dueDate;
+    const today = new Date().toISOString().split("T")[0];
+    const start = card.startDate ?? today;
+    const end = card.endDate ?? today;
 
     return {
       id: card.id,
@@ -15,6 +16,7 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
       color: pickColorByStatus(card),
       sectionId: card.sectionId,
       index: card.sortIndex ?? 0,
+      priority: card.priority,
     };
   });
 }

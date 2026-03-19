@@ -6,7 +6,7 @@ import { move } from "@dnd-kit/helpers";
 import { Box, Button, Typography } from "@mui/material";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
-import { Section, Task as TaskModel } from "@/common/model";
+import { Card, Section, Task as TaskModel } from "@/common/model";
 import { cardService } from "@/common/services";
 import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
@@ -19,11 +19,13 @@ export function BoardContent({
   tasks,
   loading,
   setSelectCardId,
+  onCardCreated,
 }: {
   sections: Section[];
   tasks: TaskModel[];
   loading: boolean;
   setSelectCardId: (id: string) => void;
+  onCardCreated?: (card: Card) => void;
 }) {
   const { t } = useTranslation();
   const [containers, setContainers] = useState<KanbanContainers>({});
@@ -44,6 +46,7 @@ export function BoardContent({
           title: card.title,
           columnId: String(card.sectionId),
           index: card.index,
+          priority: card.priority,
         });
       }
     });
@@ -65,12 +68,14 @@ export function BoardContent({
       title: created.name,
       columnId: sectionId,
       index: currentTasks.length,
+      priority: created.priority,
     };
     setContainers((prev) => {
       const next = { ...prev, [sectionId]: [...(prev[sectionId] ?? []), newTask] };
       containersRef.current = next;
       return next;
     });
+    onCardCreated?.(created);
   };
 
   if (loading) return <Box>{t("common.loading")}</Box>;
@@ -182,7 +187,7 @@ export function BoardContent({
           </DragDropProvider>
         </Box>
       ) : (
-        <TableView containers={containers} setContainers={setContainers} />
+        <TableView containers={containers} setContainers={setContainers} sections={sections} />
       )}
     </Box>
   );

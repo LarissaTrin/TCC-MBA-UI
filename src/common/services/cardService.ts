@@ -12,6 +12,8 @@ interface CardApiResponse {
   priority?: number;
   storyPoints?: number;
   date?: string;
+  startDate?: string;
+  endDate?: string;
   listId?: number;
   userId?: number;
   plannedHours?: number;
@@ -52,9 +54,10 @@ interface CardApiResponse {
 }
 
 function mapCard(card: CardApiResponse): Card {
-  const dateStr = card.date
-    ? card.date.split("T")[0]
-    : new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
+  const dateStr = card.date ? card.date.split("T")[0] : today;
+  const startDateStr = card.startDate ? card.startDate.split("T")[0] : dateStr;
+  const endDateStr = card.endDate ? card.endDate.split("T")[0] : dateStr;
 
   return {
     id: card.id,
@@ -64,8 +67,8 @@ function mapCard(card: CardApiResponse): Card {
     storyPoints: card.storyPoints,
     status: Status.Pending,
     dueDate: dateStr,
-    startDate: dateStr,
-    endDate: dateStr,
+    startDate: startDateStr,
+    endDate: endDateStr,
     sectionId: card.listId ? String(card.listId) : "",
     sortIndex: card.cardNumber ?? 0,
     user: card.user,
@@ -154,6 +157,8 @@ export const cardService = {
       priority?: number;
       storyPoints?: number;
       date?: string;
+      startDate?: string;
+      endDate?: string;
       listId?: number;
       userId?: number;
       sortIndex?: number;

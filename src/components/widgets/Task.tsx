@@ -9,6 +9,7 @@ export interface TaskProps {
   title: string;
   columnId: string;
   index: number;
+  priority?: number;
   onClick?: () => void;
 }
 

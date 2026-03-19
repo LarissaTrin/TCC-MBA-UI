@@ -34,6 +34,7 @@ export function LanguagePicker() {
         onClose={() => setAnchor(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        sx={{ zIndex: 1600 }}
       >
         {LANGUAGE_OPTIONS.map((opt) => (
           <MenuItem

@@ -22,29 +22,57 @@ import {
   TableCell,
   TableBody,
   Paper,
-  Box,
   Typography,
 } from "@mui/material";
 import { TaskProps } from "../widgets/Task";
+import { Section } from "@/common/model";
 import { cardService } from "@/common/services";
+import { useTranslation } from "@/common/provider";
 
 interface TableViewProps {
   containers: Record<string, TaskProps[]>;
   setContainers: React.Dispatch<
     React.SetStateAction<Record<string, TaskProps[]>>
   >;
+  sections: Section[];
 }
 
-export function TableView({ containers, setContainers }: TableViewProps) {
-  const allTasks = Object.entries(containers)
-    .flatMap(([column, tasks]) =>
-      tasks.filter(Boolean).map((task, index) => ({
-        ...task,
-        column,
-        order: task.index ?? index,
-      }))
-    )
-    .sort((a, b) => a.order - b.order);
+export function TableView({ containers, setContainers, sections }: TableViewProps) {
+  const { t } = useTranslation();
+
+  // Build a map of sectionId → { order, name } for sorting and display
+  const sectionMeta = React.useMemo(() => {
+    const map: Record<string, { order: number; name: string }> = {};
+    sections.forEach((s) => {
+      map[s.id] = { order: s.order, name: s.name };
+    });
+    return map;
+  }, [sections]);
+
+  const allTasks = React.useMemo(() => {
+    return Object.entries(containers)
+      .flatMap(([column, tasks]) =>
+        tasks.filter(Boolean).map((task, index) => ({
+          ...task,
+          column,
+          order: task.index ?? index,
+        }))
+      )
+      .sort((a, b) => {
+        // 1. Sort by list order
+        const listOrderA = sectionMeta[a.column]?.order ?? 0;
+        const listOrderB = sectionMeta[b.column]?.order ?? 0;
+        if (listOrderA !== listOrderB) return listOrderA - listOrderB;
+
+        // 2. Sort by priority ascending (lower = higher priority; undefined goes last)
+        const prioA = a.priority ?? Number.MAX_SAFE_INTEGER;
+        const prioB = b.priority ?? Number.MAX_SAFE_INTEGER;
+        if (prioA !== prioB) return prioA - prioB;
+
+        // 3. Sort by position within list
+        return a.order - b.order;
+      });
+  }, [containers, sectionMeta]);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -69,7 +97,6 @@ export function TableView({ containers, setContainers }: TableViewProps) {
 
     setContainers(updatedContainers);
 
-    // --- MANDA PARA A API ---
     const movedTask = reordered.find((t) => t.id === active.id);
     if (movedTask) {
       try {
@@ -97,14 +124,23 @@ export function TableView({ containers, setContainers }: TableViewProps) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Ordem</TableCell>
-                <TableCell>Título</TableCell>
-                <TableCell>Container</TableCell>
+                <TableCell sx={{ width: 60 }}>{t("table.order")}</TableCell>
+                <TableCell>{t("table.title")}</TableCell>
+                <TableCell>{t("table.list")}</TableCell>
+                <TableCell sx={{ width: 100 }}>{t("table.priority")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {allTasks.map((task) => (
-                <SortableRow key={task.id} task={task} />
+              {allTasks.map((task, globalIndex) => (
+                <SortableRow
+                  key={task.id}
+                  task={task}
+                  globalIndex={globalIndex + 1}
+                  sectionName={sectionMeta[task.column]?.name ?? task.column}
+                  priorityLabel={
+                    task.priority != null ? String(task.priority) : t("table.noPriority")
+                  }
+                />
               ))}
             </TableBody>
           </Table>
@@ -114,7 +150,17 @@ export function TableView({ containers, setContainers }: TableViewProps) {
   );
 }
 
-function SortableRow({ task }: { task: TaskProps & { column: string; order: number } }) {
+function SortableRow({
+  task,
+  globalIndex,
+  sectionName,
+  priorityLabel,
+}: {
+  task: TaskProps & { column: string; order: number };
+  globalIndex: number;
+  sectionName: string;
+  priorityLabel: string;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 
@@ -128,11 +174,12 @@ function SortableRow({ task }: { task: TaskProps & { column: string; order: numb
 
   return (
     <TableRow ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TableCell>{task.order}</TableCell>
+      <TableCell>{globalIndex}</TableCell>
       <TableCell>
         <Typography noWrap>{task.title}</Typography>
       </TableCell>
-      <TableCell>{task.column}</TableCell>
+      <TableCell>{sectionName}</TableCell>
+      <TableCell>{priorityLabel}</TableCell>
     </TableRow>
   );
 }

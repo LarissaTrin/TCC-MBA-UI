@@ -97,6 +97,8 @@ export function TimelineContent({
   const headerRef = useRef<HTMLDivElement>(null);
 
   const initializedRef = useRef(false);
+  // Tracks the target sectionId when a sidebar drag crosses section boundaries
+  const sidebarDragTargetSection = useRef<string | null>(null);
 
   const [newCardOpen, setNewCardOpen] = useState(false);
   const newCardForm = useForm<NewCardFormData>({
@@ -151,26 +153,25 @@ export function TimelineContent({
       setTasks((prevTasks) => {
         const taskIndex = prevTasks.findIndex((t) => t.id === taskId);
         if (taskIndex === -1) return prevTasks;
-        const currentTask = prevTasks[taskIndex];
+        const task = prevTasks[taskIndex];
 
-        const targetSectionId = newSectionId || currentTask.sectionId;
-        const targetIndex =
-          newIndex !== undefined ? newIndex : currentTask.index;
+        const resolvedSectionId = newSectionId || task.sectionId;
+        const resolvedIndex = newIndex !== undefined ? newIndex : task.index;
 
         const otherTasks = prevTasks.filter((t) => t.id !== taskId);
         const targetSectionTasks = otherTasks
-          .filter((t) => t.sectionId === targetSectionId)
+          .filter((t) => t.sectionId === resolvedSectionId)
           .sort((a, b) => a.index - b.index);
 
         const updatedTask = {
-          ...currentTask,
+          ...task,
           startDate: newStart,
           endDate: newEnd,
-          sectionId: targetSectionId,
+          sectionId: resolvedSectionId,
           index: 0,
         };
 
-        const safeIndex = Math.min(targetIndex, targetSectionTasks.length);
+        const safeIndex = Math.min(resolvedIndex, targetSectionTasks.length);
         targetSectionTasks.splice(safeIndex, 0, updatedTask);
 
         const reindexedTargetSection = targetSectionTasks.map((t, i) => ({
@@ -178,11 +179,22 @@ export function TimelineContent({
           index: i,
         }));
         const tasksFromOtherSections = otherTasks.filter(
-          (t) => t.sectionId !== targetSectionId,
+          (t) => t.sectionId !== resolvedSectionId,
         );
 
         return [...tasksFromOtherSections, ...reindexedTargetSection];
       });
+
+      // Always persist dates; always send listId when a section is provided
+      // (backend ignores if same list — no history entry written unless it actually changed)
+      cardService
+        .update(Number(taskId), {
+          startDate: newStart,
+          endDate: newEnd,
+          date: newEnd,
+          ...(newSectionId ? { listId: Number(newSectionId) } : {}),
+        })
+        .catch(console.error);
     },
     [],
   );
@@ -193,7 +205,7 @@ export function TimelineContent({
         const el = sectionRefs.current[section.id];
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (y >= rect.top && y <= rect.bottom) {
+              if (y >= rect.top && y <= rect.bottom) {
             const internalY = y - rect.top - TIMELINE_CONFIG.sectionHeight;
             if (internalY < 0) return { sectionId: section.id, index: 0 };
             const index = Math.floor(internalY / TIMELINE_CONFIG.rowHeight);
@@ -208,6 +220,11 @@ export function TimelineContent({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+    // Capture and reset the cross-section target tracked during handleDragOver
+    const crossSectionTarget = sidebarDragTargetSection.current;
+    sidebarDragTargetSection.current = null;
+
     if (!over || active.id === over.id) return;
 
     setTasks((prevTasks) => {
@@ -240,6 +257,13 @@ export function TimelineContent({
 
       return [...otherTasks, ...reindexedSection];
     });
+
+    // If card crossed to a different section, persist the new listId
+    if (crossSectionTarget) {
+      cardService
+        .update(Number(active.id), { listId: Number(crossSectionTarget) })
+        .catch(console.error);
+    }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -256,6 +280,7 @@ export function TimelineContent({
     else if (overTask) targetSectionId = overTask.sectionId;
 
     if (targetSectionId && activeTask.sectionId !== targetSectionId) {
+      sidebarDragTargetSection.current = targetSectionId;
       setTasks((prev) =>
         prev.map((t) =>
           t.id === active.id ? { ...t, sectionId: targetSectionId! } : t,
@@ -353,6 +378,7 @@ export function TimelineContent({
               size="small"
               color="primary"
               onClick={() => setNewCardOpen(true)}
+              disabled={sections.length === 0}
             >
               <GenericIcon icon="add" size={20} />
             </IconButton>

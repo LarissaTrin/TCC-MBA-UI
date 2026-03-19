@@ -7,6 +7,7 @@ export interface Task {
   color: string;
   sectionId: string;
   index: number;
+  priority?: number;
 }
 
 export interface Month {

@@ -102,6 +102,8 @@ export function CardContent({
       user: "",
       status: "",
       date: "",
+      startDate: "",
+      endDate: "",
       priority: "",
       sectionId: "",
       storyPoints: "",
@@ -157,6 +159,8 @@ export function CardContent({
       priority: payload.priority,
       storyPoints: payload.storyPoints,
       date: payload.dueDate,
+      startDate: data.startDate || undefined,
+      endDate: data.endDate || undefined,
       listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
     });
@@ -190,6 +194,8 @@ export function CardContent({
             user: loadedCard.user?.id ? String(loadedCard.user.id) : "",
             status: loadedCard.status ?? "",
             date: loadedCard.dueDate ?? "",
+            startDate: loadedCard.startDate ?? "",
+            endDate: loadedCard.endDate ?? "",
             priority: loadedCard.priority?.toString() ?? "",
             storyPoints: loadedCard.storyPoints?.toString() ?? "",
             sectionId: loadedCard.sectionId ?? "",
@@ -365,6 +371,24 @@ export function CardContent({
                     control={form.control}
                   />
                 )}
+              </Grid>
+              <Grid size={6}>
+                <GenericTextField
+                  name="startDate"
+                  label={t("card.details.startDate")}
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  control={form.control}
+                />
+              </Grid>
+              <Grid size={6}>
+                <GenericTextField
+                  name="endDate"
+                  label={t("card.details.endDate")}
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  control={form.control}
+                />
               </Grid>
               <Grid size={6}>
                 <GenericTextField

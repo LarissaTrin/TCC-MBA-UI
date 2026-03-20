@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Badge, TextField } from "@mui/material";
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import {
   GenericPopover,
@@ -11,11 +12,12 @@ import { AutocompleteOption } from "@/common/model";
 import { BoardFilterData } from "@/common/schemas/boardFilterSchema";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
+import { useProjectMemberSearch } from "@/common/hooks";
 
 interface BoardFiltersProps {
   form: UseFormReturn<BoardFilterData>;
   tagOptions: AutocompleteOption[];
-  userOptions: AutocompleteOption[];
+  memberSearch: ReturnType<typeof useProjectMemberSearch>;
   isFiltered: boolean;
   onApply: () => void;
   onClear: () => void;
@@ -24,13 +26,14 @@ interface BoardFiltersProps {
 export function BoardFilters({
   form,
   tagOptions,
-  userOptions,
+  memberSearch,
   isFiltered,
   onApply,
   onClear,
 }: BoardFiltersProps) {
   const { t } = useTranslation();
   const { control, register } = form;
+  const [memberInput, setMemberInput] = useState("");
 
   return (
     <GenericPopover
@@ -68,7 +71,14 @@ export function BoardFilters({
         <GenericAutoComplete
           label={t("filter.assignees")}
           placeholder={t("filter.assigneesPlaceholder")}
-          options={userOptions}
+          options={memberSearch.options}
+          loading={memberSearch.loading}
+          filterOptions={(x) => x}
+          inputValue={memberInput}
+          onInputChange={(_, value, reason) => {
+            if (reason !== "reset") setMemberInput(value);
+            if (reason === "input") memberSearch.search(value);
+          }}
           multiple
           checkboxSelection
           size="small"

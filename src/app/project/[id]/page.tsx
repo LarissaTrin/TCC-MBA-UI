@@ -79,8 +79,8 @@ export default function ProjectPage() {
     resetFilters,
     handleApply,
     tagOptions,
-    userOptions,
-  } = useBoardFilters(tasks);
+    memberSearch,
+  } = useBoardFilters(tasks, projectId);
 
   const activeTabValue = searchParams.get("tab") || "dashboard";
   const showFilters = activeTabValue === "board" || activeTabValue === "timeline";
@@ -144,7 +144,7 @@ export default function ProjectPage() {
             <BoardFilters
               form={filterForm}
               tagOptions={tagOptions}
-              userOptions={userOptions}
+              memberSearch={memberSearch}
               isFiltered={isFiltered}
               onApply={handleApply}
               onClear={resetFilters}

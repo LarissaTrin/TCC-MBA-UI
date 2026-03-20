@@ -26,6 +26,13 @@ export interface ProjectDetail extends Project {
   projectUsers: ProjectMember[];
 }
 
+export interface ProjectMemberSearchItem {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export interface InviteUserResult {
   email: string;
   registered: boolean;

@@ -8,6 +8,7 @@ export interface Task {
   sectionId: string;
   index: number;
   priority?: number;
+  userId?: number;
 }
 
 export interface Month {

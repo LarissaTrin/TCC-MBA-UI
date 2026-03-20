@@ -162,6 +162,9 @@ export const cardService = {
       listId?: number;
       userId?: number;
       sortIndex?: number;
+      tagCards?: { tagId?: number }[];
+      approvers?: { id?: number; environment?: string; userId?: number }[];
+      tasksCard?: { id?: number; title?: string; date?: string; completed?: boolean; userId?: number }[];
     },
   ): Promise<Card> {
     const data = await apiClient.put<CardApiResponse>(

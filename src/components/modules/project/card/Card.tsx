@@ -29,7 +29,7 @@ import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
 import dayjs from "dayjs";
 import { useTranslation } from "@/common/provider";
-import { useNavigation } from "@/common/hooks";
+import { useNavigation, useProjectMemberSearch } from "@/common/hooks";
 
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
@@ -84,17 +84,11 @@ export function CardContent({
   ];
 
   const sectionOptions = useMemo(() => mapToOptions(sections), [sections]);
-  const memberOptions = useMemo(
-    () =>
-      projectMembers.map((m) => ({
-        value: String(m.userId),
-        label: `${m.user.firstName} ${m.user.lastName}`.trim(),
-      })),
-    [projectMembers],
-  );
+  const userSearch = useProjectMemberSearch(projectId);
 
   const form = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
+    mode: "onTouched",
     defaultValues: {
       id: 0,
       name: "",
@@ -115,7 +109,7 @@ export function CardContent({
 
   const {
     handleSubmit,
-    formState: { isValid, isSubmitting },
+    formState: { isSubmitting },
   } = form;
 
   const handleOptions = () => setOpenOptions((prev) => !prev);
@@ -143,7 +137,7 @@ export function CardContent({
         title: t.title,
         date: t.date ? dayjs(t.date) : dayjs(),
         completed: t.completed,
-        user: { id: 0, firstName: t.userName ?? "", lastName: "", email: "" },
+        user: { id: t.userId ? Number(t.userId) : 0, firstName: t.userName ?? "", lastName: "", email: "" },
       })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id,
@@ -163,6 +157,19 @@ export function CardContent({
       endDate: data.endDate || undefined,
       listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
+      tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id })),
+      approvers: (data.approvers ?? []).map((a) => ({
+        id: a.id > 1_000_000_000 ? undefined : a.id,
+        environment: a.environment,
+        userId: a.userId ? Number(a.userId) : undefined,
+      })),
+      tasksCard: (data.tasks ?? []).map((t) => ({
+        id: t.id > 1_000_000_000 ? undefined : t.id,
+        title: t.title,
+        date: t.date || undefined,
+        completed: t.completed,
+        userId: t.userId ? Number(t.userId) : undefined,
+      })),
     });
     handleClose();
   };
@@ -187,6 +194,13 @@ export function CardContent({
         setCard(loadedCard);
 
         if (loadedCard) {
+          if (loadedCard.user?.id) {
+            userSearch.seedOption({
+              value: String(loadedCard.user.id),
+              label: `${loadedCard.user.firstName} ${loadedCard.user.lastName}`.trim(),
+            });
+          }
+
           form.reset({
             id: loadedCard.id,
             name: loadedCard.name ?? "",
@@ -205,6 +219,7 @@ export function CardContent({
               date: t.date ? dayjs(t.date).format("YYYY-MM-DD") : "",
               completed: t.completed,
               userName: t.user?.firstName ?? "",
+              userId: t.user?.id ? String(t.user.id) : "",
             })),
             approvers: (loadedCard.approvers ?? []).map((a) => ({
               id: a.id,
@@ -261,7 +276,7 @@ export function CardContent({
             <GenericButton
               label={t("card.save")}
               onClick={handleSubmit(onSubmit)}
-              disabled={!isValid || isSubmitting}
+              disabled={isSubmitting}
             />
             <GenericButton startIcon="more_vert" onClick={handleOptions} />
           </GenericButtonGroup>
@@ -348,7 +363,10 @@ export function CardContent({
                 ) : (
                   <GenericAutoComplete
                     label={t("card.details.user")}
-                    options={memberOptions}
+                    options={userSearch.options}
+                    loading={userSearch.loading}
+                    filterOptions={(x) => x}
+                    onInputChange={(_, value, reason) => { if (reason === "input") userSearch.search(value); }}
                     name="user"
                     control={form.control}
                   />
@@ -430,13 +448,13 @@ export function CardContent({
             </Grid>
           )}
 
-          {activeTab === 1 && <CardTasksSection control={form.control} />}
+          {activeTab === 1 && <CardTasksSection form={form} projectId={projectId} />}
 
           {activeTab === 2 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <CardApproversSection
-                control={form.control}
-                memberOptions={memberOptions}
+                form={form}
+                projectId={projectId}
                 readOnly={homeMode}
               />
               <Box>

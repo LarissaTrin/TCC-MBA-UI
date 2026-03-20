@@ -6,11 +6,12 @@ const taskItemSchema = z.object({
   date: z.string().optional(),
   completed: z.boolean(),
   userName: z.string().optional(),
+  userId: z.string().optional(),
 });
 
 const approverItemSchema = z.object({
   id: z.number(),
-  environment: z.string(),
+  environment: z.string().min(1, "Ambiente obrigatório"),
   userName: z.string().optional(),
   userId: z.string().optional(),
 });

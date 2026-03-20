@@ -316,7 +316,7 @@ export function GenericAutoComplete<
                 },
                 popper: {
                   sx: {
-                    zIndex: 1600,
+                    zIndex: 3000,
                   },
                 },
               }}
@@ -490,7 +490,7 @@ export function GenericAutoComplete<
         },
         popper: {
           sx: {
-            zIndex: "1600",
+            zIndex: 3000,
           },
         },
       }}

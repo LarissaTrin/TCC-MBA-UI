@@ -17,6 +17,7 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
       sectionId: card.sectionId,
       index: card.sortIndex ?? 0,
       priority: card.priority,
+      userId: card.user?.id,
     };
   });
 }

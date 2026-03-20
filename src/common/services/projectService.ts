@@ -1,5 +1,6 @@
 import { apiClient } from "./apiClient";
-import { InviteUsersResponse, Project, ProjectDetail, ProjectMember } from "../model";
+import { AutocompleteOption } from "../types/AutoComplete";
+import { InviteUsersResponse, Project, ProjectDetail, ProjectMember, ProjectMemberSearchItem } from "../model";
 
 /** Backend ProjectSchemaBase response (camelCase via alias_generator) */
 interface ProjectApiResponse {
@@ -100,5 +101,15 @@ export const projectService = {
 
   async removeMember(projectId: number, userId: number): Promise<void> {
     await apiClient.delete(`/projects/${projectId}/members/${userId}`);
+  },
+
+  async searchMembers(projectId: number, query: string): Promise<AutocompleteOption[]> {
+    const data = await apiClient.get<ProjectMemberSearchItem[]>(
+      `/projects/${projectId}/members/search?q=${encodeURIComponent(query)}`,
+    );
+    return data.map((u) => ({
+      value: String(u.id),
+      label: `${u.firstName} ${u.lastName}`.trim(),
+    }));
   },
 };

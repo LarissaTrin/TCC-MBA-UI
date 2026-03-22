@@ -36,6 +36,7 @@ export const cardSchema = z.object({
   tasks: z.array(taskItemSchema),
   approvers: z.array(approverItemSchema),
   tags: z.array(tagItemSchema),
+  blocked: z.boolean(),
 });
 
 export type CardFormData = z.infer<typeof cardSchema>;

@@ -13,6 +13,7 @@ export interface Task {
   userDisplay?: string;
   taskTotal?: number;
   taskCompleted?: number;
+  blocked?: boolean;
 }
 
 export interface Month {

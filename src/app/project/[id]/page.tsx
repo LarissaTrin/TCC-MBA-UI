@@ -169,6 +169,13 @@ export default function ProjectPage() {
           id={cardId}
           sections={sections}
           onClose={closeTopCard}
+          onSaved={(updatedCard) =>
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === updatedCard.id ? mapCardsToTasks([updatedCard])[0] : t,
+              ),
+            )
+          }
           userRole={userRole}
           projectMembers={projectMembers}
           projectId={projectId}

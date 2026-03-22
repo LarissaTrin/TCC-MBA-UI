@@ -13,9 +13,11 @@ import {
 } from "@/components/widgets";
 import {
   Box,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
+  Switch,
   Tab,
   Tabs,
   TextField,
@@ -42,6 +44,7 @@ interface CardContentProps {
   id?: string;
   sections: Section[];
   onClose: () => void;
+  onSaved?: (card: Card) => void;
   userRole?: string;
   projectMembers?: ProjectMember[];
   projectId?: number;
@@ -55,6 +58,7 @@ export function CardContent({
   id,
   sections,
   onClose,
+  onSaved,
   userRole = "User",
   projectMembers = [],
   projectId,
@@ -104,6 +108,7 @@ export function CardContent({
       tasks: [],
       approvers: [],
       tags: [],
+      blocked: false,
     },
   });
 
@@ -147,7 +152,7 @@ export function CardContent({
       tags: (data.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
     };
 
-    await cardService.update(card.id, {
+    const updatedCard = await cardService.update(card.id, {
       title: payload.name,
       description: payload.description,
       priority: payload.priority,
@@ -157,6 +162,7 @@ export function CardContent({
       endDate: data.endDate || undefined,
       listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
+      blocked: data.blocked,
       tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id, name: t.name })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id > 1_000_000_000 ? undefined : a.id,
@@ -171,6 +177,7 @@ export function CardContent({
         userId: t.userId ? Number(t.userId) : undefined,
       })),
     });
+    onSaved?.(updatedCard);
     handleClose();
   };
 
@@ -218,7 +225,7 @@ export function CardContent({
               title: t.title,
               date: t.date ? dayjs(t.date).format("YYYY-MM-DD") : "",
               completed: t.completed,
-              userName: t.user?.firstName ?? "",
+              userName: t.user ? `${t.user.firstName} ${t.user.lastName}`.trim() : "",
               userId: t.user?.id ? String(t.user.id) : "",
             })),
             approvers: (loadedCard.approvers ?? []).map((a) => ({
@@ -228,6 +235,7 @@ export function CardContent({
               userId: a.user?.id ? String(a.user.id) : "",
             })),
             tags: (loadedCard.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
+            blocked: loadedCard.blocked ?? false,
           });
           setInitialComments(loadedCard.comments ?? []);
         }
@@ -433,6 +441,24 @@ export function CardContent({
                   control={form.control}
                   type="number"
                   slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
+                />
+              </Grid>
+               <Grid size={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={!!form.watch("blocked")}
+                      onChange={(e) => form.setValue("blocked", e.target.checked)}
+                      color="error"
+                    />
+                  }
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Typography variant="body2" color={form.watch("blocked") ? "error" : "text.secondary"}>
+                        Blocked
+                      </Typography>
+                    </Box>
+                  }
                 />
               </Grid>
               <Grid size={12}>

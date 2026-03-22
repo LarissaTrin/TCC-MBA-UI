@@ -51,6 +51,7 @@ export function BoardContent({
           userDisplay: card.userDisplay,
           taskTotal: card.taskTotal,
           taskCompleted: card.taskCompleted,
+          blocked: card.blocked,
         });
       }
     });
@@ -191,6 +192,7 @@ export function BoardContent({
                       userDisplay={task.userDisplay}
                       taskTotal={task.taskTotal}
                       taskCompleted={task.taskCompleted}
+                      blocked={task.blocked}
                     />
                   ))}
                 </DroppableContainer>

@@ -15,6 +15,7 @@ export interface TaskProps {
   userDisplay?: string;
   taskTotal?: number;
   taskCompleted?: number;
+  blocked?: boolean;
 }
 
 export function Task({
@@ -27,6 +28,7 @@ export function Task({
   userDisplay,
   taskTotal = 0,
   taskCompleted = 0,
+  blocked = false,
 }: TaskProps) {
   const { ref, isDragging } = useSortable({
     id,
@@ -47,12 +49,25 @@ export function Task({
           cursor: "pointer",
           "&:hover": { boxShadow: 4 },
           transition: "box-shadow 0.2s",
+          ...(blocked && {
+            borderLeft: "3px solid",
+            borderColor: "error.main",
+          }),
         }}
       >
         <CardContent sx={{ p: "12px !important" }}>
-          <Typography variant="caption" color="text.disabled" sx={{ display: "block", mb: 0.5 }}>
-            #{id}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.5 }}>
+            <Typography variant="caption" color="text.disabled">
+              #{id}
+            </Typography>
+            {blocked && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Typography variant="caption" color="error" sx={{ fontWeight: 600, fontSize: "0.65rem" }}>
+                  Blocked
+                </Typography>
+              </Box>
+            )}
+          </Box>
 
           <Typography variant="body2" fontWeight={500} sx={{ mb: 1, lineHeight: 1.4 }}>
             {title}

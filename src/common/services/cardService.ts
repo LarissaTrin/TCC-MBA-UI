@@ -51,6 +51,7 @@ interface CardApiResponse {
     updatedAt?: string;
     user?: { id: number; firstName: string; lastName: string; email: string };
   }[];
+  blocked?: boolean;
 }
 
 function mapCard(card: CardApiResponse): Card {
@@ -71,6 +72,7 @@ function mapCard(card: CardApiResponse): Card {
     endDate: endDateStr,
     sectionId: card.listId ? String(card.listId) : "",
     sortIndex: card.cardNumber ?? 0,
+    blocked: card.blocked ?? false,
     user: card.user,
     tags: card.tagCards
       ?.filter((tc) => tc.tag)
@@ -162,6 +164,7 @@ export const cardService = {
       listId?: number;
       userId?: number;
       sortIndex?: number;
+      blocked?: boolean;
       tagCards?: { tagId?: number; name?: string }[];
       approvers?: { id?: number; environment?: string; userId?: number }[];
       tasksCard?: { id?: number; title?: string; date?: string; completed?: boolean; userId?: number }[];

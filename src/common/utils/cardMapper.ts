@@ -22,6 +22,7 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
       userDisplay: card.user ? `${card.user.firstName} ${card.user.lastName}` : undefined,
       taskTotal: card.tasks?.length ?? 0,
       taskCompleted: card.tasks?.filter((t) => t.completed).length ?? 0,
+      blocked: card.blocked ?? false,
     };
   });
 }

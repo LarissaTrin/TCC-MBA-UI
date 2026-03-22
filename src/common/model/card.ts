@@ -23,4 +23,5 @@ export interface Card {
   approvers?: Approvers[];
   comments?: Comments[];
   tags?: Tag[];
+  blocked?: boolean;
 }

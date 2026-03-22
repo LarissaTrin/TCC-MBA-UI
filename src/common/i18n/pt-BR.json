@@ -83,8 +83,9 @@
       "confirmPassword": "Confirme a Nova Senha",
       "submit": "Salvar Nova Senha",
       "submitting": "Salvando...",
-      "invalidToken": "Token de redefinição inválido ou não encontrado.",
-      "success": "Senha alterada com sucesso!",
+      "invalidToken": "Link de redefinição inválido. Solicite um novo.",
+      "tokenExpired": "Este link de redefinição expirou. Solicite um novo.",
+      "success": "Senha alterada com sucesso! Redirecionando...",
       "validation": {
         "passwordMin": "A senha deve ter no mínimo 6 caracteres.",
         "passwordsMismatch": "As senhas não coincidem"

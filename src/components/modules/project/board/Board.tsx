@@ -141,6 +141,7 @@ export function BoardContent({
           taskTotal: task.taskTotal,
           taskCompleted: task.taskCompleted,
           blocked: task.blocked,
+          sortOrder: task.sortOrder,
         });
       }
     });
@@ -345,6 +346,7 @@ export function BoardContent({
           containers={containers}
           setContainers={setContainers}
           sections={sections}
+          onCardClick={setSelectCardId}
         />
       )}
     </Box>

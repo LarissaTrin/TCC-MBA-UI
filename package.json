@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:api": "start cmd /k start_api.cmd && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

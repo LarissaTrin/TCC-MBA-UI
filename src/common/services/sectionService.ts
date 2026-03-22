@@ -30,6 +30,7 @@ function mapCardFromList(
     endDate: card.endDate ? card.endDate.split("T")[0] : undefined,
     sectionId: String(list.id),
     sortIndex: card.cardNumber ?? 0,
+    sortOrder: card.sortOrder,
     blocked: card.blocked ?? false,
     user: card.user,
     tags: card.tagCards

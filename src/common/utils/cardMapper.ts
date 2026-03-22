@@ -23,6 +23,7 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
       taskTotal: card.tasks?.length ?? 0,
       taskCompleted: card.tasks?.filter((t) => t.completed).length ?? 0,
       blocked: card.blocked ?? false,
+      sortOrder: card.sortOrder,
     };
   });
 }

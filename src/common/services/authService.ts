@@ -72,8 +72,8 @@ export async function forgotPassword(email: string): Promise<void> {
 }
 
 /**
- * Reset password using a JWT token (from the email link).
- * POST /api/users/reset-password with Authorization header.
+ * Reset password using a token from the email link (sent in body, not as Bearer).
+ * POST /api/users/reset-password
  */
 export async function resetPassword(
   token: string,
@@ -81,15 +81,14 @@ export async function resetPassword(
 ): Promise<void> {
   const res = await fetch(`${API_URL}/users/reset-password`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ newPassword: password }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, newPassword: password }),
   });
 
   if (!res.ok) {
-    throw new Error("Falha ao redefinir senha.");
+    const body = await res.json().catch(() => ({}));
+    const detail: string = body?.detail ?? "ERROR";
+    throw new Error(detail);
   }
 }
 

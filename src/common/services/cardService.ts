@@ -27,6 +27,7 @@ function mapCard(card: CardApiResponse): Card {
     endDate: endDateStr,
     sectionId: card.listId ? String(card.listId) : "",
     sortIndex: card.cardNumber ?? 0,
+    sortOrder: card.sortOrder,
     blocked: card.blocked ?? false,
     user: card.user,
     tags: card.tagCards
@@ -109,6 +110,14 @@ export const cardService = {
       updates,
     );
     return mapCard(data);
+  },
+
+  /**
+   * Bulk reorder cards (saves sort_order for multiple cards at once).
+   * PUT /api/cards/reorder
+   */
+  async reorder(items: { cardId: number; sortOrder: number }[]): Promise<void> {
+    await apiClient.put("/cards/reorder", { items });
   },
 
   /**

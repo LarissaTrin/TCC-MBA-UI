@@ -14,6 +14,7 @@ export interface CardApiResponse {
   plannedHours?: number;
   completedHours?: number;
   blocked?: boolean;
+  sortOrder?: number;
   createdAt: string;
   updatedAt?: string;
   user?: {

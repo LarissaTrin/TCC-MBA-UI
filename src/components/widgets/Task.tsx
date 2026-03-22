@@ -17,6 +17,7 @@ export interface TaskProps {
   taskTotal?: number;
   taskCompleted?: number;
   blocked?: boolean;
+  sortOrder?: number;
 }
 
 export function Task({

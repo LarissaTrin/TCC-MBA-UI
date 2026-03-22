@@ -18,6 +18,7 @@ export interface Card {
   sectionId: string;
   order?: number;
   sortIndex: number;
+  sortOrder?: number;
   user?: User;
   tasks?: TaskCard[];
   approvers?: Approvers[];

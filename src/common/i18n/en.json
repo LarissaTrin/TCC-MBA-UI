@@ -83,8 +83,9 @@
       "confirmPassword": "Confirm New Password",
       "submit": "Save New Password",
       "submitting": "Saving...",
-      "invalidToken": "Invalid or not found reset token.",
-      "success": "Password changed successfully!",
+      "invalidToken": "Invalid reset link. Please request a new one.",
+      "tokenExpired": "This reset link has expired. Please request a new one.",
+      "success": "Password changed successfully! Redirecting...",
       "validation": {
         "passwordMin": "Password must be at least 6 characters.",
         "passwordsMismatch": "Passwords do not match"

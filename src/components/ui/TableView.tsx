@@ -35,9 +35,10 @@ interface TableViewProps {
     React.SetStateAction<Record<string, TaskProps[]>>
   >;
   sections: Section[];
+  onCardClick?: (id: string) => void;
 }
 
-export function TableView({ containers, setContainers, sections }: TableViewProps) {
+export function TableView({ containers, setContainers, sections, onCardClick }: TableViewProps) {
   const { t } = useTranslation();
 
   // Build a map of sectionId → { order, name } for sorting and display
@@ -59,22 +60,25 @@ export function TableView({ containers, setContainers, sections }: TableViewProp
         }))
       )
       .sort((a, b) => {
-        // 1. Sort by list order
+        const hasA = a.sortOrder != null;
+        const hasB = b.sortOrder != null;
+
+        // Both have a user-defined order → sort globally by it
+        if (hasA && hasB) return a.sortOrder! - b.sortOrder!;
+
+        // Only one has user order → that one comes first
+        if (hasA) return -1;
+        if (hasB) return 1;
+
+        // Neither has user order → fallback: group by list, then position
         const listOrderA = sectionMeta[a.column]?.order ?? 0;
         const listOrderB = sectionMeta[b.column]?.order ?? 0;
         if (listOrderA !== listOrderB) return listOrderA - listOrderB;
-
-        // 2. Sort by priority ascending (lower = higher priority; undefined goes last)
-        const prioA = a.priority ?? Number.MAX_SAFE_INTEGER;
-        const prioB = b.priority ?? Number.MAX_SAFE_INTEGER;
-        if (prioA !== prioB) return prioA - prioB;
-
-        // 3. Sort by position within list
         return a.order - b.order;
       });
   }, [containers, sectionMeta]);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -86,6 +90,7 @@ export function TableView({ containers, setContainers, sections }: TableViewProp
     const reordered = arrayMove(allTasks, oldIndex, newIndex).map((t, idx) => ({
       ...t,
       order: idx + 1,
+      sortOrder: idx + 1,
     }));
 
     const updatedContainers: Record<string, TaskProps[]> = {};
@@ -97,16 +102,12 @@ export function TableView({ containers, setContainers, sections }: TableViewProp
 
     setContainers(updatedContainers);
 
-    const movedTask = reordered.find((t) => t.id === active.id);
-    if (movedTask) {
-      try {
-        await cardService.update(Number(movedTask.id), {
-          listId: Number(movedTask.column),
-          sortIndex: movedTask.order,
-        });
-      } catch (error) {
-        console.error("Erro na atualização da API:", error);
-      }
+    try {
+      await cardService.reorder(
+        reordered.map((t) => ({ cardId: Number(t.id), sortOrder: t.sortOrder }))
+      );
+    } catch (error) {
+      console.error("Erro ao salvar ordem:", error);
     }
   }
 
@@ -140,6 +141,7 @@ export function TableView({ containers, setContainers, sections }: TableViewProp
                   priorityLabel={
                     task.priority != null ? String(task.priority) : t("table.noPriority")
                   }
+                  onCardClick={onCardClick}
                 />
               ))}
             </TableBody>
@@ -155,11 +157,13 @@ function SortableRow({
   globalIndex,
   sectionName,
   priorityLabel,
+  onCardClick,
 }: {
-  task: TaskProps & { column: string; order: number };
+  task: TaskProps & { column: string; order: number; sortOrder?: number };
   globalIndex: number;
   sectionName: string;
   priorityLabel: string;
+  onCardClick?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
@@ -168,12 +172,18 @@ function SortableRow({
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: "grab",
-    backgroundColor: isDragging ? "#f0f8ff" : "inherit",
     opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <TableRow ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => !isDragging && onCardClick?.(String(task.id))}
+      sx={{ "&:hover": { bgcolor: "action.hover" } }}
+    >
       <TableCell>{globalIndex}</TableCell>
       <TableCell>
         <Typography noWrap>{task.title}</Typography>

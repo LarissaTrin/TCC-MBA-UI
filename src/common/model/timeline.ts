@@ -14,6 +14,7 @@ export interface Task {
   taskTotal?: number;
   taskCompleted?: number;
   blocked?: boolean;
+  sortOrder?: number;
 }
 
 export interface Month {

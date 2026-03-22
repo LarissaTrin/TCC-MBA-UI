@@ -18,6 +18,10 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
       index: card.sortIndex ?? 0,
       priority: card.priority,
       userId: card.user?.id,
+      tags: card.tags ?? [],
+      userDisplay: card.user ? `${card.user.firstName} ${card.user.lastName}` : undefined,
+      taskTotal: card.tasks?.length ?? 0,
+      taskCompleted: card.tasks?.filter((t) => t.completed).length ?? 0,
     };
   });
 }

@@ -4,31 +4,27 @@ import { useState } from "react";
 import { useFieldArray, Control } from "react-hook-form";
 import { CardFormData } from "@/common/schemas/cardSchema";
 import { GenericIcon } from "@/components/widgets";
-import { Box, Chip, TextField } from "@mui/material";
+import { Autocomplete, Box, Chip, TextField } from "@mui/material";
+import { useProjectTagSearch } from "@/common/hooks";
+import { AutocompleteOption } from "@/common/types/AutoComplete";
 
 interface CardTagsSectionProps {
   control: Control<CardFormData>;
+  projectId?: number;
 }
 
-export function CardTagsSection({ control }: CardTagsSectionProps) {
+export function CardTagsSection({ control, projectId }: CardTagsSectionProps) {
   const { fields, append, remove } = useFieldArray({ control, name: "tags" });
+  const tagSearch = useProjectTagSearch(projectId);
   const [inputValue, setInputValue] = useState("");
 
-  const handleAdd = () => {
-    const trimmed = inputValue.trim();
+  const addTag = (name: string, id = 0) => {
+    const trimmed = name.trim();
     if (!trimmed) return;
-    const exists = fields.some(
-      (f) => f.name.toLowerCase() === trimmed.toLowerCase(),
-    );
-    if (!exists) append({ id: Date.now(), name: trimmed });
-    setInputValue("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAdd();
+    if (!fields.some((f) => f.name.toLowerCase() === trimmed.toLowerCase())) {
+      append({ id, name: trimmed });
     }
+    setInputValue("");
   };
 
   return (
@@ -44,20 +40,51 @@ export function CardTagsSection({ control }: CardTagsSectionProps) {
           sx={{ height: 22, fontSize: "0.7rem" }}
         />
       ))}
-      <TextField
-        size="small"
-        placeholder="+ tag"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        variant="standard"
-        sx={{
-          width: inputValue ? 120 : 60,
-          transition: "width 0.2s",
-          "& .MuiInput-root": { fontSize: "0.75rem" },
-          "& .MuiInput-underline:before": { borderBottomColor: "divider" },
+      <Autocomplete<AutocompleteOption, false, false, true>
+        freeSolo
+        options={tagSearch.options}
+        loading={tagSearch.loading}
+        inputValue={inputValue}
+        value={null}
+        filterOptions={(x) => x}
+        onOpen={() => tagSearch.load()}
+        onInputChange={(_, value, reason) => {
+          if (reason === "input") {
+            setInputValue(value);
+            tagSearch.search(value);
+          } else if (reason === "clear") {
+            setInputValue("");
+          }
         }}
-        slotProps={{ htmlInput: { style: { padding: "2px 0" } } }}
+        onChange={(_, newValue) => {
+          if (!newValue) return;
+          if (typeof newValue === "string") {
+            addTag(newValue);
+          } else {
+            addTag(newValue.label, Number(newValue.value) || 0);
+          }
+        }}
+        size="small"
+        popupIcon={null}
+        sx={{
+          width: inputValue ? 140 : 70,
+          transition: "width 0.2s",
+        }}
+        slotProps={{
+          popper: { sx: { zIndex: 3000 } },
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="+ tag"
+            variant="standard"
+            size="small"
+            sx={{
+              "& .MuiInput-underline:before": { borderBottomColor: "divider" },
+              "& .MuiInputBase-input": { fontSize: "0.75rem", padding: "2px 0" },
+            }}
+          />
+        )}
       />
     </Box>
   );

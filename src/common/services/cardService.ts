@@ -162,7 +162,7 @@ export const cardService = {
       listId?: number;
       userId?: number;
       sortIndex?: number;
-      tagCards?: { tagId?: number }[];
+      tagCards?: { tagId?: number; name?: string }[];
       approvers?: { id?: number; environment?: string; userId?: number }[];
       tasksCard?: { id?: number; title?: string; date?: string; completed?: boolean; userId?: number }[];
     },

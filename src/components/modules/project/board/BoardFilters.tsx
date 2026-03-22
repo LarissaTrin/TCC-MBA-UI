@@ -8,15 +8,14 @@ import {
   GenericAutoComplete,
   GenericButton,
 } from "@/components/widgets";
-import { AutocompleteOption } from "@/common/model";
 import { BoardFilterData } from "@/common/schemas/boardFilterSchema";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
-import { useProjectMemberSearch } from "@/common/hooks";
+import { useProjectMemberSearch, useProjectTagSearch } from "@/common/hooks";
 
 interface BoardFiltersProps {
   form: UseFormReturn<BoardFilterData>;
-  tagOptions: AutocompleteOption[];
+  tagSearch: ReturnType<typeof useProjectTagSearch>;
   memberSearch: ReturnType<typeof useProjectMemberSearch>;
   isFiltered: boolean;
   onApply: () => void;
@@ -25,7 +24,7 @@ interface BoardFiltersProps {
 
 export function BoardFilters({
   form,
-  tagOptions,
+  tagSearch,
   memberSearch,
   isFiltered,
   onApply,
@@ -33,6 +32,7 @@ export function BoardFilters({
 }: BoardFiltersProps) {
   const { t } = useTranslation();
   const { control, register } = form;
+  const [tagInput, setTagInput] = useState("");
   const [memberInput, setMemberInput] = useState("");
 
   return (
@@ -60,12 +60,19 @@ export function BoardFilters({
         <GenericAutoComplete
           label={t("filter.tags")}
           placeholder={t("filter.tagsPlaceholder")}
-          options={tagOptions}
+          options={tagSearch.options}
+          loading={tagSearch.loading}
           multiple
-          checkboxSelection
           size="small"
           name="tags"
           control={control}
+          filterOptions={(x) => x}
+          inputValue={tagInput}
+          onInputChange={(_, value, reason) => {
+            if (reason !== "reset") setTagInput(value);
+            if (reason === "input") tagSearch.search(value);
+          }}
+          onOpen={() => tagSearch.load()}
         />
 
         <GenericAutoComplete
@@ -80,7 +87,6 @@ export function BoardFilters({
             if (reason === "input") memberSearch.search(value);
           }}
           multiple
-          checkboxSelection
           size="small"
           name="users"
           control={control}

@@ -9,6 +9,10 @@ export interface Task {
   index: number;
   priority?: number;
   userId?: number;
+  tags?: { id: number; name: string }[];
+  userDisplay?: string;
+  taskTotal?: number;
+  taskCompleted?: number;
 }
 
 export interface Month {

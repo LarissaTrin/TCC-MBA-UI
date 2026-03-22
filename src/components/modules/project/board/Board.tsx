@@ -47,6 +47,10 @@ export function BoardContent({
           columnId: String(card.sectionId),
           index: card.index,
           priority: card.priority,
+          tags: card.tags,
+          userDisplay: card.userDisplay,
+          taskTotal: card.taskTotal,
+          taskCompleted: card.taskCompleted,
         });
       }
     });
@@ -69,6 +73,10 @@ export function BoardContent({
       columnId: sectionId,
       index: currentTasks.length,
       priority: created.priority,
+      tags: created.tags ?? [],
+      userDisplay: created.user ? `${created.user.firstName} ${created.user.lastName}` : undefined,
+      taskTotal: created.tasks?.length ?? 0,
+      taskCompleted: created.tasks?.filter((t) => t.completed).length ?? 0,
     };
     setContainers((prev) => {
       const next = { ...prev, [sectionId]: [...(prev[sectionId] ?? []), newTask] };
@@ -179,6 +187,10 @@ export function BoardContent({
                       columnId={section.id}
                       index={index}
                       onClick={() => setSelectCardId(task.id)}
+                      tags={task.tags}
+                      userDisplay={task.userDisplay}
+                      taskTotal={task.taskTotal}
+                      taskCompleted={task.taskCompleted}
                     />
                   ))}
                 </DroppableContainer>

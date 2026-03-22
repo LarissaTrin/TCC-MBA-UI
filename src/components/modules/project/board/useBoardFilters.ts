@@ -7,8 +7,7 @@ import {
   BOARD_FILTER_DEFAULTS,
 } from "@/common/schemas/boardFilterSchema";
 import { Task } from "@/common/model";
-import { AutocompleteOption } from "@/common/model";
-import { useProjectMemberSearch } from "@/common/hooks";
+import { useProjectMemberSearch, useProjectTagSearch } from "@/common/hooks";
 
 function isFilterActive(filters: BoardFilterData): boolean {
   return (
@@ -31,6 +30,14 @@ function applyFilters(tasks: Task[], filters: BoardFilterData): Task[] {
       if (!matchesTitle && !matchesId) return false;
     }
 
+    if (filters.tags.length > 0) {
+      const taskTagIds = (task.tags ?? []).map((t) => String(t.id));
+      const hasMatch = filters.tags.some((selectedId) =>
+        taskTagIds.includes(selectedId),
+      );
+      if (!hasMatch) return false;
+    }
+
     if (filters.users.length > 0) {
       if (!task.userId || !filters.users.includes(String(task.userId))) {
         return false;
@@ -48,24 +55,16 @@ function applyFilters(tasks: Task[], filters: BoardFilterData): Task[] {
   });
 }
 
-function extractTagOptions(tasks: Task[]): AutocompleteOption[] {
-  const set = new Set<string>();
-  tasks.forEach((t) => {
-    if (t.subtitle) set.add(t.subtitle);
-  });
-  return Array.from(set)
-    .sort()
-    .map((s) => ({ label: s, value: s }));
-}
-
 export function useBoardFilters(tasks: Task[], projectId?: number) {
   const form = useForm<BoardFilterData>({
     resolver: zodResolver(boardFilterSchema),
     defaultValues: BOARD_FILTER_DEFAULTS,
   });
 
-  // Bug 4: filtros só aplicados ao clicar em Apply — não reativo
   const [appliedFilters, setAppliedFilters] = useState<BoardFilterData>(BOARD_FILTER_DEFAULTS);
+
+  const tagSearch = useProjectTagSearch(projectId);
+  const memberSearch = useProjectMemberSearch(projectId);
 
   const filteredTasks = useMemo(
     () => applyFilters(tasks, appliedFilters),
@@ -83,16 +82,13 @@ export function useBoardFilters(tasks: Task[], projectId?: number) {
     setAppliedFilters(BOARD_FILTER_DEFAULTS);
   }, [form]);
 
-  const tagOptions = useMemo(() => extractTagOptions(tasks), [tasks]);
-  const memberSearch = useProjectMemberSearch(projectId);
-
   return {
     form,
     filteredTasks,
     isFiltered,
     resetFilters,
     handleApply,
-    tagOptions,
+    tagSearch,
     memberSearch,
   };
 }

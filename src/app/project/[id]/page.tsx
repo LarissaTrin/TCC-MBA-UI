@@ -78,7 +78,7 @@ export default function ProjectPage() {
     isFiltered,
     resetFilters,
     handleApply,
-    tagOptions,
+    tagSearch,
     memberSearch,
   } = useBoardFilters(tasks, projectId);
 
@@ -143,7 +143,7 @@ export default function ProjectPage() {
           {showFilters && (
             <BoardFilters
               form={filterForm}
-              tagOptions={tagOptions}
+              tagSearch={tagSearch}
               memberSearch={memberSearch}
               isFiltered={isFiltered}
               onApply={handleApply}

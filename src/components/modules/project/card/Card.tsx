@@ -157,7 +157,7 @@ export function CardContent({
       endDate: data.endDate || undefined,
       listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
-      tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id })),
+      tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id, name: t.name })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id > 1_000_000_000 ? undefined : a.id,
         environment: a.environment,
@@ -295,7 +295,7 @@ export function CardContent({
           </GenericPoper>
         </Box>
 
-        <CardTagsSection control={form.control} />
+        <CardTagsSection control={form.control} projectId={projectId} />
       </Box>
     );
   };

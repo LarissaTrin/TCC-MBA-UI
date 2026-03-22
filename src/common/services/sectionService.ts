@@ -122,7 +122,7 @@ export const sectionService = {
       id: Number(section.id),
       name: section.name,
       order: section.order,
-      isFinal: section.isFinal,
+      isFinal: section.isFinal ?? false,
     };
 
     const cards = res.cards.map((card) => mapCardFromList(card, fakeList));

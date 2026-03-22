@@ -7,6 +7,7 @@ import { Box, CircularProgress, TextField } from "@mui/material";
 import { GenericAccordion } from "./Accordion";
 import { GenericButton } from "./";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
+import { MaterialSymbol } from "material-symbols";
 
 interface ColumnProps {
   id: string;
@@ -138,7 +139,7 @@ export function DroppableContainer({
             ) : (
               <GenericButton
                 label="Load more"
-                startIcon="expand_more"
+                startIcon={"expand_more" as MaterialSymbol}
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Text}
                 onClick={onLoadMore}

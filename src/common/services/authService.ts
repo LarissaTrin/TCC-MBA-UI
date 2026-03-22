@@ -3,7 +3,7 @@
  * Uses direct fetch with API_BASE_URL (server-only env variable).
  */
 
-const API_URL = process.env.API_BASE_URL || "http://localhost:8000/api";
+const API_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export interface AuthUser {
   id: string;
@@ -32,11 +32,16 @@ export async function login(
   formData.append("username", email);
   formData.append("password", password);
 
-  const res = await fetch(`${API_URL}/users/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: formData,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData,
+    });
+  } catch {
+    return null;
+  }
 
   if (!res.ok) return null;
 

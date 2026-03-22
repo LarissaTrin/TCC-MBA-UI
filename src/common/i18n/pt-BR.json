@@ -90,7 +90,35 @@
     },
     "policy": {
       "termsTitle": "Termos de Serviço",
-      "privacyTitle": "Política de Privacidade"
+      "privacyTitle": "Política de Privacidade",
+      "terms": {
+        "s1Title": "1. Aceitação dos Termos",
+        "s1Body": "Ao acessar ou usar este aplicativo, você concorda em estar vinculado a estes Termos de Serviço. Se não concordar, não utilize o aplicativo.",
+        "s2Title": "2. Uso do Serviço",
+        "s2Body": "Este aplicativo é fornecido para fins de gerenciamento de projetos. Você concorda em utilizá-lo apenas para fins legais. Você é responsável por manter a confidencialidade das suas credenciais de acesso.",
+        "s3Title": "3. Contas de Usuário",
+        "s3Body": "Você deve fornecer informações precisas e completas ao criar uma conta. Você é o único responsável por todas as atividades realizadas com sua conta.",
+        "s4Title": "4. Propriedade Intelectual",
+        "s4Body": "Todo o conteúdo e funcionalidades deste aplicativo são propriedade de seus respectivos titulares. Você não pode copiar, modificar ou distribuir qualquer parte sem permissão prévia por escrito.",
+        "s5Title": "5. Limitação de Responsabilidade",
+        "s5Body": "O aplicativo é fornecido \"como está\", sem garantias de qualquer tipo. Não somos responsáveis por quaisquer danos decorrentes do uso do serviço.",
+        "s6Title": "6. Alterações nos Termos",
+        "s6Body": "Podemos atualizar estes termos a qualquer momento. O uso contínuo do aplicativo após as alterações constitui aceitação dos termos atualizados."
+      },
+      "privacy": {
+        "s1Title": "1. Informações que Coletamos",
+        "s1Body": "Coletamos informações que você fornece diretamente, como nome, endereço de e-mail e senha ao criar uma conta. Também coletamos dados de uso para melhorar o aplicativo.",
+        "s2Title": "2. Como Usamos suas Informações",
+        "s2Body": "Usamos suas informações para fornecer e melhorar o serviço, autenticar sua identidade e responder às suas solicitações de suporte.",
+        "s3Title": "3. Armazenamento e Segurança de Dados",
+        "s3Body": "Seus dados são armazenados com segurança usando criptografia padrão do setor. Nenhum método de transmissão pela internet é 100% seguro.",
+        "s4Title": "4. Compartilhamento de Informações",
+        "s4Body": "Não vendemos nem compartilhamos suas informações pessoais com terceiros, exceto quando necessário para fornecer o serviço ou exigido por lei.",
+        "s5Title": "5. Cookies",
+        "s5Body": "Usamos cookies de sessão para mantê-lo conectado. Eles são removidos quando você sai ou fecha o navegador.",
+        "s6Title": "6. Seus Direitos",
+        "s6Body": "Você tem o direito de acessar, corrigir ou excluir seus dados pessoais a qualquer momento, entrando em contato conosco pelo aplicativo."
+      }
     }
   },
   "home": {

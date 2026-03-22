@@ -5,11 +5,8 @@ import { Box, Grid, Typography } from "@mui/material";
 import { GenericCard } from "@/components/widgets";
 import { GenericCardProps } from "@/common/model";
 import { GenericLoading } from "@/components";
-import {
-  BurndownResponse,
-  dashboardService,
-  ProjectStatsResponse,
-} from "@/common/services/dashboardService";
+import { BurndownResponse, ProjectStatsResponse } from "@/common/model/dashboard";
+import { dashboardService } from "@/common/services/dashboardService";
 import {
   buildBurndownChart,
   buildByListChart,

@@ -20,3 +20,9 @@ export const addUserSchema = z.object({
 });
 
 export type AddUserData = z.infer<typeof addUserSchema>;
+
+export const newProjectSchema = z.object({
+  projectName: z.string().min(3, "O nome do projeto deve ter no mínimo 3 caracteres."),
+});
+
+export type NewProjectFormData = z.infer<typeof newProjectSchema>;

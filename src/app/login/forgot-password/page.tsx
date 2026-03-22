@@ -5,6 +5,7 @@ import { Box, Typography, Stack } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { ForgotFormData } from "@/common/schemas/authSchema";
 
 import { forgotPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
@@ -12,8 +13,6 @@ import { useLoading } from "@/common/context/LoadingContext";
 import { useNavigation } from "@/common/hooks";
 import { BackToLogin } from "@/components/modules/auth/BackToLogin";
 import { useTranslation } from "@/common/provider";
-
-type ForgotFormData = { email: string };
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();

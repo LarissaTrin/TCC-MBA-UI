@@ -1,13 +1,8 @@
 import { apiClient } from "./apiClient";
 import { UserProfile } from "@/common/model";
+import { RegisterData } from "@/common/schemas/authSchema";
 
-export interface RegisterData {
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-  password: string;
-}
+export type { RegisterData };
 
 /**
  * Register a new user.

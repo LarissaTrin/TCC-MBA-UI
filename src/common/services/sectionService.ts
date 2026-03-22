@@ -3,51 +3,7 @@ import { Section, Card } from "../model";
 import { Status } from "../enum";
 import { mapCardsToTasks } from "../utils/cardMapper";
 import { Task } from "../model/timeline";
-
-/** Backend CardSchema response (camelCase) */
-interface CardApiResponse {
-  id: number;
-  cardNumber: number;
-  title: string;
-  description?: string;
-  priority?: number;
-  storyPoints?: number;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
-  listId?: number;
-  userId?: number;
-  blocked?: boolean;
-  createdAt: string;
-  updatedAt?: string;
-  user?: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  tagCards?: { id: number; tagId: number; tag?: { id: number; name: string } }[];
-  tasksCard?: {
-    id: number;
-    title: string;
-    date?: string;
-    completed: boolean;
-    user?: { id: number; firstName: string; lastName: string; email: string };
-  }[];
-  approvers?: {
-    id: number;
-    environment?: string;
-    userId?: number;
-    user?: { id: number; firstName: string; lastName: string; email: string };
-  }[];
-  comments?: {
-    id: number;
-    description: string;
-    createdAt?: string;
-    updatedAt?: string;
-    user?: { id: number; firstName: string; lastName: string; email: string };
-  }[];
-}
+import { CardApiResponse } from "../model/api/cardApiResponse";
 
 /** Backend ListSchema response (camelCase) */
 interface ListApiResponse {

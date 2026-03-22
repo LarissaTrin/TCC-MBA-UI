@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Path, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { RegisterFormData } from "@/common/schemas/authSchema";
 import {
   Box,
   Typography,
@@ -21,16 +22,6 @@ import { useNavigation } from "@/common/hooks";
 import { BackToLogin } from "@/components/modules/auth/BackToLogin";
 import { PolicyModal } from "@/components/modules/auth/PolicyModal";
 import { useTranslation } from "@/common/provider";
-
-type RegisterFormData = {
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-};
 
 export default function RegisterPage() {
   const { t } = useTranslation();

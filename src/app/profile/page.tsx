@@ -5,14 +5,13 @@ import { Box, Typography, Stack, Divider } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { PasswordFormData } from "@/common/schemas/profileSchema";
 
 import { GenericButton, GenericLoading, GenericPanel, GenericTextField } from "@/components";
 import { UserProfile } from "@/common/model";
 import { getProfile, updatePassword } from "@/common/services/userService";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useTranslation } from "@/common/provider";
-
-type PasswordFormData = { password?: string; confirmPassword?: string };
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>

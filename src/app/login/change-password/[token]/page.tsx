@@ -6,12 +6,11 @@ import { useRouter, useParams } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { ChangePasswordFormData } from "@/common/schemas/authSchema";
 
 import { resetPassword } from "@/common/services/authService";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
 import { useTranslation } from "@/common/provider";
-
-type ChangePasswordFormData = { password: string; confirmPassword: string };
 
 export default function ChangePasswordPage() {
   const { t } = useTranslation();

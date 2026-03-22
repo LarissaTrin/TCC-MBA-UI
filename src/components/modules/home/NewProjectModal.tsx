@@ -10,14 +10,13 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NewProjectFormData } from "@/common/schemas/projectSettingsSchema";
 import { GenericButton, GenericTextField } from "@/components";
 import { projectService } from "@/common/services";
 import { ButtonVariant } from "@/common/enum";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/common/context/LoadingContext";
 import { useTranslation } from "@/common/provider";
-
-type NewProjectFormData = { projectName: string };
 
 interface NewProjectModalProps {
   open: boolean;

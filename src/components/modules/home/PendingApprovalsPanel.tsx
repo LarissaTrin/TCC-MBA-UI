@@ -2,7 +2,7 @@
 
 import { Box, Chip, Typography } from "@mui/material";
 
-import { DashboardCard } from "@/common/services";
+import { DashboardCard } from "@/common/model/dashboard";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
 

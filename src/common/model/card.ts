@@ -2,7 +2,7 @@ import { Status } from "../enum";
 import { Approvers } from "./approvers";
 import { Comments } from "./comments";
 import { Tag } from "./tag";
-import { Tasks } from "./tasks";
+import { TaskCard } from "./tasks";
 import { User } from "./user";
 export interface Card {
   id: number;
@@ -19,9 +19,33 @@ export interface Card {
   order?: number;
   sortIndex: number;
   user?: User;
-  tasks?: Tasks[];
+  tasks?: TaskCard[];
   approvers?: Approvers[];
   comments?: Comments[];
   tags?: Tag[];
   blocked?: boolean;
+}
+
+export interface CardHistoryEntry {
+  id: number;
+  action: string;
+  oldValue?: string;
+  newValue?: string;
+  createdAt: string;
+}
+
+export interface CardDependencyItem {
+  id: number;
+  cardNumber: number;
+  title: string;
+}
+
+export interface CardDependenciesResponse {
+  dependencies: CardDependencyItem[];
+}
+
+export interface CardSearchResult {
+  id: number;
+  cardNumber: number;
+  title: string;
 }

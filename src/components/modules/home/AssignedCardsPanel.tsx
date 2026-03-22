@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
-import { DashboardCard } from "@/common/services";
+import { DashboardCard } from "@/common/model/dashboard";
 import {
   GenericList,
   GenericLoading,

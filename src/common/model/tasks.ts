@@ -1,7 +1,7 @@
 import { Dayjs } from "dayjs";
 import { User } from "./user";
 
-export interface Tasks {
+export interface TaskCard {
   id: number;
   title: string;
   date: Dayjs;

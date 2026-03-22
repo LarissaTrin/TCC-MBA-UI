@@ -2,7 +2,7 @@ import { ApexOptions } from "apexcharts";
 import {
   BurndownResponse,
   ProjectStatsResponse,
-} from "@/common/services/dashboardService";
+} from "@/common/model/dashboard";
 
 export const PRIORITY_LABEL: Record<number, string> = {
   1: "Muito baixa",

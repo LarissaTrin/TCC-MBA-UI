@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Project } from "@/common/model";
-import { dashboardService, DashboardCard, projectService } from "@/common/services";
+import { dashboardService, projectService } from "@/common/services";
+import { DashboardCard } from "@/common/model/dashboard";
 import { useLoading } from "@/common/context/LoadingContext";
 
 export function useHomePageData() {

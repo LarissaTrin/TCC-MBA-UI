@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useLoading } from "@/common/context/LoadingContext";
-import { dashboardService, DashboardCard } from "@/common/services";
+import { dashboardService } from "@/common/services";
+import { DashboardCard } from "@/common/model/dashboard";
 
 export function useMyDay() {
   const { withLoading } = useLoading();

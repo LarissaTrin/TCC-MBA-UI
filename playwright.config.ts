@@ -1,4 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+
+// Carrega variáveis de .env.local (credenciais de teste, IDs de projeto, etc.)
+dotenv.config({ path: path.join(__dirname, ".env.local") });
 
 export default defineConfig({
   testDir: "./test/e2e",

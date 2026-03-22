@@ -3,6 +3,12 @@ import { test, expect } from "../auth/fixtures";
 const PROJECT_ID = process.env.TEST_PROJECT_ID ?? "1";
 
 test.describe("Gerenciamento de Cards", () => {
+  test.beforeEach(async () => {
+    if (!process.env.TEST_EMAIL || !process.env.TEST_PASSWORD) {
+      test.skip();
+    }
+  });
+
   test.beforeEach(async ({ authenticatedPage }) => {
     await authenticatedPage.goto(`/project/${PROJECT_ID}?tab=board`);
     await authenticatedPage.waitForLoadState("networkidle");

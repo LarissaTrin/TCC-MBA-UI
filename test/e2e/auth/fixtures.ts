@@ -16,8 +16,8 @@ export async function loginAndSave(
 ) {
   await page.goto("/login");
   await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/senha/i).fill(password);
-  await page.getByRole("button", { name: /entrar/i }).click();
+  await page.getByLabel(/^password/i).fill(password);
+  await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForURL("**/home");
   await page.context().storageState({ path: AUTH_STORAGE });
 }

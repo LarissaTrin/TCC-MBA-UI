@@ -5,18 +5,24 @@ import { test, expect } from "../auth/fixtures";
 const PROJECT_ID = process.env.TEST_PROJECT_ID ?? "1";
 
 test.describe("Board Kanban", () => {
+  test.beforeEach(async () => {
+    if (!process.env.TEST_EMAIL || !process.env.TEST_PASSWORD) {
+      test.skip();
+    }
+  });
+
   test.beforeEach(async ({ authenticatedPage }) => {
     await authenticatedPage.goto(`/project/${PROJECT_ID}?tab=board`);
-    // Aguarda colunas do board carregar
-    await authenticatedPage.waitForSelector("[data-testid='droppable-column'], .board-column, [class*='accordion']", {
+    // Aguarda pelo menos uma coluna do board carregar (GenericAccordion usa id="generic-accordion")
+    await authenticatedPage.waitForSelector("#generic-accordion", {
       timeout: 15_000,
       state: "visible",
     });
   });
 
   test("exibe colunas do projeto na aba board", async ({ authenticatedPage }) => {
-    // Pelo menos uma coluna deve estar visível
-    const columns = authenticatedPage.locator("[class*='Accordion'], [class*='accordion']");
+    // Pelo menos uma coluna deve estar visível (GenericAccordion usa id="generic-accordion")
+    const columns = authenticatedPage.locator("#generic-accordion");
     await expect(columns.first()).toBeVisible();
   });
 

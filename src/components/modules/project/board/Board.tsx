@@ -1,57 +1,131 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 import { Box, Button, Typography } from "@mui/material";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
+import { BoardFilters } from "./BoardFilters";
+import { useBoardFilters } from "./useBoardFilters";
 import { Card, Section, Task as TaskModel } from "@/common/model";
-import { cardService } from "@/common/services";
+import { cardService, sectionService } from "@/common/services";
+import { mapCardsToTasks } from "@/common/utils/cardMapper";
 import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
+type ListPaginationState = {
+  page: number;
+  hasMore: boolean;
+  loading: boolean;
+};
+
+type PaginationMap = Record<string, ListPaginationState>;
+
 export function BoardContent({
   sections,
-  tasks,
   loading,
   setSelectCardId,
-  onCardCreated,
+  projectId,
+  lastUpdatedCard,
 }: {
   sections: Section[];
-  tasks: TaskModel[];
   loading: boolean;
   setSelectCardId: (id: string) => void;
-  onCardCreated?: (card: Card) => void;
+  projectId: number;
+  lastUpdatedCard?: Card;
 }) {
   const { t } = useTranslation();
+
+  // All loaded cards per section (source of truth for pagination)
+  const [allLoadedCards, setAllLoadedCards] = useState<Record<string, Card[]>>({});
+  const [paginationMap, setPaginationMap] = useState<PaginationMap>({});
+
+  // Drag-drop state
   const [containers, setContainers] = useState<KanbanContainers>({});
   const containersRef = useRef<KanbanContainers>({});
+
   const [triggerAddFirst, setTriggerAddFirst] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
+  // Flat list of all loaded tasks — fed to the filter hook
+  const allTasksFlat: TaskModel[] = React.useMemo(
+    () => mapCardsToTasks(Object.values(allLoadedCards).flat()),
+    [allLoadedCards],
+  );
+
+  const {
+    form: filterForm,
+    filteredTasks,
+    isFiltered,
+    resetFilters,
+    handleApply,
+    tagSearch,
+    memberSearch,
+  } = useBoardFilters(allTasksFlat, projectId);
+
+  // Load cards for a single section
+  const loadCards = useCallback(
+    async (section: Section, page: number) => {
+      setPaginationMap((prev) => ({
+        ...prev,
+        [section.id]: { ...(prev[section.id] ?? { page: 0, hasMore: false }), loading: true },
+      }));
+
+      try {
+        const result = await sectionService.getCardsByList(projectId, section, page, 20);
+
+        setAllLoadedCards((prev) => {
+          const existing = page === 1 ? [] : (prev[section.id] ?? []);
+          return { ...prev, [section.id]: [...existing, ...result.cards] };
+        });
+
+        setPaginationMap((prev) => ({
+          ...prev,
+          [section.id]: { page, hasMore: result.hasMore, loading: false },
+        }));
+      } catch {
+        setPaginationMap((prev) => ({
+          ...prev,
+          [section.id]: { ...(prev[section.id] ?? { page: 1, hasMore: false }), loading: false },
+        }));
+      }
+    },
+    [projectId],
+  );
+
+  // Initial load when sections change
+  useEffect(() => {
+    if (!projectId || sections.length === 0) return;
+    setAllLoadedCards({});
+    setPaginationMap({});
+    sections.forEach((s) => loadCards(s, 1));
+  }, [sections, projectId]);
+
+  // Sync containers from filteredTasks
   useEffect(() => {
     const result: KanbanContainers = {};
     sections.forEach((s) => {
       result[s.id] = [];
     });
 
-    tasks.forEach((card) => {
-      if (result[card.sectionId]) {
-        result[card.sectionId].push({
-          id: String(card.id),
-          title: card.title,
-          columnId: String(card.sectionId),
-          index: card.index,
-          priority: card.priority,
-          tags: card.tags,
-          userDisplay: card.userDisplay,
-          taskTotal: card.taskTotal,
-          taskCompleted: card.taskCompleted,
-          blocked: card.blocked,
+    filteredTasks.forEach((task) => {
+      const sid = String(task.sectionId);
+      if (result[sid]) {
+        result[sid].push({
+          id: String(task.id),
+          title: task.title,
+          columnId: sid,
+          index: task.index,
+          priority: task.priority,
+          tags: task.tags,
+          userDisplay: task.userDisplay,
+          taskTotal: task.taskTotal,
+          taskCompleted: task.taskCompleted,
+          blocked: task.blocked,
         });
       }
     });
@@ -62,29 +136,31 @@ export function BoardContent({
 
     containersRef.current = result;
     setContainers(result);
-  }, [sections, tasks]);
+  }, [filteredTasks, sections]);
+
+  // Apply card update from drawer save
+  useEffect(() => {
+    if (!lastUpdatedCard) return;
+    setAllLoadedCards((prev) => {
+      const sid = lastUpdatedCard.sectionId;
+      if (!prev[sid]) return prev;
+      return {
+        ...prev,
+        [sid]: prev[sid].map((c) => (c.id === lastUpdatedCard.id ? lastUpdatedCard : c)),
+      };
+    });
+  }, [lastUpdatedCard]);
 
   const handleAddCard = async (sectionId: string, title: string) => {
+    const section = sections.find((s) => s.id === sectionId);
+    if (!section) return;
     const listId = Number(sectionId);
     const created = await cardService.create(title, listId);
-    const currentTasks = containersRef.current[sectionId] ?? [];
-    const newTask: TaskProps = {
-      id: String(created.id),
-      title: created.name,
-      columnId: sectionId,
-      index: currentTasks.length,
-      priority: created.priority,
-      tags: created.tags ?? [],
-      userDisplay: created.user ? `${created.user.firstName} ${created.user.lastName}` : undefined,
-      taskTotal: created.tasks?.length ?? 0,
-      taskCompleted: created.tasks?.filter((t) => t.completed).length ?? 0,
-    };
-    setContainers((prev) => {
-      const next = { ...prev, [sectionId]: [...(prev[sectionId] ?? []), newTask] };
-      containersRef.current = next;
-      return next;
+
+    setAllLoadedCards((prev) => {
+      const existing = prev[sectionId] ?? [];
+      return { ...prev, [sectionId]: [...existing, created] };
     });
-    onCardCreated?.(created);
   };
 
   if (loading) return <Box>{t("common.loading")}</Box>;
@@ -113,12 +189,20 @@ export function BoardContent({
 
   return (
     <Box>
-      <Box justifyContent={"flex-end"} display={"flex"} gap={1}>
+      <Box justifyContent={"flex-end"} display={"flex"} gap={1} alignItems="center">
         {viewMode === "board" && sections.length > 0 && (
           <Button variant="outlined" onClick={() => setTriggerAddFirst(true)} sx={{ mb: 2 }}>
             {t("project.addCard")}
           </Button>
         )}
+        <BoardFilters
+          form={filterForm}
+          tagSearch={tagSearch}
+          memberSearch={memberSearch}
+          isFiltered={isFiltered}
+          onApply={handleApply}
+          onClear={resetFilters}
+        />
         <Button
           variant="contained"
           onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
@@ -143,7 +227,6 @@ export function BoardContent({
               if (!source) return;
               const activeId = String(source.id);
 
-              // Search updated containers state (over.id may be an item ID, not a container ID)
               let destContainerId: string | null = null;
               let newIndex = -1;
               for (const [containerId, items] of Object.entries(containersRef.current)) {
@@ -169,34 +252,46 @@ export function BoardContent({
             }}
           >
             <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
-              {sections.map((section, idx) => (
-                <DroppableContainer
-                  key={section.id}
-                  id={section.id}
-                  title={section.name}
-                  activeColapsed={idx === 0 || idx === sections.length - 1}
-                  onAddCard={handleAddCard}
-                  triggerAdd={idx === 0 ? triggerAddFirst : false}
-                  forceExpand={idx === 0 ? triggerAddFirst : false}
-                  onAddTriggerHandled={idx === 0 ? () => setTriggerAddFirst(false) : undefined}
-                >
-                  {(containers[section.id] || []).map((task, index) => (
-                    <Task
-                      key={task.id}
-                      id={task.id}
-                      title={task.title}
-                      columnId={section.id}
-                      index={index}
-                      onClick={() => setSelectCardId(task.id)}
-                      tags={task.tags}
-                      userDisplay={task.userDisplay}
-                      taskTotal={task.taskTotal}
-                      taskCompleted={task.taskCompleted}
-                      blocked={task.blocked}
-                    />
-                  ))}
-                </DroppableContainer>
-              ))}
+              {sections.map((section, idx) => {
+                const pagination = paginationMap[section.id];
+                return (
+                  <DroppableContainer
+                    key={section.id}
+                    id={section.id}
+                    title={section.name}
+                    activeColapsed={idx === 0 || idx === sections.length - 1}
+                    onAddCard={handleAddCard}
+                    triggerAdd={idx === 0 ? triggerAddFirst : false}
+                    forceExpand={idx === 0 ? triggerAddFirst : false}
+                    onAddTriggerHandled={idx === 0 ? () => setTriggerAddFirst(false) : undefined}
+                    hasMore={pagination?.hasMore}
+                    loadingMore={pagination?.loading && (allLoadedCards[section.id]?.length ?? 0) > 0}
+                    onLoadMore={() => loadCards(section, (pagination?.page ?? 1) + 1)}
+                  >
+                    {pagination?.loading && (allLoadedCards[section.id]?.length ?? 0) === 0 ? (
+                      <Box sx={{ p: 1, opacity: 0.5, fontSize: "0.8rem", textAlign: "center" }}>
+                        {t("common.loading")}
+                      </Box>
+                    ) : (
+                      (containers[section.id] || []).map((task, index) => (
+                        <Task
+                          key={task.id}
+                          id={task.id}
+                          title={task.title}
+                          columnId={section.id}
+                          index={index}
+                          onClick={() => setSelectCardId(task.id)}
+                          tags={task.tags}
+                          userDisplay={task.userDisplay}
+                          taskTotal={task.taskTotal}
+                          taskCompleted={task.taskCompleted}
+                          blocked={task.blocked}
+                        />
+                      ))
+                    )}
+                  </DroppableContainer>
+                );
+              })}
             </Box>
           </DragDropProvider>
         </Box>

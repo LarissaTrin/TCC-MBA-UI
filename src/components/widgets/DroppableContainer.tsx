@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/react";
 import { CollisionPriority } from "@dnd-kit/abstract";
-import { Box, TextField } from "@mui/material";
+import { Box, CircularProgress, TextField } from "@mui/material";
 import { GenericAccordion } from "./Accordion";
 import { GenericButton } from "./";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
@@ -17,6 +17,9 @@ interface ColumnProps {
   triggerAdd?: boolean;
   forceExpand?: boolean;
   onAddTriggerHandled?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 export function DroppableContainer({
@@ -28,6 +31,9 @@ export function DroppableContainer({
   triggerAdd,
   forceExpand,
   onAddTriggerHandled,
+  hasMore,
+  loadingMore,
+  onLoadMore,
 }: ColumnProps) {
   const { ref } = useDroppable({
     id,
@@ -125,6 +131,21 @@ export function DroppableContainer({
           </Box>
         )}
         {children}
+        {hasMore && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+            {loadingMore ? (
+              <CircularProgress size={16} />
+            ) : (
+              <GenericButton
+                label="Load more"
+                startIcon="expand_more"
+                size={GeneralSize.Small}
+                variant={ButtonVariant.Text}
+                onClick={onLoadMore}
+              />
+            )}
+          </Box>
+        )}
       </Box>
     </GenericAccordion>
     </div>

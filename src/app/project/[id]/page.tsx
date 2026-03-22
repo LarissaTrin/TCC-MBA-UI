@@ -11,8 +11,6 @@ import { DashboardContent } from "@/components/modules/project/dashboard/Dashboa
 import { BoardContent } from "@/components/modules/project/board/Board";
 import { TimelineContent } from "@/components/modules/project/timeline/Timeline";
 import { CardContent } from "@/components/modules/project/card/Card";
-import { BoardFilters } from "@/components/modules/project/board/BoardFilters";
-import { useBoardFilters } from "@/components/modules/project/board/useBoardFilters";
 import { ProjectSettingsDialog } from "@/components/modules/project/settings/ProjectSettingsDialog";
 import { GenericButton } from "@/components/widgets";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
@@ -35,27 +33,32 @@ export default function ProjectPage() {
   const openCard = (id: string) => setCardStack((prev) => [...prev, id]);
   const closeTopCard = () => setCardStack((prev) => prev.slice(0, -1));
   const [sections, setSections] = useState<Section[]>([]);
-  const [rawCards, setRawCards] = useState<Card[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [timelineTasks, setTimelineTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [userRole, setUserRole] = useState<string>("User");
   const [projectTitle, setProjectTitle] = useState<string>("");
   const [projectDescription, setProjectDescription] = useState<string>("");
+  const [lastUpdatedCard, setLastUpdatedCard] = useState<Card | undefined>();
 
+  // Load sections only (fast — Board loads cards itself with pagination)
   useEffect(() => {
     if (!projectId) return;
-    withLoading(() => sectionService.getListsWithCards(projectId)).then(
-      ({ sections: secs, cards }) => {
-        const orderedSections = [...secs].sort((a, b) => a.order - b.order);
-        setSections(orderedSections);
-        setRawCards(cards);
-        setTasks(mapCardsToTasks(cards));
-        setLoading(false);
-      },
-    );
+    withLoading(() => sectionService.getSectionsOnly(projectId)).then((secs) => {
+      const orderedSections = [...secs].sort((a, b) => a.order - b.order);
+      setSections(orderedSections);
+      setLoading(false);
+    });
   }, [projectId, withLoading]);
+
+  // Load all cards for Timeline
+  useEffect(() => {
+    if (!projectId) return;
+    sectionService.getListsWithCards(projectId).then(({ cards }) => {
+      setTimelineTasks(mapCardsToTasks(cards));
+    });
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -72,18 +75,7 @@ export default function ProjectPage() {
     });
   }, [projectId, session?.user?.id, withLoading]);
 
-  const {
-    form: filterForm,
-    filteredTasks,
-    isFiltered,
-    resetFilters,
-    handleApply,
-    tagSearch,
-    memberSearch,
-  } = useBoardFilters(tasks, projectId);
-
   const activeTabValue = searchParams.get("tab") || "dashboard";
-  const showFilters = activeTabValue === "board" || activeTabValue === "timeline";
 
   const tabsConfig = [
     {
@@ -98,9 +90,9 @@ export default function ProjectPage() {
         <BoardContent
           sections={sections}
           setSelectCardId={(cardId: string) => openCard(cardId)}
-          tasks={filteredTasks}
           loading={loading}
-          onCardCreated={(card) => setTasks((prev) => [...prev, ...mapCardsToTasks([card])])}
+          projectId={projectId}
+          lastUpdatedCard={lastUpdatedCard}
         />
       ),
     },
@@ -111,8 +103,8 @@ export default function ProjectPage() {
         <TimelineContent
           setSelectCardId={(cardId: string) => openCard(cardId)}
           sections={sections}
-          tasks={filteredTasks}
-          setTasks={setTasks}
+          tasks={timelineTasks}
+          setTasks={setTimelineTasks}
           loading={loading}
         />
       ),
@@ -140,16 +132,6 @@ export default function ProjectPage() {
           tabsList={tabsConfig}
         />
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          {showFilters && (
-            <BoardFilters
-              form={filterForm}
-              tagSearch={tagSearch}
-              memberSearch={memberSearch}
-              isFiltered={isFiltered}
-              onApply={handleApply}
-              onClear={resetFilters}
-            />
-          )}
           <GenericButton
             startIcon="settings"
             label={t("project.settings")}
@@ -163,19 +145,21 @@ export default function ProjectPage() {
       <Box sx={{ p: 2, flexGrow: 1 }}>
         {tabsConfig[selectedTabIndex]?.content}
       </Box>
+
       {cardStack.map((cardId, idx) => (
         <CardContent
           key={`${idx}-${cardId}`}
           id={cardId}
           sections={sections}
           onClose={closeTopCard}
-          onSaved={(updatedCard) =>
-            setTasks((prev) =>
+          onSaved={(updatedCard) => {
+            setLastUpdatedCard(updatedCard);
+            setTimelineTasks((prev) =>
               prev.map((t) =>
                 t.id === updatedCard.id ? mapCardsToTasks([updatedCard])[0] : t,
               ),
-            )
-          }
+            );
+          }}
           userRole={userRole}
           projectMembers={projectMembers}
           projectId={projectId}
@@ -183,6 +167,7 @@ export default function ProjectPage() {
           extraZIndex={idx * 50}
         />
       ))}
+
       <ProjectSettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

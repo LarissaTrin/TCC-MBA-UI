@@ -1,6 +1,7 @@
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   boardFilterSchema,
   BoardFilterData,
@@ -55,16 +56,39 @@ function applyFilters(tasks: Task[], filters: BoardFilterData): Task[] {
   });
 }
 
+function parseArrayParam(value: string | null): string[] {
+  if (!value) return [];
+  return value.split(",").filter(Boolean);
+}
+
 export function useBoardFilters(tasks: Task[], projectId?: number) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const form = useForm<BoardFilterData>({
     resolver: zodResolver(boardFilterSchema),
-    defaultValues: BOARD_FILTER_DEFAULTS,
+    defaultValues: {
+      search: searchParams.get("search") ?? "",
+      tags: parseArrayParam(searchParams.get("tags")),
+      users: parseArrayParam(searchParams.get("users")),
+      dateFrom: searchParams.get("dateFrom") ?? "",
+      dateTo: searchParams.get("dateTo") ?? "",
+    },
   });
-
-  const [appliedFilters, setAppliedFilters] = useState<BoardFilterData>(BOARD_FILTER_DEFAULTS);
 
   const tagSearch = useProjectTagSearch(projectId);
   const memberSearch = useProjectMemberSearch(projectId);
+
+  const appliedFilters: BoardFilterData = useMemo(
+    () => ({
+      search: searchParams.get("search") ?? "",
+      tags: parseArrayParam(searchParams.get("tags")),
+      users: parseArrayParam(searchParams.get("users")),
+      dateFrom: searchParams.get("dateFrom") ?? "",
+      dateTo: searchParams.get("dateTo") ?? "",
+    }),
+    [searchParams],
+  );
 
   const filteredTasks = useMemo(
     () => applyFilters(tasks, appliedFilters),
@@ -74,13 +98,37 @@ export function useBoardFilters(tasks: Task[], projectId?: number) {
   const isFiltered = isFilterActive(appliedFilters);
 
   const handleApply = useCallback(() => {
-    setAppliedFilters(form.getValues());
-  }, [form]);
+    const values = form.getValues();
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (values.search) params.set("search", values.search);
+    else params.delete("search");
+
+    if (values.tags.length > 0) params.set("tags", values.tags.join(","));
+    else params.delete("tags");
+
+    if (values.users.length > 0) params.set("users", values.users.join(","));
+    else params.delete("users");
+
+    if (values.dateFrom) params.set("dateFrom", values.dateFrom);
+    else params.delete("dateFrom");
+
+    if (values.dateTo) params.set("dateTo", values.dateTo);
+    else params.delete("dateTo");
+
+    router.replace(`?${params.toString()}`);
+  }, [form, router, searchParams]);
 
   const resetFilters = useCallback(() => {
     form.reset(BOARD_FILTER_DEFAULTS);
-    setAppliedFilters(BOARD_FILTER_DEFAULTS);
-  }, [form]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("tags");
+    params.delete("users");
+    params.delete("dateFrom");
+    params.delete("dateTo");
+    router.replace(`?${params.toString()}`);
+  }, [form, router, searchParams]);
 
   return {
     form,

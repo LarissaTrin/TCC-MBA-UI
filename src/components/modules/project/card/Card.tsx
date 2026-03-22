@@ -10,6 +10,7 @@ import {
   GenericButtonGroup,
   GenericPoper,
   GenericAutoComplete,
+  GenericIcon,
 } from "@/components/widgets";
 import {
   Box,
@@ -142,12 +143,22 @@ export function CardContent({
         title: t.title,
         date: t.date ? dayjs(t.date) : dayjs(),
         completed: t.completed,
-        user: { id: t.userId ? Number(t.userId) : 0, firstName: t.userName ?? "", lastName: "", email: "" },
+        user: {
+          id: t.userId ? Number(t.userId) : 0,
+          firstName: t.userName ?? "",
+          lastName: "",
+          email: "",
+        },
       })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id,
         environment: a.environment,
-        user: { id: a.userId ? Number(a.userId) : 0, firstName: a.userName ?? "", lastName: "", email: "" },
+        user: {
+          id: a.userId ? Number(a.userId) : 0,
+          firstName: a.userName ?? "",
+          lastName: "",
+          email: "",
+        },
       })),
       tags: (data.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
     };
@@ -204,7 +215,8 @@ export function CardContent({
           if (loadedCard.user?.id) {
             userSearch.seedOption({
               value: String(loadedCard.user.id),
-              label: `${loadedCard.user.firstName} ${loadedCard.user.lastName}`.trim(),
+              label:
+                `${loadedCard.user.firstName} ${loadedCard.user.lastName}`.trim(),
             });
           }
 
@@ -225,16 +237,23 @@ export function CardContent({
               title: t.title,
               date: t.date ? dayjs(t.date).format("YYYY-MM-DD") : "",
               completed: t.completed,
-              userName: t.user ? `${t.user.firstName} ${t.user.lastName}`.trim() : "",
+              userName: t.user
+                ? `${t.user.firstName} ${t.user.lastName}`.trim()
+                : "",
               userId: t.user?.id ? String(t.user.id) : "",
             })),
             approvers: (loadedCard.approvers ?? []).map((a) => ({
               id: a.id,
               environment: a.environment,
-              userName: a.user ? `${a.user.firstName} ${a.user.lastName}`.trim() : "",
+              userName: a.user
+                ? `${a.user.firstName} ${a.user.lastName}`.trim()
+                : "",
               userId: a.user?.id ? String(a.user.id) : "",
             })),
-            tags: (loadedCard.tags ?? []).map((t) => ({ id: t.id, name: t.name })),
+            tags: (loadedCard.tags ?? []).map((t) => ({
+              id: t.id,
+              name: t.name,
+            })),
             blocked: loadedCard.blocked ?? false,
           });
           setInitialComments(loadedCard.comments ?? []);
@@ -249,9 +268,20 @@ export function CardContent({
     if (!card) return <Box>Card</Box>;
 
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", width: "100%", gap: 0.75 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          gap: 0.75,
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontWeight: 600, whiteSpace: "nowrap" }}
+          >
             #{card.sortIndex}
           </Typography>
           <Box sx={{ flex: 1 }}>
@@ -264,16 +294,21 @@ export function CardContent({
           </Box>
           {homeMode && projectId && (
             <Tooltip title={t("card.viewInProject")}>
-              <IconButton size="small" onClick={() => navigate(`/project/${projectId}`)}>
-                <span className="material-icons" style={{ fontSize: 20 }}>open_in_new</span>
+              <IconButton
+                size="small"
+                onClick={() => navigate(`/project/${projectId}`)}
+              >
+                <GenericIcon icon="open_in_new" />
               </IconButton>
             </Tooltip>
           )}
-          <Tooltip title={isFullScreen ? t("card.exitFullscreen") : t("card.expand")}>
+          <Tooltip
+            title={isFullScreen ? t("card.exitFullscreen") : t("card.expand")}
+          >
             <IconButton size="small" onClick={() => setIsFullScreen((v) => !v)}>
-              <span className="material-icons" style={{ fontSize: 20 }}>
-                {isFullScreen ? "fullscreen_exit" : "fullscreen"}
-              </span>
+              <GenericIcon
+                icon={isFullScreen ? "fullscreen_exit" : "fullscreen"}
+              />
             </IconButton>
           </Tooltip>
           <GenericButtonGroup
@@ -293,7 +328,9 @@ export function CardContent({
             open={openOptions}
             onClose={handleCloseOptions}
           >
-            <MenuItem onClick={handleSubmit(onSubmit)}>{t("card.saveAndClose")}</MenuItem>
+            <MenuItem onClick={handleSubmit(onSubmit)}>
+              {t("card.saveAndClose")}
+            </MenuItem>
             <MenuItem onClick={handleClose}>{t("card.close")}</MenuItem>
             {canDeleteCard && (
               <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
@@ -342,7 +379,12 @@ export function CardContent({
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
-        sx={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden",
+        }}
       >
         <Tabs
           value={activeTab}
@@ -352,7 +394,12 @@ export function CardContent({
           sx={{ borderBottom: 1, borderColor: "divider", flexShrink: 0 }}
         >
           {TABS.map((tab) => (
-            <Tab key={tab.value} label={tab.label} value={tab.value} sx={{ minWidth: 90 }} />
+            <Tab
+              key={tab.value}
+              label={tab.label}
+              value={tab.value}
+              sx={{ minWidth: 90 }}
+            />
           ))}
         </Tabs>
 
@@ -363,7 +410,11 @@ export function CardContent({
                 {homeMode ? (
                   <TextField
                     label={t("card.details.user")}
-                    value={card?.user ? `${card.user.firstName} ${card.user.lastName}`.trim() : "—"}
+                    value={
+                      card?.user
+                        ? `${card.user.firstName} ${card.user.lastName}`.trim()
+                        : "—"
+                    }
                     size="small"
                     fullWidth
                     disabled
@@ -374,7 +425,9 @@ export function CardContent({
                     options={userSearch.options}
                     loading={userSearch.loading}
                     filterOptions={(x) => x}
-                    onInputChange={(_, value, reason) => { if (reason === "input") userSearch.search(value); }}
+                    onInputChange={(_, value, reason) => {
+                      if (reason === "input") userSearch.search(value);
+                    }}
                     name="user"
                     control={form.control}
                   />
@@ -384,7 +437,11 @@ export function CardContent({
                 {homeMode ? (
                   <TextField
                     label={t("card.details.section")}
-                    value={card?.sectionId ? (sectionNameMap[card.sectionId] ?? card.sectionId) : "—"}
+                    value={
+                      card?.sectionId
+                        ? (sectionNameMap[card.sectionId] ?? card.sectionId)
+                        : "—"
+                    }
                     size="small"
                     fullWidth
                     disabled
@@ -443,18 +500,27 @@ export function CardContent({
                   slotProps={{ input: { inputProps: { min: 0, step: 1 } } }}
                 />
               </Grid>
-               <Grid size={12}>
+              <Grid size={12}>
                 <FormControlLabel
                   control={
                     <Switch
                       checked={!!form.watch("blocked")}
-                      onChange={(e) => form.setValue("blocked", e.target.checked)}
+                      onChange={(e) =>
+                        form.setValue("blocked", e.target.checked)
+                      }
                       color="error"
                     />
                   }
                   label={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                      <Typography variant="body2" color={form.watch("blocked") ? "error" : "text.secondary"}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color={
+                          form.watch("blocked") ? "error" : "text.secondary"
+                        }
+                      >
                         Blocked
                       </Typography>
                     </Box>
@@ -474,7 +540,9 @@ export function CardContent({
             </Grid>
           )}
 
-          {activeTab === 1 && <CardTasksSection form={form} projectId={projectId} />}
+          {activeTab === 1 && (
+            <CardTasksSection form={form} projectId={projectId} />
+          )}
 
           {activeTab === 2 && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>

@@ -52,6 +52,7 @@ export function DroppableContainer({
       setIsAdding(true);
       onAddTriggerHandled?.();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerAdd]);
 
   const handleSubmit = async () => {

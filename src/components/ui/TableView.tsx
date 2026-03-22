@@ -92,7 +92,7 @@ export function TableView({ containers, setContainers, sections }: TableViewProp
     Object.keys(containers).forEach((key) => {
       updatedContainers[key] = reordered
         .filter((t) => containers[key].some((ct) => ct?.id === t?.id))
-        .map(({ column, ...rest }) => rest);
+        .map(({ column: _column, ...rest }) => rest);
     });
 
     setContainers(updatedContainers);

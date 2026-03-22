@@ -103,6 +103,7 @@ export function BoardContent({
     setAllLoadedCards({});
     setPaginationMap({});
     sections.forEach((s) => loadCards(s, 1));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sections, projectId]);
 
   // Sync containers from filteredTasks

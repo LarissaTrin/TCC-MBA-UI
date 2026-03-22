@@ -61,7 +61,7 @@ export function CardContent({
   onClose,
   onSaved,
   userRole = "User",
-  projectMembers = [],
+  projectMembers: _projectMembers = [],
   projectId,
   onOpenCard,
   extraZIndex = 0,
@@ -262,6 +262,7 @@ export function CardContent({
         setLoading(false);
       })
       .catch(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, form]);
 
   const renderHeader = () => {

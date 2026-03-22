@@ -43,8 +43,8 @@ import {
   getDaysDiff,
   generateTimelineMonths,
 } from "../../../../common/utils/timelineUtils";
-import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
-import { Card, Section } from "@/common/model";
+import { GeneralSize, ButtonVariant } from "@/common/enum";
+import { Section } from "@/common/model";
 import { cardService } from "@/common/services";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,20 +55,6 @@ import {
 import { mapCardsToTasks } from "@/common/utils/cardMapper";
 import { useTranslation } from "@/common/provider";
 
-function pickColorByStatus(card: Card): string {
-  switch (card.status) {
-    case Status.Pending:
-      return "#f97316";
-    case Status.InProgress:
-      return "#3b82f6";
-    case Status.Validation:
-      return "#eab308";
-    case Status.Done:
-      return "#10b981";
-    default:
-      return "#6b7280";
-  }
-}
 
 interface TimelineContentProps {
   sections: Section[];
@@ -81,9 +67,9 @@ interface TimelineContentProps {
 export function TimelineContent({
   sections,
   tasks,
-  loading,
+  loading: _loading,
   setTasks,
-  setSelectCardId,
+  setSelectCardId: _setSelectCardId,
 }: TimelineContentProps) {
   const { t } = useTranslation();
   const now = useMemo(() => new Date(), []);
@@ -196,6 +182,7 @@ export function TimelineContent({
         })
         .catch(console.error);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

@@ -9,7 +9,7 @@ export function GenericTextField<T extends FieldValues>({
   name,
   label,
   variant = "outlined",
-  defaultValue,
+  defaultValue: _defaultValue,
   disabled = false,
   required = false,
   type = "text",

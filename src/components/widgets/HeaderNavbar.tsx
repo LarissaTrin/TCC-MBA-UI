@@ -26,7 +26,6 @@ import { useTranslation } from "@/common/provider";
 export function GenericHeader({
   onMenuClick,
   fullName = "",
-  ...props
 }: GenericHeaderProps) {
   const router = useRouter();
   const { t } = useTranslation();

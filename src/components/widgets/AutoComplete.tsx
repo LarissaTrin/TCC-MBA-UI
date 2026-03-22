@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Autocomplete,
   AutocompleteValue,
@@ -18,7 +18,7 @@ import { GenericTooltip } from "./Tooltip";
 import getSxProps from "@/common/utils/getSxProps";
 
 import * as S from "@/common/styles/components/auto-complete";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 
 /**
  * `BdtAutoComplete` component implementation.
@@ -40,7 +40,7 @@ export function GenericAutoComplete<
   error = false,
   helperText = "",
   endAdornment,
-  tooltipEndAdornment,
+  tooltipEndAdornment: _tooltipEndAdornment,
   clickEndAdornment,
   hideArrow,
   freeSolo = false as FreeSolo,
@@ -48,12 +48,12 @@ export function GenericAutoComplete<
   checkboxSelection = false,
   name,
   control,
-  textFieldProps,
+  textFieldProps: _textFieldProps,
   ...props
 }: GenericAutoCompleteProps<TFieldValues, IsMultiple, FreeSolo>) {
   const theme = useTheme();
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [, setOpen] = useState<boolean>(false);
 
   const filter = createFilterOptions<AutocompleteOption>();
 

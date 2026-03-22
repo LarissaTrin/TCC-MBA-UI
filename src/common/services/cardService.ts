@@ -2,7 +2,6 @@ import { apiClient } from "./apiClient";
 import { Card } from "../model";
 import {
   CardHistoryEntry,
-  CardDependencyItem,
   CardDependenciesResponse,
   CardSearchResult,
 } from "../model/card";

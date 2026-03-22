@@ -1,14 +1,9 @@
 import { apiClient } from "./apiClient";
 import {
-  DashboardCard,
   MyDayResponse,
   PendingApprovalsResponse,
   MyCardsResponse,
-  ListDistribution,
-  PriorityDistribution,
-  TagDistribution,
   ProjectStatsResponse,
-  BurndownPoint,
   BurndownResponse,
 } from "../model/dashboard";
 

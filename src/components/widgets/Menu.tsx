@@ -39,7 +39,7 @@ import { GenericMenuProps } from "@/common/model";
  * - Each menu item's `onClick` will be called before closing the menu.
  */
 
-export function GenericMenu({ items, children, ...props }: GenericMenuProps) {
+export function GenericMenu({ items, children }: GenericMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 

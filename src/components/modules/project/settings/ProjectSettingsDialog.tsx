@@ -59,7 +59,7 @@ export function ProjectSettingsDialog({
 
   const handleDeleteProject = () => {
     onClose();
-    navigate("/home");
+    navigate("/");
   };
 
   return (

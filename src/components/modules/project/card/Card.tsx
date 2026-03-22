@@ -522,7 +522,7 @@ export function CardContent({
                           form.watch("blocked") ? "error" : "text.secondary"
                         }
                       >
-                        Blocked
+                        {t("card.blocked")}
                       </Typography>
                     </Box>
                   }

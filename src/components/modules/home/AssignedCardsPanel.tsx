@@ -8,6 +8,7 @@ import {
   GenericChip,
   DashboardPanel,
 } from "@/components";
+import { useTranslation } from "@/common/provider";
 
 interface AssignedCardsPanelProps {
   cards: DashboardCard[];
@@ -22,6 +23,7 @@ export function AssignedCardsPanel({
   onCardClick,
   embedded = false,
 }: AssignedCardsPanelProps) {
+  const { t } = useTranslation();
   function renderCardLabel(card: DashboardCard) {
     return (
       <Box
@@ -56,5 +58,5 @@ export function AssignedCardsPanel({
 
   if (embedded) return content;
 
-  return <DashboardPanel title="Assigned to Me">{content}</DashboardPanel>;
+  return <DashboardPanel title={t("home.tabs.assignedToMe")}>{content}</DashboardPanel>;
 }

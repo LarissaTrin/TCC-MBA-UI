@@ -6,13 +6,21 @@ import { DashboardCard } from "@/common/model/dashboard";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
 
-function CardRow({ card, locale }: { card: DashboardCard; locale: string }) {
+function CardRow({ card, locale, onClick }: { card: DashboardCard; locale: string; onClick?: () => void }) {
   const formattedDate = card.date
     ? new Date(card.date).toLocaleDateString(locale, { day: "2-digit", month: "2-digit" })
     : null;
 
   return (
-    <Box display="flex" justifyContent="space-between" alignItems="center" py={1} gap={1}>
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      py={1}
+      gap={1}
+      onClick={onClick}
+      sx={{ cursor: onClick ? "pointer" : "default", borderRadius: 1, "&:hover": onClick ? { bgcolor: "action.hover" } : {} }}
+    >
       <Box minWidth={0}>
         <Typography variant="body2" fontWeight="medium" noWrap>
           {card.title}
@@ -45,10 +53,11 @@ interface MyDayPanelProps {
   dueToday: DashboardCard[];
   overdue: DashboardCard[];
   isLoading: boolean;
+  onCardClick?: (id: string, projectId: number) => void;
   embedded?: boolean;
 }
 
-export function MyDayPanel({ dueToday, overdue, isLoading, embedded = false }: MyDayPanelProps) {
+export function MyDayPanel({ dueToday, overdue, isLoading, onCardClick, embedded = false }: MyDayPanelProps) {
   const { t, locale } = useTranslation();
 
   const content = isLoading ? (
@@ -61,7 +70,7 @@ export function MyDayPanel({ dueToday, overdue, isLoading, embedded = false }: M
       {dueToday.length === 0 ? (
         <EmptyState label={t("home.myDay.noDueToday")} />
       ) : (
-        dueToday.map((c) => <CardRow key={c.id} card={c} locale={locale} />)
+        dueToday.map((c) => <CardRow key={c.id} card={c} locale={locale} onClick={onCardClick ? () => onCardClick(String(c.id), c.projectId) : undefined} />)
       )}
 
       <Divider sx={{ my: 1.5 }} />
@@ -72,7 +81,7 @@ export function MyDayPanel({ dueToday, overdue, isLoading, embedded = false }: M
       {overdue.length === 0 ? (
         <EmptyState label={t("home.myDay.noOverdue")} />
       ) : (
-        overdue.map((c) => <CardRow key={c.id} card={c} locale={locale} />)
+        overdue.map((c) => <CardRow key={c.id} card={c} locale={locale} onClick={onCardClick ? () => onCardClick(String(c.id), c.projectId) : undefined} />)
       )}
     </>
   );

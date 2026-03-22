@@ -11,7 +11,8 @@
     "error": "Error",
     "confirm": "Confirm",
     "back": "Back",
-    "noResults": "No results found."
+    "noResults": "No results found.",
+    "noUser": "No user"
   },
   "nav": {
     "home": "Home",
@@ -20,7 +21,8 @@
     "login": "Login",
     "logout": "Logout",
     "settings": "Settings",
-    "openSettings": "Open settings"
+    "openSettings": "Open settings",
+    "feedback": "Feedback / Evaluation"
   },
   "auth": {
     "backToLogin": "Back to Login",
@@ -122,6 +124,17 @@
     }
   },
   "home": {
+    "myProjects": "My Projects",
+    "newProject": "New Project",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "notes": {
+      "title": "Notes",
+      "saving": "Saving..."
+    },
     "tabs": {
       "assignedToMe": "Assigned to Me",
       "myDay": "My Day",
@@ -148,6 +161,11 @@
     "creating": "Creating..."
   },
   "project": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "board": "Board",
+      "timeline": "Timeline"
+    },
     "selectTitle": "Select Project",
     "newProject": "New Project",
     "noProjects": "No projects found. Create your first project.",
@@ -161,6 +179,7 @@
     "cardPlaceholder": "Card title...",
     "add": "Add",
     "cancel": "Cancel",
+    "loadMore": "Load more",
     "noSections": "No lists yet. Go to Settings to create your first list."
   },
   "filter": {
@@ -180,6 +199,10 @@
     "end": "End"
   },
   "card": {
+    "blocked": "Blocked",
+    "tags": {
+      "placeholder": "+ tag"
+    },
     "save": "Save",
     "saveAndClose": "Save and Close",
     "close": "Close",

@@ -8,6 +8,7 @@ import { GenericAccordion } from "./Accordion";
 import { GenericButton } from "./";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
 import { MaterialSymbol } from "material-symbols";
+import { useTranslation } from "@/common/provider";
 
 interface ColumnProps {
   id: string;
@@ -43,6 +44,7 @@ export function DroppableContainer({
     collisionPriority: CollisionPriority.Low,
   });
 
+  const { t } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,7 +110,7 @@ export function DroppableContainer({
               autoFocus
               fullWidth
               size="small"
-              placeholder="Título do card..."
+              placeholder={t("board.cardPlaceholder")}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -117,14 +119,14 @@ export function DroppableContainer({
             />
             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
               <GenericButton
-                label="Adicionar"
+                label={t("board.add")}
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Contained}
                 onClick={handleSubmit}
                 disabled={!newTitle.trim() || isSubmitting}
               />
               <GenericButton
-                label="Cancelar"
+                label={t("board.cancel")}
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Text}
                 onClick={handleCancel}
@@ -139,7 +141,7 @@ export function DroppableContainer({
               <CircularProgress size={16} />
             ) : (
               <GenericButton
-                label="Load more"
+                label={t("board.loadMore")}
                 startIcon={"expand_more" as MaterialSymbol}
                 size={GeneralSize.Small}
                 variant={ButtonVariant.Text}

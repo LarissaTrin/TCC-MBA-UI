@@ -13,6 +13,7 @@ import { GenericHeaderProps } from "@/common/model";
 import { GenericAvatar, GenericIcon, GenericMenu, LanguagePicker, ThemePicker } from "./";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/common/provider";
+import { signOut } from "next-auth/react";
 
 /**
  * Application top navigation bar.
@@ -32,7 +33,7 @@ export function GenericHeader({
 
   const settings = [
     { name: t("nav.profile"), onClick: () => router.push("/profile") },
-    { name: t("nav.logout"), onClick: () => router.push("/login") },
+    { name: t("nav.logout"), onClick: () => signOut({ redirectTo: "/login" }) },
   ];
 
   return (

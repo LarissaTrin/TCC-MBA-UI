@@ -7,6 +7,7 @@ import { GenericIcon } from "@/components/widgets";
 import { Autocomplete, Box, Chip, TextField } from "@mui/material";
 import { useProjectTagSearch } from "@/common/hooks";
 import { AutocompleteOption } from "@/common/types/AutoComplete";
+import { useTranslation } from "@/common/provider";
 
 interface CardTagsSectionProps {
   control: Control<CardFormData>;
@@ -14,6 +15,7 @@ interface CardTagsSectionProps {
 }
 
 export function CardTagsSection({ control, projectId }: CardTagsSectionProps) {
+  const { t } = useTranslation();
   const { fields, append, remove } = useFieldArray({ control, name: "tags" });
   const tagSearch = useProjectTagSearch(projectId);
   const [inputValue, setInputValue] = useState("");
@@ -76,7 +78,7 @@ export function CardTagsSection({ control, projectId }: CardTagsSectionProps) {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="+ tag"
+            placeholder={t("card.tags.placeholder")}
             variant="standard"
             size="small"
             sx={{

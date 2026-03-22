@@ -1,37 +1,61 @@
 // src/components/timeline/SidebarSection.tsx
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { useDroppable } from "@dnd-kit/core";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, Section } from "../../common/model";
 import { TIMELINE_CONFIG } from "../../common/constants/timeline";
+import { useTranslation } from "@/common/provider";
 
 // --- Sub-componente: Item ---
 function SortableSidebarItem({ task }: { task: Task }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
-  
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 999 : "auto",
-    backgroundColor: isDragging ? "#f0f9ff" : "white",
     position: "relative" as const,
   };
 
+  const firstTag = task.tags?.[0];
+  const extraTags = (task.tags?.length ?? 0) - 1;
+
   return (
-    <Box 
-        ref={setNodeRef} style={style} {...attributes} {...listeners} 
-        sx={{ 
-            height: TIMELINE_CONFIG.rowHeight, 
-            borderBottom: "1px solid #f0f0f0", 
-            display: "flex", flexDirection: "column", justifyContent: "center", px: 2, 
-            cursor: "grab", "&:active": { cursor: "grabbing" }, touchAction: "none" 
+    <Box
+        ref={setNodeRef} style={style} {...attributes} {...listeners}
+        sx={{
+            height: TIMELINE_CONFIG.rowHeight,
+            bgcolor: isDragging ? "action.selected" : "background.paper",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            display: "flex", flexDirection: "column", justifyContent: "center", px: 2,
+            cursor: "grab", "&:active": { cursor: "grabbing" }, touchAction: "none"
         }}
     >
-      <Typography variant="body2" sx={{ fontWeight: 600, color: "#334155" }}>{task.title}</Typography>
-      <Typography variant="caption" sx={{ color: "#64748b" }}>{task.subtitle}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {task.title}
+        </Typography>
+        {task.blocked && (
+          <Typography variant="caption" color="error" sx={{ fontWeight: 600, fontSize: "0.65rem", flexShrink: 0 }}>
+            {t("card.blocked")}
+          </Typography>
+        )}
+      </Box>
+      {firstTag && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>
+          <Chip label={firstTag.name} size="small" sx={{ height: 16, fontSize: "0.65rem" }} />
+          {extraTags > 0 && (
+            <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.65rem" }}>
+              +{extraTags}
+            </Typography>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -47,8 +71,8 @@ export function SidebarSection({ section, tasks }: SidebarSectionProps) {
   
   return (
     <Box ref={setNodeRef} sx={{ display: "flex", flexDirection: "column" }}>
-      <Box sx={{ height: TIMELINE_CONFIG.sectionHeight, backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", px: 2, borderBottom: "1px solid #e2e8f0" }}>
-        <Typography variant="caption" sx={{ fontWeight: "bold", textTransform: "uppercase", color: "#475569" }}>
+      <Box sx={{ height: TIMELINE_CONFIG.sectionHeight, backgroundColor: "action.hover", display: "flex", alignItems: "center", px: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+        <Typography variant="caption" sx={{ fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>
             {section.name}
         </Typography>
       </Box>

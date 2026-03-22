@@ -6,8 +6,10 @@ import { Box, Typography } from "@mui/material";
 import { ButtonVariant, GeneralSize } from "@/common/enum";
 import { getNotes, saveNotes } from "@/common/services";
 import { GenericButton, GenericPanel, GenericTextField } from "@/components";
+import { useTranslation } from "@/common/provider";
 
 export function NotesPanel() {
+  const { t } = useTranslation();
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -31,9 +33,9 @@ export function NotesPanel() {
         alignItems="center"
         mb={1}
       >
-        <Typography variant="h6">Notes</Typography>
+        <Typography variant="h6">{t("home.notes.title")}</Typography>
         <GenericButton
-          label={isSaving ? "Salvando..." : "Save"}
+          label={isSaving ? t("home.notes.saving") : t("common.save")}
           size={GeneralSize.Small}
           variant={ButtonVariant.Contained}
           onClick={handleSave}

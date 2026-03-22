@@ -18,6 +18,7 @@ import {
   IconButton,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   DndContext,
@@ -72,6 +73,7 @@ export function TimelineContent({
   setSelectCardId: _setSelectCardId,
 }: TimelineContentProps) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const now = useMemo(() => new Date(), []);
   const [months, setMonths] = useState<Month[]>([]);
   const [timelineStartDate, setTimelineStartDate] = useState<Date | null>(null);
@@ -338,8 +340,9 @@ export function TimelineContent({
         <Box
           sx={{
             display: "flex",
-            borderBottom: "1px solid #e0e0e0",
-            backgroundColor: "#fff",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.paper",
             zIndex: 10,
           }}
         >
@@ -348,7 +351,8 @@ export function TimelineContent({
               width: TIMELINE_CONFIG.sidebarWidth,
               minWidth: TIMELINE_CONFIG.sidebarWidth,
               height: TIMELINE_CONFIG.headerHeight,
-              borderRight: "1px solid #e0e0e0",
+              borderRight: "1px solid",
+              borderColor: "divider",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -377,19 +381,19 @@ export function TimelineContent({
           >
             <Box sx={{ display: "flex", width: "max-content" }}>
               {months.map((m, i) => (
-                <Box key={i} sx={{ borderRight: "1px solid #e0e0e0" }}>
+                <Box key={i} sx={{ borderRight: "1px solid", borderColor: "divider" }}>
                   <Box
                     sx={{
                       p: 1,
                       fontSize: "0.8rem",
                       fontWeight: "bold",
                       textTransform: "uppercase",
-                      color: "#64748b",
+                      color: "text.secondary",
                     }}
                   >
                     {MONTH_NAMES[m.month]} {m.year}
                   </Box>
-                  <Box sx={{ display: "flex", borderTop: "1px solid #f0f0f0" }}>
+                  <Box sx={{ display: "flex", borderTop: "1px solid", borderColor: "divider" }}>
                     {m.days.map((d) => (
                       <Box
                         key={d}
@@ -398,8 +402,9 @@ export function TimelineContent({
                           textAlign: "center",
                           py: 1,
                           fontSize: "0.75rem",
-                          color: "#94a3b8",
-                          borderRight: "1px solid #f8fafc",
+                          color: "text.disabled",
+                          borderRight: "1px solid",
+                          borderColor: "divider",
                         }}
                       >
                         {d}
@@ -425,8 +430,9 @@ export function TimelineContent({
             sx={{
               width: TIMELINE_CONFIG.sidebarWidth,
               minWidth: TIMELINE_CONFIG.sidebarWidth,
-              borderRight: "1px solid #e0e0e0",
-              backgroundColor: "#fff",
+              borderRight: "1px solid",
+              borderColor: "divider",
+              backgroundColor: "background.paper",
               zIndex: 3,
               overflow: "hidden",
               pb: 2,
@@ -452,7 +458,7 @@ export function TimelineContent({
               flex: 1,
               overflow: "auto",
               position: "relative",
-              backgroundColor: "#f8fafc",
+              backgroundColor: "background.default",
             }}
           >
             <Box
@@ -488,7 +494,7 @@ export function TimelineContent({
                   inset: 0,
                   backgroundImage: `linear-gradient(to right, transparent ${
                     TIMELINE_CONFIG.dayWidth - 1
-                  }px, #e2e8f0 1px)`,
+                  }px, ${theme.palette.divider} 1px)`,
                   backgroundSize: `${TIMELINE_CONFIG.dayWidth}px 100%`,
                   zIndex: 0,
                 }}
@@ -510,10 +516,11 @@ export function TimelineContent({
                     <Box
                       sx={{
                         height: TIMELINE_CONFIG.sectionHeight,
-                        bgcolor: "#f1f5f9",
-                        borderBottom: "1px solid #e2e8f0",
+                        bgcolor: "action.hover",
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
                         width: "100%",
-                        opacity: 0.5,
+                        opacity: 0.3,
                         position: "relative",
                         zIndex: 1,
                       }}
@@ -523,7 +530,8 @@ export function TimelineContent({
                         key={task.id}
                         sx={{
                           height: TIMELINE_CONFIG.rowHeight,
-                          borderBottom: "1px solid #e2e8f0",
+                          borderBottom: "1px solid",
+                          borderColor: "divider",
                           position: "relative",
                           width: "100%",
                         }}

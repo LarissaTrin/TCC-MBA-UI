@@ -6,9 +6,17 @@ import { DashboardCard } from "@/common/model/dashboard";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
 
-function ApprovalRow({ card }: { card: DashboardCard }) {
+function ApprovalRow({ card, onClick }: { card: DashboardCard; onClick?: () => void }) {
   return (
-    <Box display="flex" justifyContent="space-between" alignItems="center" py={1} gap={1}>
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      py={1}
+      gap={1}
+      onClick={onClick}
+      sx={{ cursor: onClick ? "pointer" : "default", borderRadius: 1, "&:hover": onClick ? { bgcolor: "action.hover" } : {} }}
+    >
       <Box minWidth={0}>
         <Typography variant="body2" fontWeight="medium" noWrap>
           {card.title}
@@ -25,10 +33,11 @@ function ApprovalRow({ card }: { card: DashboardCard }) {
 interface PendingApprovalsPanelProps {
   pending: DashboardCard[];
   isLoading: boolean;
+  onCardClick?: (id: string, projectId: number) => void;
   embedded?: boolean;
 }
 
-export function PendingApprovalsPanel({ pending, isLoading, embedded = false }: PendingApprovalsPanelProps) {
+export function PendingApprovalsPanel({ pending, isLoading, onCardClick, embedded = false }: PendingApprovalsPanelProps) {
   const { t } = useTranslation();
 
   const content = isLoading ? (
@@ -38,7 +47,7 @@ export function PendingApprovalsPanel({ pending, isLoading, embedded = false }: 
       {t("home.pendingApprovals.none")}
     </Typography>
   ) : (
-    pending.map((c) => <ApprovalRow key={c.id} card={c} />)
+    pending.map((c) => <ApprovalRow key={c.id} card={c} onClick={onCardClick ? () => onCardClick(String(c.id), c.projectId) : undefined} />)
   );
 
   if (embedded) return content;

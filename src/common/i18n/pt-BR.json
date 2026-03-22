@@ -11,7 +11,8 @@
     "error": "Erro",
     "confirm": "Confirmar",
     "back": "Voltar",
-    "noResults": "Nenhum resultado encontrado."
+    "noResults": "Nenhum resultado encontrado.",
+    "noUser": "Sem usuário"
   },
   "nav": {
     "home": "Início",
@@ -20,7 +21,8 @@
     "login": "Entrar",
     "logout": "Sair",
     "settings": "Configurações",
-    "openSettings": "Abrir configurações"
+    "openSettings": "Abrir configurações",
+    "feedback": "Avaliação / Feedback"
   },
   "auth": {
     "backToLogin": "Voltar para o Login",
@@ -122,6 +124,17 @@
     }
   },
   "home": {
+    "myProjects": "Meus Projetos",
+    "newProject": "Novo Projeto",
+    "greeting": {
+      "morning": "Bom dia",
+      "afternoon": "Boa tarde",
+      "evening": "Boa noite"
+    },
+    "notes": {
+      "title": "Notas",
+      "saving": "Salvando..."
+    },
     "tabs": {
       "assignedToMe": "Atribuídos a Mim",
       "myDay": "Meu Dia",
@@ -148,6 +161,11 @@
     "creating": "Criando..."
   },
   "project": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "board": "Board",
+      "timeline": "Timeline"
+    },
     "selectTitle": "Selecionar Projeto",
     "newProject": "Novo Projeto",
     "noProjects": "Nenhum projeto encontrado. Crie seu primeiro projeto.",
@@ -161,6 +179,7 @@
     "cardPlaceholder": "Título do card...",
     "add": "Adicionar",
     "cancel": "Cancelar",
+    "loadMore": "Carregar mais",
     "noSections": "Nenhuma lista encontrada. Acesse as Configurações para criar sua primeira lista."
   },
   "filter": {
@@ -180,6 +199,10 @@
     "end": "Fim"
   },
   "card": {
+    "blocked": "Bloqueado",
+    "tags": {
+      "placeholder": "+ tag"
+    },
     "save": "Salvar",
     "saveAndClose": "Salvar e Fechar",
     "close": "Fechar",

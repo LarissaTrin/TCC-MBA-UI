@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Typography, useTheme } from "@mui/material";
 import ApexCharts from "apexcharts";
 import { GenericChartProps } from "@/common/model";
 
@@ -25,15 +25,57 @@ import { GenericChartProps } from "@/common/model";
  */
 export function GenericChart({ title, options, ...props }: GenericChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   useEffect(() => {
     if (!chartRef.current || !options) return;
 
-    const chart = new ApexCharts(chartRef.current, options);
+    const themedOptions = {
+      ...options,
+      theme: { mode: isDark ? "dark" : "light", ...(options.theme ?? {}) },
+      chart: {
+        ...options.chart,
+        background: "transparent",
+        foreColor: theme.palette.text.secondary,
+      },
+      grid: {
+        borderColor: theme.palette.divider,
+        ...(options.grid ?? {}),
+      },
+      tooltip: {
+        theme: isDark ? "dark" : "light",
+        ...(options.tooltip ?? {}),
+      },
+      legend: {
+        labels: { colors: theme.palette.text.primary },
+        ...(options.legend ?? {}),
+      },
+      xaxis: {
+        ...options.xaxis,
+        labels: { style: { colors: theme.palette.text.secondary }, ...(options.xaxis?.labels ?? {}) },
+        axisBorder: { color: theme.palette.divider, ...(options.xaxis?.axisBorder ?? {}) },
+        axisTicks: { color: theme.palette.divider, ...(options.xaxis?.axisTicks ?? {}) },
+      },
+      yaxis: Array.isArray(options.yaxis)
+        ? options.yaxis.map((ax) => ({
+            ...ax,
+            labels: { style: { colors: theme.palette.text.secondary }, ...(ax.labels ?? {}) },
+          }))
+        : {
+            ...options.yaxis,
+            labels: {
+              style: { colors: theme.palette.text.secondary },
+              ...((options.yaxis as ApexYAxis)?.labels ?? {}),
+            },
+          },
+    };
+
+    const chart = new ApexCharts(chartRef.current, themedOptions);
     chart.render();
 
     return () => chart.destroy();
-  }, [options]); // Re-renders the chart if options change
+  }, [options, isDark, theme]);
 
   return (
     <Card {...props}>

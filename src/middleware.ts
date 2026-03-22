@@ -15,16 +15,22 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { nextUrl } = req;
   const session = req.auth;
+  const isLoginRoute = nextUrl.pathname.startsWith("/login");
+
+  // Authenticated user trying to access login — redirect to home
+  if (isLoginRoute && session?.user && session.tokenValid) {
+    return NextResponse.redirect(new URL("/", nextUrl.origin));
+  }
 
   // No session at all — redirect to login
-  if (!session?.user) {
+  if (!isLoginRoute && !session?.user) {
     const loginUrl = new URL("/login", nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Session exists but the backend token validation failed (expired / revoked)
-  if (!session.tokenValid) {
+  if (!isLoginRoute && !session?.tokenValid) {
     const response = NextResponse.redirect(
       new URL("/login?error=SessionExpired", nextUrl.origin),
     );
@@ -40,5 +46,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/home/:path*", "/project", "/project/:path*", "/profile/:path*"],
+  matcher: ["/login/:path*", "/", "/project", "/project/:path*", "/profile/:path*"],
 };

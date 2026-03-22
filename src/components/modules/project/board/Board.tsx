@@ -14,6 +14,7 @@ import { mapCardsToTasks } from "@/common/utils/cardMapper";
 import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
+import { GenericIcon } from "@/components/widgets";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
@@ -41,7 +42,9 @@ export function BoardContent({
   const { t } = useTranslation();
 
   // All loaded cards per section (source of truth for pagination)
-  const [allLoadedCards, setAllLoadedCards] = useState<Record<string, Card[]>>({});
+  const [allLoadedCards, setAllLoadedCards] = useState<Record<string, Card[]>>(
+    {},
+  );
   const [paginationMap, setPaginationMap] = useState<PaginationMap>({});
 
   // Drag-drop state
@@ -72,11 +75,19 @@ export function BoardContent({
     async (section: Section, page: number) => {
       setPaginationMap((prev) => ({
         ...prev,
-        [section.id]: { ...(prev[section.id] ?? { page: 0, hasMore: false }), loading: true },
+        [section.id]: {
+          ...(prev[section.id] ?? { page: 0, hasMore: false }),
+          loading: true,
+        },
       }));
 
       try {
-        const result = await sectionService.getCardsByList(projectId, section, page, 20);
+        const result = await sectionService.getCardsByList(
+          projectId,
+          section,
+          page,
+          20,
+        );
 
         setAllLoadedCards((prev) => {
           const existing = page === 1 ? [] : (prev[section.id] ?? []);
@@ -90,7 +101,10 @@ export function BoardContent({
       } catch {
         setPaginationMap((prev) => ({
           ...prev,
-          [section.id]: { ...(prev[section.id] ?? { page: 1, hasMore: false }), loading: false },
+          [section.id]: {
+            ...(prev[section.id] ?? { page: 1, hasMore: false }),
+            loading: false,
+          },
         }));
       }
     },
@@ -147,7 +161,9 @@ export function BoardContent({
       if (!prev[sid]) return prev;
       return {
         ...prev,
-        [sid]: prev[sid].map((c) => (c.id === lastUpdatedCard.id ? lastUpdatedCard : c)),
+        [sid]: prev[sid].map((c) =>
+          c.id === lastUpdatedCard.id ? lastUpdatedCard : c,
+        ),
       };
     });
   }, [lastUpdatedCard]);
@@ -178,9 +194,7 @@ export function BoardContent({
           py: 8,
         }}
       >
-        <span className="material-icons" style={{ fontSize: 48, opacity: 0.3 }}>
-          view_column
-        </span>
+        <GenericIcon icon="view_column" size={48} sx={{ opacity: 0.3 }} />
         <Typography variant="body1" color="text.secondary" textAlign="center">
           {t("board.noSections")}
         </Typography>
@@ -190,9 +204,18 @@ export function BoardContent({
 
   return (
     <Box>
-      <Box justifyContent={"flex-end"} display={"flex"} gap={1} alignItems="center">
+      <Box
+        justifyContent={"flex-end"}
+        display={"flex"}
+        gap={1}
+        alignItems="center"
+        mb={2}
+      >
         {viewMode === "board" && sections.length > 0 && (
-          <Button variant="outlined" onClick={() => setTriggerAddFirst(true)} sx={{ mb: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setTriggerAddFirst(true)}
+          >
             {t("project.addCard")}
           </Button>
         )}
@@ -206,10 +229,13 @@ export function BoardContent({
         />
         <Button
           variant="contained"
-          onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
-          sx={{ mb: 2 }}
+          onClick={() =>
+            setViewMode((m) => (m === "board" ? "table" : "board"))
+          }
         >
-          {viewMode === "board" ? t("project.tableView") : t("project.boardView")}
+          {viewMode === "board"
+            ? t("project.tableView")
+            : t("project.boardView")}
         </Button>
       </Box>
 
@@ -230,7 +256,9 @@ export function BoardContent({
 
               let destContainerId: string | null = null;
               let newIndex = -1;
-              for (const [containerId, items] of Object.entries(containersRef.current)) {
+              for (const [containerId, items] of Object.entries(
+                containersRef.current,
+              )) {
                 const idx = items.findIndex((t) => t.id === activeId);
                 if (idx !== -1) {
                   destContainerId = containerId;
@@ -240,7 +268,8 @@ export function BoardContent({
               }
               if (!destContainerId || newIndex === -1) return;
 
-              const isLastSection = sections[sections.length - 1]?.id === destContainerId;
+              const isLastSection =
+                sections[sections.length - 1]?.id === destContainerId;
               try {
                 await cardService.update(Number(activeId), {
                   listId: Number(destContainerId),
@@ -264,13 +293,28 @@ export function BoardContent({
                     onAddCard={handleAddCard}
                     triggerAdd={idx === 0 ? triggerAddFirst : false}
                     forceExpand={idx === 0 ? triggerAddFirst : false}
-                    onAddTriggerHandled={idx === 0 ? () => setTriggerAddFirst(false) : undefined}
+                    onAddTriggerHandled={
+                      idx === 0 ? () => setTriggerAddFirst(false) : undefined
+                    }
                     hasMore={pagination?.hasMore}
-                    loadingMore={pagination?.loading && (allLoadedCards[section.id]?.length ?? 0) > 0}
-                    onLoadMore={() => loadCards(section, (pagination?.page ?? 1) + 1)}
+                    loadingMore={
+                      pagination?.loading &&
+                      (allLoadedCards[section.id]?.length ?? 0) > 0
+                    }
+                    onLoadMore={() =>
+                      loadCards(section, (pagination?.page ?? 1) + 1)
+                    }
                   >
-                    {pagination?.loading && (allLoadedCards[section.id]?.length ?? 0) === 0 ? (
-                      <Box sx={{ p: 1, opacity: 0.5, fontSize: "0.8rem", textAlign: "center" }}>
+                    {pagination?.loading &&
+                    (allLoadedCards[section.id]?.length ?? 0) === 0 ? (
+                      <Box
+                        sx={{
+                          p: 1,
+                          opacity: 0.5,
+                          fontSize: "0.8rem",
+                          textAlign: "center",
+                        }}
+                      >
                         {t("common.loading")}
                       </Box>
                     ) : (
@@ -297,7 +341,11 @@ export function BoardContent({
           </DragDropProvider>
         </Box>
       ) : (
-        <TableView containers={containers} setContainers={setContainers} sections={sections} />
+        <TableView
+          containers={containers}
+          setContainers={setContainers}
+          sections={sections}
+        />
       )}
     </Box>
   );

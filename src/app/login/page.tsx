@@ -36,7 +36,7 @@ export default function LoginCardFullScreen() {
         email: data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: "/home",
+        callbackUrl: "/",
       }),
     );
 
@@ -45,7 +45,7 @@ export default function LoginCardFullScreen() {
       return;
     }
 
-    navigate("/home");
+    navigate("/");
   };
 
   const handleForgot = () => navigate("/login/forgot-password");

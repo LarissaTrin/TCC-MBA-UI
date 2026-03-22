@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Divider, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { GenericSidebarProps } from "@/common/model";
 import { GenericDrawer, GenericIcon, GenericList } from "./";
 import { useRouter } from "next/navigation";
@@ -60,42 +60,39 @@ export function GenericSidebar({
               label: t("nav.home"),
               icon: "home",
               onClick: () => {
-                router.push("/home");
+                router.push("/");
               },
             },
             {
               label: t("nav.dashboard"),
               icon: "bar_chart_4_bars",
-              dividerBelow: true,
               onClick: () => {
                 router.push("/project");
-              },
-            },
-            {
-              label: t("nav.login"),
-              icon: !expanded ? "account_box" : undefined,
-              onClick: () => {
-                router.push("/login");
-              },
-            },
-            {
-              label: t("nav.profile"),
-              icon: !expanded ? "user_attributes" : undefined,
-              onClick: () => {
-                router.push("/profile");
               },
             },
           ]}
         />
       </Box>
 
-      <Box textAlign="end" p={1}>
-        {variant === "permanent" && (
-          <GenericIcon
-            icon={expanded ? "chevron_left" : "chevron_right"}
-            onClick={() => setExpanded(!expanded)}
-          />
-        )}
+      <Box>
+        <Divider />
+        <ListItemButton
+          onClick={() => window.open("https://forms.gle/P1J7KYEwCzfTGCCN9", "_blank")}
+          sx={{ px: 2, py: 1 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <GenericIcon icon="rate_review" />
+          </ListItemIcon>
+          {expanded && <ListItemText primary={t("nav.feedback")} primaryTypographyProps={{ variant: "body2" }} />}
+        </ListItemButton>
+        <Box textAlign="end" p={1}>
+          {variant === "permanent" && (
+            <GenericIcon
+              icon={expanded ? "chevron_left" : "chevron_right"}
+              onClick={() => setExpanded(!expanded)}
+            />
+          )}
+        </Box>
       </Box>
     </GenericDrawer>
   );

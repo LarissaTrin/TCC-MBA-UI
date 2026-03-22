@@ -6,6 +6,7 @@ import { useState } from "react";
 import { NewProjectModal } from "./NewProjectModal";
 import { ButtonVariant } from "@/common/enum";
 import { useNavigation } from "@/common/hooks";
+import { useTranslation } from "@/common/provider";
 interface ProjectsPanelProps {
   projects: Project[];
   isLoading: boolean;
@@ -13,6 +14,7 @@ interface ProjectsPanelProps {
 
 export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
   const { navigate } = useNavigation();
+  const { t } = useTranslation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,10 +41,10 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
   return (
     <>
       <DashboardPanel
-        title="My Projects"
+        title={t("home.myProjects")}
         headerAction={
           <GenericButton
-            label="New Project"
+            label={t("home.newProject")}
             variant={ButtonVariant.Outlined}
             startIcon="add"
             onClick={() => setIsModalOpen(true)}
@@ -52,7 +54,7 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
         {isLoading ? (
           <GenericLoading />
         ) : (
-          <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={1}>
+          <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }} gap={1}>
             {projects.map((project) => renderProjectBox(project))}
           </Box>
         )}

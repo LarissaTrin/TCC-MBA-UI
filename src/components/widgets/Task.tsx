@@ -3,6 +3,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { Box, Card, CardContent, Chip, Typography, Avatar } from "@mui/material";
+import { useTranslation } from "@/common/provider";
 
 export interface TaskProps {
   id: string;
@@ -30,6 +31,7 @@ export function Task({
   taskCompleted = 0,
   blocked = false,
 }: TaskProps) {
+  const { t } = useTranslation();
   const { ref, isDragging } = useSortable({
     id,
     index,
@@ -63,7 +65,7 @@ export function Task({
             {blocked && (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Typography variant="caption" color="error" sx={{ fontWeight: 600, fontSize: "0.65rem" }}>
-                  Blocked
+                  {t("card.blocked")}
                 </Typography>
               </Box>
             )}
@@ -120,7 +122,7 @@ export function Task({
                 noWrap
                 sx={{ maxWidth: 110 }}
               >
-                {userDisplay ?? "No user"}
+                {userDisplay ?? t("common.noUser")}
               </Typography>
             </Box>
 

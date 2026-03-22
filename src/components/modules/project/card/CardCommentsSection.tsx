@@ -129,9 +129,9 @@ export function CardCommentsSection({
             mb: 1.5,
             p: 1.5,
             borderRadius: 1,
-            bgcolor: "grey.50",
+            bgcolor: "action.hover",
             border: "1px solid",
-            borderColor: "grey.200",
+            borderColor: "divider",
           }}
         >
           <Box

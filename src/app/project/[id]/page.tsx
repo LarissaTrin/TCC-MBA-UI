@@ -79,12 +79,12 @@ export default function ProjectPage() {
 
   const tabsConfig = [
     {
-      label: "Dashboard",
+      label: t("project.tabs.dashboard"),
       value: "dashboard",
       content: <DashboardContent projectId={projectId} />,
     },
     {
-      label: "Board",
+      label: t("project.tabs.board"),
       value: "board",
       content: (
         <BoardContent
@@ -97,7 +97,7 @@ export default function ProjectPage() {
       ),
     },
     {
-      label: "Timeline",
+      label: t("project.tabs.timeline"),
       value: "timeline",
       content: (
         <TimelineContent

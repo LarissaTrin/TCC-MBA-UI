@@ -17,6 +17,7 @@ function mapCard(card: CardApiResponse): Card {
 
   return {
     id: card.id,
+    cardNumber: card.cardNumber,
     name: card.title,
     description: card.description,
     priority: card.priority,

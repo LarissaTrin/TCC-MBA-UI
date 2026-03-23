@@ -32,7 +32,6 @@ interface ProjectSettingsDialogProps {
   onProjectDetailsSaved?: (name: string, description: string) => void;
 }
 
-const canManageUsers = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 const canManageLists = (role: string) => ["SuperAdmin", "Admin", "Leader"].includes(role);
 const canDeleteLists = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 const canEditProject = (role: string) => ["SuperAdmin", "Admin"].includes(role);

@@ -93,6 +93,8 @@ export default function ProjectPage() {
           loading={loading}
           projectId={projectId}
           lastUpdatedCard={lastUpdatedCard}
+          userRole={userRole}
+          onSectionsChange={setSections}
         />
       ),
     },

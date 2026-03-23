@@ -36,7 +36,6 @@ export default function RegisterPage() {
         .object({
           firstName: z.string().min(1, t("auth.register.validation.firstNameRequired")),
           lastName: z.string().min(1, t("auth.register.validation.lastNameRequired")),
-          username: z.string().min(3, t("auth.register.validation.usernameMin")),
           email: z.string().email(t("auth.register.validation.emailInvalid")),
           password: z.string().min(6, t("auth.register.validation.passwordMin")),
           confirmPassword: z.string().min(1, t("auth.register.validation.confirmRequired")),
@@ -52,7 +51,6 @@ export default function RegisterPage() {
   const formFields: { name: Path<RegisterFormData>; label: string; type?: React.HTMLInputTypeAttribute }[] = [
     { name: "firstName", label: t("auth.register.firstName") },
     { name: "lastName", label: t("auth.register.lastName") },
-    { name: "username", label: t("auth.register.username") },
     { name: "email", label: t("auth.register.email"), type: "email" },
     { name: "password", label: t("auth.register.password"), type: "password" },
     { name: "confirmPassword", label: t("auth.register.confirmPassword"), type: "password" },
@@ -72,7 +70,6 @@ export default function RegisterPage() {
         registerUser({
           firstName: data.firstName,
           lastName: data.lastName,
-          username: data.username,
           email: data.email,
           password: data.password,
         }),

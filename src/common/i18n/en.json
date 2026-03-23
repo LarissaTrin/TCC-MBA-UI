@@ -181,6 +181,7 @@
     "add": "Add",
     "cancel": "Cancel",
     "loadMore": "Load more",
+    "manageLists": "Manage Lists",
     "noSections": "No lists yet. Go to Settings to create your first list."
   },
   "filter": {
@@ -309,7 +310,10 @@
       "moveUp": "move up",
       "moveDown": "move down",
       "delete": "delete list",
-      "deleteError": "Error deleting list."
+      "deleteError": "Error deleting list.",
+      "rename": "rename list",
+      "saveRename": "save name",
+      "cancelRename": "cancel rename"
     },
     "details": {
       "projectName": "Project Name",

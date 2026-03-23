@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Popover, Typography } from "@mui/material";
 import { Task, TaskProps } from "@/components/widgets/Task";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { BoardFilters } from "./BoardFilters";
@@ -15,6 +15,7 @@ import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
 import { GenericIcon } from "@/components/widgets";
+import { ProjectSettingsLists } from "@/components/modules/project/settings/ProjectSettingsLists";
 
 type KanbanContainers = Record<string, TaskProps[]>;
 
@@ -32,14 +33,21 @@ export function BoardContent({
   setSelectCardId,
   projectId,
   lastUpdatedCard,
+  userRole,
+  onSectionsChange,
 }: {
   sections: Section[];
   loading: boolean;
   setSelectCardId: (id: string) => void;
   projectId: number;
   lastUpdatedCard?: Card;
+  userRole?: string;
+  onSectionsChange?: (sections: Section[]) => void;
 }) {
   const { t } = useTranslation();
+
+  const canManageLists = ["SuperAdmin", "Admin", "Leader"].includes(userRole ?? "");
+  const canDeleteLists = ["SuperAdmin", "Admin"].includes(userRole ?? "");
 
   // All loaded cards per section (source of truth for pagination)
   const [allLoadedCards, setAllLoadedCards] = useState<Record<string, Card[]>>(
@@ -53,6 +61,7 @@ export function BoardContent({
 
   const [triggerAddFirst, setTriggerAddFirst] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "table">("board");
+  const [listsAnchorEl, setListsAnchorEl] = useState<HTMLElement | null>(null);
 
   // Flat list of all loaded tasks — fed to the filter hook
   const allTasksFlat: TaskModel[] = React.useMemo(
@@ -183,26 +192,6 @@ export function BoardContent({
 
   if (loading) return <Box>{t("common.loading")}</Box>;
 
-  if (sections.length === 0) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1,
-          py: 8,
-        }}
-      >
-        <GenericIcon icon="view_column" size={48} sx={{ opacity: 0.3 }} />
-        <Typography variant="body1" color="text.secondary" textAlign="center">
-          {t("board.noSections")}
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box>
       <Box
@@ -218,6 +207,14 @@ export function BoardContent({
             onClick={() => setTriggerAddFirst(true)}
           >
             {t("project.addCard")}
+          </Button>
+        )}
+        {canManageLists && (
+          <Button
+            variant="outlined"
+            onClick={(e) => setListsAnchorEl(e.currentTarget)}
+          >
+            {t("board.manageLists")}
           </Button>
         )}
         <BoardFilters
@@ -240,12 +237,82 @@ export function BoardContent({
         </Button>
       </Box>
 
+      <Popover
+        open={Boolean(listsAnchorEl)}
+        anchorEl={listsAnchorEl}
+        onClose={() => setListsAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Box sx={{ p: 2, width: 360 }}>
+          <ProjectSettingsLists
+            projectId={projectId}
+            sections={sections}
+            onSectionsChange={(updated) => onSectionsChange?.(updated)}
+            canDelete={canDeleteLists}
+          />
+        </Box>
+      </Popover>
+
       {viewMode === "board" ? (
+        sections.length === 0 ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1,
+              py: 8,
+            }}
+          >
+            <GenericIcon icon="view_column" size={48} sx={{ opacity: 0.3 }} />
+            <Typography variant="body1" color="text.secondary" textAlign="center">
+              {t("board.noSections")}
+            </Typography>
+          </Box>
+        ) : (
         <Box sx={{ p: 2 }}>
           <DragDropProvider
             onDragOver={(event) => {
               setContainers((prev) => {
                 const next = move(prev, event);
+
+                // move() returns the same reference when it makes no change.
+                // For empty containers the helper can silently no-op, so we
+                // handle that case manually.
+                if (next === prev) {
+                  const { source, target } = event.operation;
+                  if (source && target) {
+                    const targetId = String(target.id);
+                    if (targetId in prev && prev[targetId].length === 0) {
+                      const sourceId = String(source.id);
+                      let sourceCol: string | null = null;
+                      let sourceIdx = -1;
+                      for (const [colId, items] of Object.entries(prev)) {
+                        const idx = items.findIndex((t) => t.id === sourceId);
+                        if (idx !== -1) {
+                          sourceCol = colId;
+                          sourceIdx = idx;
+                          break;
+                        }
+                      }
+                      if (sourceCol !== null && sourceCol !== targetId) {
+                        const item = prev[sourceCol][sourceIdx];
+                        const updated: KanbanContainers = {
+                          ...prev,
+                          [sourceCol]: prev[sourceCol].filter(
+                            (_, i) => i !== sourceIdx,
+                          ),
+                          [targetId]: [item],
+                        };
+                        containersRef.current = updated;
+                        return updated;
+                      }
+                    }
+                  }
+                }
+
                 containersRef.current = next;
                 return next;
               });
@@ -341,6 +408,7 @@ export function BoardContent({
             </Box>
           </DragDropProvider>
         </Box>
+        )
       ) : (
         <TableView
           containers={containers}

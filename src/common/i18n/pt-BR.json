@@ -181,6 +181,7 @@
     "add": "Adicionar",
     "cancel": "Cancelar",
     "loadMore": "Carregar mais",
+    "manageLists": "Gerenciar Listas",
     "noSections": "Nenhuma lista encontrada. Acesse as Configurações para criar sua primeira lista."
   },
   "filter": {
@@ -309,7 +310,10 @@
       "moveUp": "mover para cima",
       "moveDown": "mover para baixo",
       "delete": "excluir lista",
-      "deleteError": "Erro ao excluir lista."
+      "deleteError": "Erro ao excluir lista.",
+      "rename": "renomear lista",
+      "saveRename": "salvar nome",
+      "cancelRename": "cancelar renomeação"
     },
     "details": {
       "projectName": "Nome do Projeto",

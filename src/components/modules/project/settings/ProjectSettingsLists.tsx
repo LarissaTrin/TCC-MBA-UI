@@ -9,6 +9,7 @@ import {
   IconButton,
   CircularProgress,
   Typography,
+  TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,6 +44,8 @@ export function ProjectSettingsLists({
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState<string>("");
 
   const { control, handleSubmit, reset } = useForm<NewListData>({
     resolver: zodResolver(newListSchema),
@@ -102,6 +105,34 @@ export function ProjectSettingsLists({
     });
   };
 
+  const onStartEdit = (section: Section) => {
+    setEditingId(section.id);
+    setEditingName(section.name);
+  };
+
+  const onCancelEdit = () => {
+    setEditingId(null);
+    setEditingName("");
+  };
+
+  const onSaveName = async (sectionId: string) => {
+    const trimmed = editingName.trim();
+    if (!trimmed) return;
+    try {
+      const updated = await withLoading(() =>
+        sectionService.update(projectId, Number(sectionId), { name: trimmed }),
+      );
+      const updatedLists = lists.map((s) =>
+        s.id === sectionId ? { ...s, name: updated.name } : s,
+      );
+      setLists(updatedLists);
+      onSectionsChange(updatedLists);
+    } finally {
+      setEditingId(null);
+      setEditingName("");
+    }
+  };
+
   const onSaveOrder = async () => {
     setSaving(true);
     try {
@@ -148,44 +179,87 @@ export function ProjectSettingsLists({
           <ListItem
             key={section.id}
             secondaryAction={
-              <Box sx={{ display: "flex", gap: 0.5 }}>
-                <IconButton
-                  size="small"
-                  disabled={index === 0 || deletingId === section.id}
-                  onClick={() => onMoveList(index, "up")}
-                  aria-label={t("settings.lists.moveUp")}
-                >
-                  <GenericIcon icon="arrow_upward" size={GeneralSize.Small} />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  disabled={index === lists.length - 1 || deletingId === section.id}
-                  onClick={() => onMoveList(index, "down")}
-                  aria-label={t("settings.lists.moveDown")}
-                >
-                  <GenericIcon icon="arrow_downward" size={GeneralSize.Small} />
-                </IconButton>
-                {canDelete && (
-                  <IconButton
-                    size="small"
-                    disabled={deletingId === section.id}
-                    onClick={() => onDeleteList(section.id)}
-                    aria-label={t("settings.lists.delete")}
-                  >
-                    {deletingId === section.id ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      <GenericIcon icon="delete" size={GeneralSize.Small} />
+              <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+                {editingId === section.id ? (
+                  <>
+                    <IconButton
+                      size="small"
+                      onClick={() => onSaveName(section.id)}
+                      aria-label={t("settings.lists.saveRename")}
+                    >
+                      <GenericIcon icon="check" size={GeneralSize.Small} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={onCancelEdit}
+                      aria-label={t("settings.lists.cancelRename")}
+                    >
+                      <GenericIcon icon="close" size={GeneralSize.Small} />
+                    </IconButton>
+                  </>
+                ) : (
+                  <>
+                    <IconButton
+                      size="small"
+                      disabled={deletingId === section.id}
+                      onClick={() => onStartEdit(section)}
+                      aria-label={t("settings.lists.rename")}
+                    >
+                      <GenericIcon icon="edit" size={GeneralSize.Small} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      disabled={index === 0 || deletingId === section.id}
+                      onClick={() => onMoveList(index, "up")}
+                      aria-label={t("settings.lists.moveUp")}
+                    >
+                      <GenericIcon icon="arrow_upward" size={GeneralSize.Small} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      disabled={index === lists.length - 1 || deletingId === section.id}
+                      onClick={() => onMoveList(index, "down")}
+                      aria-label={t("settings.lists.moveDown")}
+                    >
+                      <GenericIcon icon="arrow_downward" size={GeneralSize.Small} />
+                    </IconButton>
+                    {canDelete && (
+                      <IconButton
+                        size="small"
+                        disabled={deletingId === section.id}
+                        onClick={() => onDeleteList(section.id)}
+                        aria-label={t("settings.lists.delete")}
+                      >
+                        {deletingId === section.id ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <GenericIcon icon="delete" size={GeneralSize.Small} />
+                        )}
+                      </IconButton>
                     )}
-                  </IconButton>
+                  </>
                 )}
               </Box>
             }
           >
-            <ListItemText
-              primary={section.name}
-              secondary={section.isFinal ? t("settings.lists.finalList") : undefined}
-            />
+            {editingId === section.id ? (
+              <TextField
+                size="small"
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onSaveName(section.id);
+                  if (e.key === "Escape") onCancelEdit();
+                }}
+                autoFocus
+                sx={{ mr: 1 }}
+              />
+            ) : (
+              <ListItemText
+                primary={section.name}
+                secondary={section.isFinal ? t("settings.lists.finalList") : undefined}
+              />
+            )}
           </ListItem>
         ))}
         {lists.length === 0 && (

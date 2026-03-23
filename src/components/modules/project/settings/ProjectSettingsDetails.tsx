@@ -44,6 +44,7 @@ export function ProjectSettingsDetails({
   const { t } = useTranslation();
   const { withLoading } = useLoading();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const {
     control,
@@ -76,8 +77,13 @@ export function ProjectSettingsDetails({
 
   const handleConfirmDelete = async () => {
     setConfirmOpen(false);
-    await withLoading(() => projectService.delete(projectId));
-    onDeleteProject();
+    setDeleting(true);
+    try {
+      await withLoading(() => projectService.delete(projectId));
+      onDeleteProject();
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -108,11 +114,11 @@ export function ProjectSettingsDetails({
         {canEdit && (
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <GenericButton
-              label={isSubmitting ? t("settings.details.saving") : t("settings.details.save")}
+              label={t("settings.details.save")}
               type="submit"
               variant={ButtonVariant.Contained}
               size={GeneralSize.Small}
-              disabled={isSubmitting}
+              loading={isSubmitting}
             />
           </Box>
         )}
@@ -128,7 +134,7 @@ export function ProjectSettingsDetails({
           >
             <GenericButton
               label={t("settings.details.deleteProject")}
-              variant={ButtonVariant.Outlined}
+              variant={ButtonVariant.Contained}
               color={GeneralColor.Error}
               size={GeneralSize.Small}
               startIcon="delete"
@@ -155,6 +161,7 @@ export function ProjectSettingsDetails({
             label={t("settings.details.delete")}
             variant={ButtonVariant.Contained}
             color={GeneralColor.Error}
+            loading={deleting}
             onClick={handleConfirmDelete}
           />
         </DialogActions>

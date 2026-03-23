@@ -345,14 +345,12 @@ export function ProjectSettingsUsers({
 
           <Box sx={{ mt: 1 }}>
             <GenericButton
-              label={
-                saving ? t("settings.users.sending") : t("settings.users.send")
-              }
+              label={t("settings.users.send")}
               variant={ButtonVariant.Contained}
               size={GeneralSize.Small}
-              disabled={saving}
+              loading={saving}
               onClick={onSendInvites}
-              startIcon={saving ? undefined : "send"}
+              startIcon="send"
             />
           </Box>
         </Box>
@@ -410,19 +408,24 @@ export function ProjectSettingsUsers({
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {`${member.user.firstName} ${member.user.lastName}`}
                       {canManageRoles && !isSuperAdmin && !isSelf ? (
-                        <Select
-                          size="small"
-                          value={member.role.name}
-                          disabled={updatingRoleId === member.userId}
-                          onChange={(e) => onChangeMemberRole(member, e.target.value)}
-                          sx={{ fontSize: "0.75rem", height: 28 }}
-                        >
-                          {INVITABLE_ROLES.map((r) => (
-                            <MenuItem key={r} value={r} sx={{ fontSize: "0.75rem" }}>
-                              {ROLE_LABELS[r]}
-                            </MenuItem>
-                          ))}
-                        </Select>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Select
+                            size="small"
+                            value={member.role.name}
+                            disabled={updatingRoleId === member.userId}
+                            onChange={(e) => onChangeMemberRole(member, e.target.value)}
+                            sx={{ fontSize: "0.75rem", height: 28 }}
+                          >
+                            {INVITABLE_ROLES.map((r) => (
+                              <MenuItem key={r} value={r} sx={{ fontSize: "0.75rem" }}>
+                                {ROLE_LABELS[r]}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {updatingRoleId === member.userId && (
+                            <CircularProgress size={16} />
+                          )}
+                        </Box>
                       ) : (
                         <Chip
                           label={ROLE_LABELS[member.role.name] ?? member.role.name}

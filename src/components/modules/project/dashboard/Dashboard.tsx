@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { GenericCard } from "@/components/widgets";
 import { GenericCardProps } from "@/common/model";
-import { GenericLoading } from "@/components";
 import { BurndownResponse, ProjectStatsResponse } from "@/common/model/dashboard";
 import { dashboardService } from "@/common/services/dashboardService";
 import {
@@ -14,6 +13,7 @@ import {
   buildByTagChart,
 } from "@/common/utils/dashboardUtils";
 import { useTranslation } from "@/common/provider";
+import { useLoading } from "@/common/context/LoadingContext";
 
 import dynamic from "next/dynamic";
 import { DashboardFilters } from "./DashboardFilters";
@@ -30,8 +30,8 @@ interface DashboardContentProps {
 
 export function DashboardContent({ projectId }: DashboardContentProps) {
   const { t } = useTranslation();
+  const { withLoading } = useLoading();
   const [stats, setStats] = useState<ProjectStatsResponse | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
   const [burndown, setBurndown] = useState<BurndownResponse | null>(null);
   const [burndownLoading, setBurndownLoading] = useState(false);
 
@@ -39,11 +39,9 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
     useDashboardFilters();
 
   useEffect(() => {
-    dashboardService
-      .getProjectStats(projectId)
+    withLoading(() => dashboardService.getProjectStats(projectId))
       .then(setStats)
-      .catch(console.error)
-      .finally(() => setStatsLoading(false));
+      .catch(console.error);
   }, [projectId]);
 
   useEffect(() => {
@@ -56,7 +54,6 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
       .finally(() => setBurndownLoading(false));
   }, [projectId, applied.start, applied.end]);
 
-  if (statsLoading) return <GenericLoading />;
   if (!stats) return null;
 
   const completed = stats.byList

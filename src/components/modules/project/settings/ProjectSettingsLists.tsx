@@ -55,6 +55,7 @@ export function ProjectSettingsLists({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>("");
+  const [savingNameId, setSavingNameId] = useState<string | null>(null);
 
   // Confirmation dialog state
   const [pendingDelete, setPendingDelete] = useState<Section | null>(null);
@@ -145,6 +146,7 @@ export function ProjectSettingsLists({
   const onSaveName = async (sectionId: string) => {
     const trimmed = editingName.trim();
     if (!trimmed) return;
+    setSavingNameId(sectionId);
     try {
       const updated = await withLoading(() =>
         sectionService.update(projectId, Number(sectionId), { name: trimmed }),
@@ -157,6 +159,7 @@ export function ProjectSettingsLists({
     } finally {
       setEditingId(null);
       setEditingName("");
+      setSavingNameId(null);
     }
   };
 
@@ -192,11 +195,11 @@ export function ProjectSettingsLists({
           size={GeneralSize.Small}
         />
         <GenericButton
-          label={creating ? t("settings.lists.creating") : t("settings.lists.create")}
+          label={t("settings.lists.create")}
           type="submit"
           variant={ButtonVariant.Contained}
           size={GeneralSize.Small}
-          disabled={creating}
+          loading={creating}
           sx={{ mt: "4px" }}
         />
       </Box>
@@ -211,13 +214,20 @@ export function ProjectSettingsLists({
                   <>
                     <IconButton
                       size="small"
+                      color="success"
+                      disabled={savingNameId === section.id}
                       onClick={() => onSaveName(section.id)}
                       aria-label={t("settings.lists.saveRename")}
                     >
-                      <GenericIcon icon="check" size={GeneralSize.Small} />
+                      {savingNameId === section.id ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <GenericIcon icon="check" size={GeneralSize.Small} />
+                      )}
                     </IconButton>
                     <IconButton
                       size="small"
+                      color="error"
                       onClick={onCancelEdit}
                       aria-label={t("settings.lists.cancelRename")}
                     >
@@ -253,6 +263,7 @@ export function ProjectSettingsLists({
                     {canDelete && (
                       <IconButton
                         size="small"
+                        color="error"
                         disabled={deletingId === section.id}
                         onClick={() => openDeleteConfirm(section)}
                         aria-label={t("settings.lists.delete")}
@@ -308,12 +319,12 @@ export function ProjectSettingsLists({
       {lists.length > 0 && (
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <GenericButton
-            label={saving ? t("settings.lists.saving") : t("settings.lists.saveOrder")}
+            label={t("settings.lists.saveOrder")}
             variant={ButtonVariant.Outlined}
             size={GeneralSize.Small}
-            disabled={saving}
+            loading={saving}
             onClick={onSaveOrder}
-            startIcon={saving ? undefined : "save"}
+            startIcon="save"
           />
         </Box>
       )}

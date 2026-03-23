@@ -11,8 +11,8 @@ import {
 
 import { GenericHeaderProps } from "@/common/model";
 import { GenericAvatar, GenericIcon, GenericMenu, LanguagePicker, ThemePicker } from "./";
-import { useRouter } from "next/navigation";
 import { useTranslation } from "@/common/provider";
+import { useNavigation } from "@/common/hooks";
 import { signOut } from "next-auth/react";
 
 /**
@@ -28,11 +28,11 @@ export function GenericHeader({
   onMenuClick,
   fullName = "",
 }: GenericHeaderProps) {
-  const router = useRouter();
+  const { navigate } = useNavigation();
   const { t } = useTranslation();
 
   const settings = [
-    { name: t("nav.profile"), onClick: () => router.push("/profile") },
+    { name: t("nav.profile"), onClick: () => navigate("/profile") },
     { name: t("nav.logout"), onClick: () => signOut({ redirectTo: "/login" }) },
   ];
 

@@ -14,8 +14,8 @@ import { NewProjectFormData } from "@/common/schemas/projectSettingsSchema";
 import { GenericButton, GenericTextField } from "@/components";
 import { projectService } from "@/common/services";
 import { ButtonVariant } from "@/common/enum";
-import { useRouter } from "next/navigation";
 import { useLoading } from "@/common/context/LoadingContext";
+import { useNavigation } from "@/common/hooks";
 import { useTranslation } from "@/common/provider";
 
 interface NewProjectModalProps {
@@ -25,8 +25,8 @@ interface NewProjectModalProps {
 
 export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const { withLoading } = useLoading();
+  const { navigate } = useNavigation();
 
   const newProjectSchema = useMemo(
     () => z.object({ projectName: z.string().min(3, t("newProject.nameMin")) }),
@@ -49,7 +49,7 @@ export function NewProjectModal({ open, onClose }: NewProjectModalProps) {
     try {
       const newProject = await withLoading(() => projectService.create(data));
       handleClose();
-      router.push(`/project/${newProject.id}`);
+      navigate(`/project/${newProject.id}`);
     } catch (error) {
       console.error("Failed to create project", error);
     }

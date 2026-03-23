@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Box, Divider, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { GenericSidebarProps } from "@/common/model";
 import { GenericDrawer, GenericIcon, GenericList } from "./";
-import { useRouter } from "next/navigation";
 import { useTranslation } from "@/common/provider";
+import { useNavigation } from "@/common/hooks";
 
 /**
  * Generic and reusable sidebar component based on Material UI's Drawer.
@@ -27,7 +27,7 @@ export function GenericSidebar({
   variant,
   onClose,
 }: GenericSidebarProps) {
-  const router = useRouter();
+  const { navigate } = useNavigation();
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(true);
   const drawerWidth = expanded ? 240 : 80;
@@ -59,16 +59,12 @@ export function GenericSidebar({
             {
               label: t("nav.home"),
               icon: "home",
-              onClick: () => {
-                router.push("/");
-              },
+              onClick: () => navigate("/"),
             },
             {
               label: t("nav.dashboard"),
               icon: "bar_chart_4_bars",
-              onClick: () => {
-                router.push("/project");
-              },
+              onClick: () => navigate("/project"),
             },
           ]}
         />

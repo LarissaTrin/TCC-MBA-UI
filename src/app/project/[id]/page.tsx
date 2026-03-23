@@ -121,13 +121,7 @@ export default function ProjectPage() {
   );
 
   const handleTabChange = (newValue: string) => {
-    withLoading(
-      () =>
-        new Promise<void>((resolve) => {
-          router.push(`?tab=${newValue}`);
-          setTimeout(resolve, 80);
-        }),
-    );
+    router.push(`?tab=${newValue}`);
   };
 
   if (loading) {

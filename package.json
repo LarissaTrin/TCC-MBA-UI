@@ -27,6 +27,8 @@
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@mui/system": "^7.3.2",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "apexcharts": "^5.3.5",
     "dayjs": "^1.11.19",
     "material-symbols": "^0.35.0",

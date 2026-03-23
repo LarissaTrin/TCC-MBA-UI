@@ -74,9 +74,9 @@ export function GenericSidebar({
         <Divider />
         <ListItemButton
           onClick={() => window.open("https://forms.gle/P1J7KYEwCzfTGCCN9", "_blank")}
-          sx={{ px: 2, py: 1 }}
+          sx={{ px: 2, py: 1, justifyContent: expanded ? "flex-start" : "center" }}
         >
-          <ListItemIcon sx={{ minWidth: 40 }}>
+          <ListItemIcon sx={{ minWidth: expanded ? 40 : "auto" }}>
             <GenericIcon icon="rate_review" />
           </ListItemIcon>
           {expanded && <ListItemText primary={t("nav.feedback")} primaryTypographyProps={{ variant: "body2" }} />}

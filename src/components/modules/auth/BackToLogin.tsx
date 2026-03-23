@@ -18,7 +18,9 @@ export function BackToLogin() {
         onClick={() => navigate("/login")}
         sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
       >
-        <GenericIcon icon="arrow_back" size={16} />
+        <Box component="span" sx={{ textDecoration: "none", lineHeight: 0 }}>
+          <GenericIcon icon="arrow_left_alt" size={16} />
+        </Box>
         {t("auth.backToLogin")}
       </Link>
     </Box>

@@ -63,11 +63,11 @@ export function GenericHeader({
             fontFamily: "monospace",
             fontWeight: 700,
             letterSpacing: ".3rem",
-            color: "inherit",
+            color: "primary.main",
             textDecoration: "none",
           }}
         >
-          LOGO
+          TRINDADE
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>

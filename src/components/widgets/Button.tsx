@@ -1,4 +1,4 @@
-﻿import { Button } from "@mui/material";
+﻿import { Button, CircularProgress } from "@mui/material";
 
 import { GeneralColor, ButtonVariant } from "@/common/enum";
 import { GenericButtonProps } from "@/common/model";
@@ -17,6 +17,7 @@ import { GenericIcon } from "./Icon";
  * @param color - Optional. Button color, from GeneralColor enum.
  * @param variant - Optional. Button type, from ButtonVariant enum.
  * @param onClick - Optional. Function to call when the button is clicked.
+ * @param loading - Optional. Shows a spinner and disables the button.
  * @param ...props - All other native Material UI Button props.
  *
  * Example usage:
@@ -37,6 +38,7 @@ export function GenericButton({
   color = GeneralColor.Primary,
   variant = ButtonVariant.Contained,
   startIcon,
+  loading,
   onClick,
   ...props
 }: GenericButtonProps) {
@@ -47,8 +49,11 @@ export function GenericButton({
       color={color}
       variant={variant}
       onClick={onClick}
+      disabled={!loading && props.disabled}
       startIcon={
-        startIcon ? (
+        loading ? (
+          <CircularProgress size={14} sx={{ color: "#fff" }} />
+        ) : startIcon ? (
           <GenericIcon
             icon={startIcon}
             sx={{ cursor: "pointer" }}
@@ -65,6 +70,7 @@ export function GenericButton({
                 mr: 0,
               },
             }),
+        ...(loading && { pointerEvents: "none" }),
         ...props.sx,
       }}
     >

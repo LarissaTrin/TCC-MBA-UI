@@ -210,6 +210,9 @@ export function createAppTheme(
               borderColor: theme.palette.primary.main,
               borderWidth: "1.5px",
             },
+            "& input[type=date]::-webkit-calendar-picker-indicator": isLight
+              ? {}
+              : { filter: "invert(1) brightness(0.8)" },
           }),
         },
       },

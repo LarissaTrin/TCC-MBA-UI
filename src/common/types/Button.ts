@@ -50,4 +50,5 @@ export interface GenericButtonProps extends ButtonProps {
    */
   variant?: ButtonVariant;
   startIcon?: MaterialSymbol;
+  loading?: boolean;
 }

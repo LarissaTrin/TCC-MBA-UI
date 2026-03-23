@@ -2,11 +2,21 @@
 
 import React from "react";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { Box, Card, CardContent, Chip, Typography, Avatar } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Typography,
+  Avatar,
+} from "@mui/material";
 import { useTranslation } from "@/common/provider";
+import { GeneralSize } from "@/common/enum";
+import { GenericIcon } from "./Icon";
 
 export interface TaskProps {
   id: string;
+  cardNumber: string;
   title: string;
   columnId: string;
   index: number;
@@ -22,6 +32,7 @@ export interface TaskProps {
 
 export function Task({
   id,
+  cardNumber,
   title,
   columnId,
   index,
@@ -45,7 +56,14 @@ export function Task({
   const extraTagCount = tags.length - 3;
 
   return (
-    <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1, cursor: "grab", marginBottom: "10px" }}>
+    <div
+      ref={ref}
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "grab",
+        marginBottom: "10px",
+      }}
+    >
       <Card
         onClick={onClick}
         sx={{
@@ -59,20 +77,35 @@ export function Task({
         }}
       >
         <CardContent sx={{ p: "12px !important" }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 0.5,
+            }}
+          >
             <Typography variant="caption" color="text.disabled">
-              #{id}
+              #{cardNumber}
             </Typography>
             {blocked && (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Typography variant="caption" color="error" sx={{ fontWeight: 600, fontSize: "0.65rem" }}>
+                <Typography
+                  variant="caption"
+                  color="error"
+                  sx={{ fontWeight: 600, fontSize: "0.65rem" }}
+                >
                   {t("card.blocked")}
                 </Typography>
               </Box>
             )}
           </Box>
 
-          <Typography variant="body2" fontWeight={500} sx={{ mb: 1, lineHeight: 1.4 }}>
+          <Typography
+            variant="body2"
+            fontWeight={500}
+            sx={{ mb: 1, lineHeight: 1.4 }}
+          >
             {title}
           </Typography>
 
@@ -105,7 +138,14 @@ export function Task({
               mt: 0.5,
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                minWidth: 0,
+              }}
+            >
               <Avatar
                 sx={{
                   width: 20,
@@ -127,10 +167,19 @@ export function Task({
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-              <span className="material-icons" style={{ fontSize: 14, opacity: 0.6 }}>
-                check_box
-              </span>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              <GenericIcon
+                icon="check_box"
+                size={GeneralSize.Small}
+                sx={{ opacity: 0.6 }}
+              />
               <Typography variant="caption" color="text.secondary">
                 {taskCompleted}/{taskTotal}
               </Typography>

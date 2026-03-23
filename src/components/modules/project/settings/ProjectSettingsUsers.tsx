@@ -16,13 +16,27 @@ import {
   FormControl,
   InputLabel,
   Alert,
+  Tooltip,
+  Popover,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GenericButton, GenericTextField, GenericIcon } from "@/components/widgets";
+import {
+  GenericButton,
+  GenericTextField,
+  GenericIcon,
+} from "@/components/widgets";
 import { useLoading } from "@/common/context/LoadingContext";
-import { addUserSchema, AddUserData } from "@/common/schemas/projectSettingsSchema";
-import { ButtonVariant, GeneralSize } from "@/common/enum";
+import {
+  addUserSchema,
+  AddUserData,
+} from "@/common/schemas/projectSettingsSchema";
+import { ButtonVariant, GeneralSize, GeneralColor } from "@/common/enum";
 import { InviteUserResult, ProjectMember } from "@/common/model";
 import { projectService } from "@/common/services";
 import { useTranslation } from "@/common/provider";
@@ -36,14 +50,21 @@ interface ProjectSettingsUsersProps {
   projectId: number;
   currentMembers: ProjectMember[];
   onMembersUpdate: (members: ProjectMember[]) => void;
+  currentUserRole?: string;
+  currentUserId?: number;
 }
 
-const INVITABLE_ROLES = ["User", "Leader", "Admin"];
+const ROLES_BY_PERMISSION: Record<string, string[]> = {
+  SuperAdmin: ["User", "Leader", "Admin"],
+  Admin: ["User", "Leader"],
+};
 
 export function ProjectSettingsUsers({
   projectId,
   currentMembers,
   onMembersUpdate,
+  currentUserRole = "User",
+  currentUserId,
 }: ProjectSettingsUsersProps) {
   const { t } = useTranslation();
   const { withLoading } = useLoading();
@@ -53,12 +74,20 @@ export function ProjectSettingsUsers({
   const [saving, setSaving] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [stagingError, setStagingError] = useState<string | null>(null);
+  const [rolesAnchorEl, setRolesAnchorEl] = useState<HTMLElement | null>(null);
+  const [pendingRemove, setPendingRemove] = useState<ProjectMember | null>(null);
+  const [updatingRoleId, setUpdatingRoleId] = useState<number | null>(null);
+
+  const canManageRoles = ["SuperAdmin", "Admin"].includes(currentUserRole);
 
   const ROLE_LABELS: Record<string, string> = {
     User: t("settings.users.roles.User"),
     Leader: t("settings.users.roles.Leader"),
     Admin: t("settings.users.roles.Admin"),
+    SuperAdmin: "SuperAdmin",
   };
+
+  const INVITABLE_ROLES = ROLES_BY_PERMISSION[currentUserRole] ?? [];
 
   const { control, handleSubmit, reset } = useForm<AddUserData>({
     resolver: zodResolver(addUserSchema),
@@ -122,13 +151,36 @@ export function ProjectSettingsUsers({
     }
   };
 
-  const onRemoveMember = async (member: ProjectMember) => {
+  const onRemoveMember = async () => {
+    if (!pendingRemove) return;
+    const member = pendingRemove;
+    setPendingRemove(null);
     setRemovingId(member.userId);
     try {
-      await withLoading(() => projectService.removeMember(projectId, member.userId));
+      await withLoading(() =>
+        projectService.removeMember(projectId, member.userId),
+      );
       onMembersUpdate(currentMembers.filter((m) => m.userId !== member.userId));
     } finally {
       setRemovingId(null);
+    }
+  };
+
+  const onChangeMemberRole = async (member: ProjectMember, newRole: string) => {
+    setUpdatingRoleId(member.userId);
+    try {
+      await withLoading(() =>
+        projectService.updateMemberRole(projectId, member.userId, newRole),
+      );
+      onMembersUpdate(
+        currentMembers.map((m) =>
+          m.userId === member.userId
+            ? { ...m, role: { ...m.role, name: newRole } }
+            : m,
+        ),
+      );
+    } finally {
+      setUpdatingRoleId(null);
     }
   };
 
@@ -137,49 +189,88 @@ export function ProjectSettingsUsers({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Box>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          {t("settings.users.inviteTitle")}
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onAddToStaging)}
-          sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
-        >
-          <GenericTextField
-            name="email"
-            control={control}
-            label={t("settings.users.emailLabel")}
-            size={GeneralSize.Small}
-          />
-          <FormControl size="small" sx={{ minWidth: 120, mt: "4px" }}>
-            <InputLabel>{t("settings.users.roleLabel")}</InputLabel>
-            <Select
-              value={selectedRole}
-              label={t("settings.users.roleLabel")}
-              onChange={(e) => setSelectedRole(e.target.value)}
+      {canManageRoles && (
+        <Box>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            {t("settings.users.inviteTitle")}
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onAddToStaging)}
+            sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
+          >
+            <GenericTextField
+              name="email"
+              control={control}
+              label={t("settings.users.emailLabel")}
+              size={GeneralSize.Small}
+            />
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5 }}>
+              <FormControl size="small" sx={{ minWidth: 120, mt: "4px" }}>
+                <InputLabel>{t("settings.users.roleLabel")}</InputLabel>
+                <Select
+                  value={selectedRole}
+                  label={t("settings.users.roleLabel")}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  {INVITABLE_ROLES.map((r) => (
+                    <MenuItem key={r} value={r}>
+                      {ROLE_LABELS[r]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <GenericButton
+              label={t("settings.users.add")}
+              type="submit"
+              variant={ButtonVariant.Outlined}
+              size={GeneralSize.Small}
+              sx={{ mt: "4px" }}
+            />
+          </Box>
+          {stagingError && (
+            <Alert
+              severity="error"
+              sx={{ mt: 1 }}
+              onClose={() => setStagingError(null)}
             >
-              {INVITABLE_ROLES.map((r) => (
-                <MenuItem key={r} value={r}>
-                  {ROLE_LABELS[r]}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <GenericButton
-            label={t("settings.users.add")}
-            type="submit"
-            variant={ButtonVariant.Outlined}
-            size={GeneralSize.Small}
-            sx={{ mt: "4px" }}
-          />
+              {stagingError}
+            </Alert>
+          )}
         </Box>
-        {stagingError && (
-          <Alert severity="error" sx={{ mt: 1 }} onClose={() => setStagingError(null)}>
-            {stagingError}
-          </Alert>
-        )}
-      </Box>
+      )}
+
+      <Popover
+        open={Boolean(rolesAnchorEl)}
+        anchorEl={rolesAnchorEl}
+        onClose={() => setRolesAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <Box sx={{ p: 2, maxWidth: 320 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+            {t("settings.users.rolesInfo.title")}
+          </Typography>
+          {[...INVITABLE_ROLES, "SuperAdmin"].map((role) => (
+            <Box key={role} sx={{ mb: 1 }}>
+              <Typography variant="body2" fontWeight="bold">
+                {ROLE_LABELS[role] ?? role}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {t(`settings.users.rolesInfo.${role}`)}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Popover>
 
       {stagingList.length > 0 && (
         <Box>
@@ -205,7 +296,9 @@ export function ProjectSettingsUsers({
                 >
                   <ListItemText
                     primary={
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         {entry.email}
                         <Select
                           size="small"
@@ -216,7 +309,11 @@ export function ProjectSettingsUsers({
                           sx={{ fontSize: "0.75rem", height: 28 }}
                         >
                           {INVITABLE_ROLES.map((r) => (
-                            <MenuItem key={r} value={r} sx={{ fontSize: "0.75rem" }}>
+                            <MenuItem
+                              key={r}
+                              value={r}
+                              sx={{ fontSize: "0.75rem" }}
+                            >
                               {ROLE_LABELS[r]}
                             </MenuItem>
                           ))}
@@ -248,7 +345,9 @@ export function ProjectSettingsUsers({
 
           <Box sx={{ mt: 1 }}>
             <GenericButton
-              label={saving ? t("settings.users.sending") : t("settings.users.send")}
+              label={
+                saving ? t("settings.users.sending") : t("settings.users.send")
+              }
               variant={ButtonVariant.Contained}
               size={GeneralSize.Small}
               disabled={saving}
@@ -259,26 +358,43 @@ export function ProjectSettingsUsers({
         </Box>
       )}
 
-      <Divider />
+      {canManageRoles && <Divider />}
 
       <Box>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}
+        >
           {t("settings.users.membersTitle")}
+          <Tooltip
+            title={
+              t("settings.users.rolesInfo.title") +
+              t("settings.users.rolesInfo.clickForDetails")
+            }
+          >
+            <IconButton
+              size="small"
+              onClick={(e) => setRolesAnchorEl(e.currentTarget)}
+            >
+              <GenericIcon icon="info" size={GeneralSize.Small} />
+            </IconButton>
+          </Tooltip>
         </Typography>
         <List dense>
           {currentMembers.map((member) => {
             const isSuperAdmin = member.role.name === "SuperAdmin";
+            const isSelf = member.userId === currentUserId;
             const isRemoving = removingId === member.userId;
             return (
               <ListItem
                 key={member.id}
                 secondaryAction={
-                  !isSuperAdmin && (
+                  canManageRoles && !isSuperAdmin && !isSelf && (
                     <IconButton
                       edge="end"
                       size="small"
                       disabled={isRemoving}
-                      onClick={() => onRemoveMember(member)}
+                      onClick={() => setPendingRemove(member)}
                     >
                       {isRemoving ? (
                         <CircularProgress size={16} />
@@ -293,11 +409,27 @@ export function ProjectSettingsUsers({
                   primary={
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {`${member.user.firstName} ${member.user.lastName}`}
-                      <Chip
-                        label={ROLE_LABELS[member.role.name] ?? member.role.name}
-                        size="small"
-                        color={isSuperAdmin ? "primary" : "default"}
-                      />
+                      {canManageRoles && !isSuperAdmin && !isSelf ? (
+                        <Select
+                          size="small"
+                          value={member.role.name}
+                          disabled={updatingRoleId === member.userId}
+                          onChange={(e) => onChangeMemberRole(member, e.target.value)}
+                          sx={{ fontSize: "0.75rem", height: 28 }}
+                        >
+                          {INVITABLE_ROLES.map((r) => (
+                            <MenuItem key={r} value={r} sx={{ fontSize: "0.75rem" }}>
+                              {ROLE_LABELS[r]}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Chip
+                          label={ROLE_LABELS[member.role.name] ?? member.role.name}
+                          size="small"
+                          color={isSuperAdmin ? "primary" : "default"}
+                        />
+                      )}
                     </Box>
                   }
                   secondary={member.user.email}
@@ -315,6 +447,36 @@ export function ProjectSettingsUsers({
           )}
         </List>
       </Box>
+
+      {/* Remove member confirmation dialog */}
+      <Dialog open={Boolean(pendingRemove)} onClose={() => setPendingRemove(null)}>
+        <DialogTitle>
+          {t("settings.users.confirmRemoveTitle").replace(
+            "{name}",
+            pendingRemove
+              ? `${pendingRemove.user.firstName} ${pendingRemove.user.lastName}`
+              : "",
+          )}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t("settings.users.confirmRemoveText")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <GenericButton
+            label={t("common.cancel")}
+            variant={ButtonVariant.Text}
+            onClick={() => setPendingRemove(null)}
+          />
+          <GenericButton
+            label={t("settings.users.confirmRemove")}
+            variant={ButtonVariant.Contained}
+            color={GeneralColor.Error}
+            onClick={onRemoveMember}
+          />
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

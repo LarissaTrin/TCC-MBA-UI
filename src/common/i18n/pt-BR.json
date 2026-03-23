@@ -16,7 +16,7 @@
   },
   "nav": {
     "home": "Início",
-    "dashboard": "Painel",
+    "dashboard": "Projetos",
     "profile": "Perfil",
     "login": "Entrar",
     "logout": "Sair",
@@ -163,7 +163,7 @@
   },
   "project": {
     "tabs": {
-      "dashboard": "Dashboard",
+      "dashboard": "Overview",
       "board": "Board",
       "timeline": "Timeline"
     },
@@ -181,7 +181,7 @@
     "add": "Adicionar",
     "cancel": "Cancelar",
     "loadMore": "Carregar mais",
-    "manageLists": "Gerenciar Listas",
+    "manageLists": "Criar / Mover Listas",
     "noSections": "Nenhuma lista encontrada. Acesse as Configurações para criar sua primeira lista."
   },
   "filter": {
@@ -198,7 +198,8 @@
     "apply": "Aplicar",
     "period": "Período",
     "start": "Início",
-    "end": "Fim"
+    "end": "Fim",
+    "startAfterEnd": "A data de início não pode ser após a data de fim"
   },
   "card": {
     "blocked": "Bloqueado",
@@ -209,6 +210,9 @@
     "saveAndClose": "Salvar e Fechar",
     "close": "Fechar",
     "delete": "Deletar card",
+    "confirmDeleteTitle": "Deletar card \"{name}\"?",
+    "confirmDeleteText": "Todos os comentários, histórico e tarefas serão perdidos. Esta ação não pode ser desfeita.",
+    "confirmDelete": "Deletar",
     "loading": "Carregando...",
     "expand": "Expandir",
     "exitFullscreen": "Sair do full screen",
@@ -313,7 +317,13 @@
       "deleteError": "Erro ao excluir lista.",
       "rename": "renomear lista",
       "saveRename": "salvar nome",
-      "cancelRename": "cancelar renomeação"
+      "cancelRename": "cancelar renomeação",
+      "confirmDeleteTitle": "Excluir lista \"{name}\"?",
+      "confirmDeleteText": "Os cards desta lista serão movidos para a lista selecionada abaixo.",
+      "confirmDeleteNoCards": "Esta lista não possui cards. A exclusão é imediata.",
+      "moveCardsTo": "Mover cards existentes para",
+      "selectTargetList": "Selecionar lista de destino",
+      "confirmDelete": "Excluir lista"
     },
     "details": {
       "projectName": "Nome do Projeto",
@@ -337,6 +347,9 @@
       "sending": "Enviando...",
       "membersTitle": "Membros do projeto",
       "noMembers": "Nenhum membro no projeto.",
+      "confirmRemoveTitle": "Remover {name} do projeto?",
+      "confirmRemoveText": "Todos os cards atribuídos a este usuário ficarão sem responsável.",
+      "confirmRemove": "Remover",
       "resultAdded": "Adicionado ao projeto.",
       "resultAlreadyMember": "Já é membro do projeto.",
       "resultInviteSent": "⚠ Não possui conta cadastrada. Um convite foi enviado por e-mail.",
@@ -344,6 +357,14 @@
         "User": "Usuário",
         "Leader": "Líder",
         "Admin": "Admin"
+      },
+      "rolesInfo": {
+        "title": "Permissões por Cargo",
+        "clickForDetails": ", clique para mais detalhes",
+        "User": "Pode visualizar o projeto, criar e editar cards.",
+        "Leader": "Todas as permissões de Usuário + pode criar e mover listas.",
+        "Admin": "Todas as permissões de Líder + pode excluir listas, gerenciar membros e configurações do projeto.",
+        "SuperAdmin": "Criador do projeto. Acesso total, incluindo exclusão do projeto."
       }
     }
   },

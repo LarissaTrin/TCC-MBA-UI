@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { cardService, CardDependencyItem, CardSearchResult } from "@/common/services";
 import { useTranslation } from "@/common/provider";
+import { GenericIcon } from "@/components/widgets";
 
 interface CardDependenciesSectionProps {
   cardId: number;
@@ -187,7 +188,7 @@ export function CardDependenciesSection({
                         title={t("card.dependencies.open")}
                         onClick={() => onOpenCard(dep.id)}
                       >
-                        <span className="material-icons" style={{ fontSize: 18 }}>open_in_new</span>
+                        <GenericIcon icon="open_in_new" />
                       </IconButton>
                     )}
                     {!readOnly && (
@@ -196,7 +197,7 @@ export function CardDependenciesSection({
                         title={t("card.dependencies.remove")}
                         onClick={() => handleRemove(dep.id)}
                       >
-                        <span className="material-icons" style={{ fontSize: 18 }}>close</span>
+                        <GenericIcon icon="close" />
                       </IconButton>
                     )}
                   </Box>

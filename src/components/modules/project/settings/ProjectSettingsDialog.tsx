@@ -26,14 +26,17 @@ interface ProjectSettingsDialogProps {
   sections: Section[];
   onSectionsChange: (sections: Section[]) => void;
   userRole: string;
+  currentUserId?: number;
   projectMembers: ProjectMember[];
   onMembersUpdate: (members: ProjectMember[]) => void;
+  onProjectDetailsSaved?: (name: string, description: string) => void;
 }
 
 const canManageUsers = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 const canManageLists = (role: string) => ["SuperAdmin", "Admin", "Leader"].includes(role);
 const canDeleteLists = (role: string) => ["SuperAdmin", "Admin"].includes(role);
 const canEditProject = (role: string) => ["SuperAdmin", "Admin"].includes(role);
+const canDeleteProject = (role: string) => role === "SuperAdmin";
 
 export function ProjectSettingsDialog({
   open,
@@ -44,14 +47,16 @@ export function ProjectSettingsDialog({
   sections,
   onSectionsChange,
   userRole,
+  currentUserId,
   projectMembers,
   onMembersUpdate,
+  onProjectDetailsSaved,
 }: ProjectSettingsDialogProps) {
   const { t } = useTranslation();
   const { navigate } = useNavigation();
 
   const tabs = [];
-  if (canManageUsers(userRole)) tabs.push({ label: t("settings.tabs.users"), value: "users" });
+  tabs.push({ label: t("settings.tabs.users"), value: "users" });
   if (canManageLists(userRole)) tabs.push({ label: t("settings.tabs.lists"), value: "lists" });
   tabs.push({ label: t("settings.tabs.details"), value: "details" });
 
@@ -85,11 +90,13 @@ export function ProjectSettingsDialog({
         />
 
         <Box sx={{ pt: 3 }}>
-          {activeTab === "users" && canManageUsers(userRole) && (
+          {activeTab === "users" && (
             <ProjectSettingsUsers
               projectId={projectId}
               currentMembers={projectMembers}
               onMembersUpdate={onMembersUpdate}
+              currentUserRole={userRole}
+              currentUserId={currentUserId}
             />
           )}
           {activeTab === "lists" && canManageLists(userRole) && (
@@ -107,6 +114,8 @@ export function ProjectSettingsDialog({
               projectDescription={projectDescription}
               onDeleteProject={handleDeleteProject}
               canEdit={canEditProject(userRole)}
+              canDelete={canDeleteProject(userRole)}
+              onSaved={onProjectDetailsSaved}
             />
           )}
         </Box>

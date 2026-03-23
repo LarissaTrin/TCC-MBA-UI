@@ -16,7 +16,7 @@
   },
   "nav": {
     "home": "Home",
-    "dashboard": "Dashboard",
+    "dashboard": "Projects",
     "profile": "Profile",
     "login": "Login",
     "logout": "Logout",
@@ -163,7 +163,7 @@
   },
   "project": {
     "tabs": {
-      "dashboard": "Dashboard",
+      "dashboard": "Overview",
       "board": "Board",
       "timeline": "Timeline"
     },
@@ -181,7 +181,7 @@
     "add": "Add",
     "cancel": "Cancel",
     "loadMore": "Load more",
-    "manageLists": "Manage Lists",
+    "manageLists": "Create / Move Lists",
     "noSections": "No lists yet. Go to Settings to create your first list."
   },
   "filter": {
@@ -198,7 +198,8 @@
     "apply": "Apply",
     "period": "Period",
     "start": "Start",
-    "end": "End"
+    "end": "End",
+    "startAfterEnd": "Start date cannot be after end date"
   },
   "card": {
     "blocked": "Blocked",
@@ -209,6 +210,9 @@
     "saveAndClose": "Save and Close",
     "close": "Close",
     "delete": "Delete card",
+    "confirmDeleteTitle": "Delete card \"{name}\"?",
+    "confirmDeleteText": "All comments, history and tasks will be lost. This action cannot be undone.",
+    "confirmDelete": "Delete",
     "loading": "Loading...",
     "expand": "Expand",
     "exitFullscreen": "Exit full screen",
@@ -313,7 +317,13 @@
       "deleteError": "Error deleting list.",
       "rename": "rename list",
       "saveRename": "save name",
-      "cancelRename": "cancel rename"
+      "cancelRename": "cancel rename",
+      "confirmDeleteTitle": "Delete list \"{name}\"?",
+      "confirmDeleteText": "Cards in this list will be moved to the list selected below.",
+      "confirmDeleteNoCards": "This list has no cards. It will be deleted immediately.",
+      "moveCardsTo": "Move existing cards to",
+      "selectTargetList": "Select target list",
+      "confirmDelete": "Delete list"
     },
     "details": {
       "projectName": "Project Name",
@@ -337,6 +347,9 @@
       "sending": "Sending...",
       "membersTitle": "Project members",
       "noMembers": "No members in the project.",
+      "confirmRemoveTitle": "Remove {name} from project?",
+      "confirmRemoveText": "All cards assigned to this user will have no assignee.",
+      "confirmRemove": "Remove",
       "resultAdded": "Added to project.",
       "resultAlreadyMember": "Already a project member.",
       "resultInviteSent": "⚠ No registered account. An invitation was sent by email.",
@@ -344,6 +357,14 @@
         "User": "User",
         "Leader": "Leader",
         "Admin": "Admin"
+      },
+      "rolesInfo": {
+        "title": "Role Permissions",
+        "clickForDetails": ", click for details",
+        "User": "Can view the project, create and edit cards.",
+        "Leader": "All User permissions + can create and move lists.",
+        "Admin": "All Leader permissions + can delete lists, manage members and project settings.",
+        "SuperAdmin": "Project creator. Full access, including deleting the project."
       }
     }
   },

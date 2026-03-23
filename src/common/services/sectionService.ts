@@ -20,6 +20,7 @@ function mapCardFromList(
 ): Card {
   return {
     id: card.id,
+    cardNumber: card.cardNumber ?? 0,
     name: card.title,
     description: card.description,
     priority: card.priority,
@@ -194,8 +195,10 @@ export const sectionService = {
   /**
    * Delete a list (section).
    * DELETE /api/projects/{projectId}/lists/{listId}
+   * @param targetListId Optional list to receive cards from the deleted list.
    */
-  async deleteSection(projectId: number, listId: number): Promise<void> {
-    await apiClient.delete(`/projects/${projectId}/lists/${listId}`);
+  async deleteSection(projectId: number, listId: number, targetListId?: number): Promise<void> {
+    const qs = targetListId ? `?target_list_id=${targetListId}` : "";
+    await apiClient.delete(`/projects/${projectId}/lists/${listId}${qs}`);
   },
 };

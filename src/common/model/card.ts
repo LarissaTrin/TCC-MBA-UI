@@ -6,6 +6,7 @@ import { TaskCard } from "./tasks";
 import { User } from "./user";
 export interface Card {
   id: number;
+  cardNumber: number;
   name: string;
   description?: string;
   priority?: number;

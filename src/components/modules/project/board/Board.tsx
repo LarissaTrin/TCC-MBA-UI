@@ -35,6 +35,7 @@ export function BoardContent({
   lastUpdatedCard,
   userRole,
   onSectionsChange,
+  onCardCreated,
 }: {
   sections: Section[];
   loading: boolean;
@@ -43,6 +44,7 @@ export function BoardContent({
   lastUpdatedCard?: Card;
   userRole?: string;
   onSectionsChange?: (sections: Section[]) => void;
+  onCardCreated?: (card: Card) => void;
 }) {
   const { t } = useTranslation();
 
@@ -141,6 +143,7 @@ export function BoardContent({
       if (result[sid]) {
         result[sid].push({
           id: String(task.id),
+          cardNumber: task.cardNumber,
           title: task.title,
           columnId: sid,
           index: task.index,
@@ -188,6 +191,7 @@ export function BoardContent({
       const existing = prev[sectionId] ?? [];
       return { ...prev, [sectionId]: [...existing, created] };
     });
+    onCardCreated?.(created);
   };
 
   if (loading) return <Box>{t("common.loading")}</Box>;
@@ -390,6 +394,7 @@ export function BoardContent({
                         <Task
                           key={task.id}
                           id={task.id}
+                          cardNumber={task.cardNumber}
                           title={task.title}
                           columnId={section.id}
                           index={index}

@@ -9,6 +9,7 @@ export function mapCardsToTasks(cards: Card[]): Task[] {
 
     return {
       id: card.id,
+      cardNumber: String(card.cardNumber ?? card.sortIndex ?? 0),
       title: card.name,
       subtitle: card.status,
       startDate: start,

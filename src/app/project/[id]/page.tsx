@@ -95,6 +95,9 @@ export default function ProjectPage() {
           lastUpdatedCard={lastUpdatedCard}
           userRole={userRole}
           onSectionsChange={setSections}
+          onCardCreated={(card) =>
+            setTimelineTasks((prev) => [...prev, mapCardsToTasks([card])[0]])
+          }
         />
       ),
     },
@@ -133,15 +136,17 @@ export default function ProjectPage() {
           handleChange={(_, value) => handleTabChange(value as string)}
           tabsList={tabsConfig}
         />
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          <GenericButton
-            startIcon="settings"
-            label={t("project.settings")}
-            variant={ButtonVariant.Outlined}
-            size={GeneralSize.Small}
-            onClick={() => setSettingsOpen(true)}
-          />
-        </Box>
+        {["SuperAdmin", "Admin", "Leader"].includes(userRole) && (
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <GenericButton
+              startIcon="settings"
+              label={t("project.settings")}
+              variant={ButtonVariant.Outlined}
+              size={GeneralSize.Small}
+              onClick={() => setSettingsOpen(true)}
+            />
+          </Box>
+        )}
       </Box>
 
       <Box sx={{ p: 2, flexGrow: 1 }}>
@@ -179,8 +184,13 @@ export default function ProjectPage() {
         sections={sections}
         onSectionsChange={setSections}
         userRole={userRole}
+        currentUserId={session?.user?.id ? Number(session.user.id) : undefined}
         projectMembers={projectMembers}
         onMembersUpdate={setProjectMembers}
+        onProjectDetailsSaved={(name, description) => {
+          setProjectTitle(name);
+          setProjectDescription(description);
+        }}
       />
     </GenericPage>
   );

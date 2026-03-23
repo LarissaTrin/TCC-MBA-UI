@@ -28,6 +28,8 @@ interface ProjectSettingsDetailsProps {
   projectDescription: string;
   onDeleteProject: () => void;
   canEdit: boolean;
+  canDelete: boolean;
+  onSaved?: (name: string, description: string) => void;
 }
 
 export function ProjectSettingsDetails({
@@ -36,6 +38,8 @@ export function ProjectSettingsDetails({
   projectDescription,
   onDeleteProject,
   canEdit,
+  canDelete,
+  onSaved,
 }: ProjectSettingsDetailsProps) {
   const { t } = useTranslation();
   const { withLoading } = useLoading();
@@ -65,6 +69,7 @@ export function ProjectSettingsDetails({
         description: data.description,
       }),
     );
+    onSaved?.(data.projectName, data.description ?? "");
   };
 
   const handleDeleteClick = () => setConfirmOpen(true);
@@ -88,6 +93,7 @@ export function ProjectSettingsDetails({
             control={control}
             label={t("settings.details.projectName")}
             size={GeneralSize.Small}
+            disabled={!canEdit}
           />
           <GenericTextField
             name="description"
@@ -95,6 +101,7 @@ export function ProjectSettingsDetails({
             label={t("settings.details.description")}
             rows={4}
             size={GeneralSize.Small}
+            disabled={!canEdit}
           />
         </Stack>
 
@@ -110,7 +117,7 @@ export function ProjectSettingsDetails({
           </Box>
         )}
 
-        {canEdit && (
+        {canDelete && (
           <Box
             sx={{
               mt: 4,

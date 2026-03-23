@@ -103,6 +103,10 @@ export const projectService = {
     await apiClient.delete(`/projects/${projectId}/members/${userId}`);
   },
 
+  async updateMemberRole(projectId: number, userId: number, role: string): Promise<void> {
+    await apiClient.put(`/projects/${projectId}/members/${userId}`, { role });
+  },
+
   async searchMembers(projectId: number, query: string): Promise<AutocompleteOption[]> {
     const data = await apiClient.get<ProjectMemberSearchItem[]>(
       `/projects/${projectId}/members/search?q=${encodeURIComponent(query)}`,

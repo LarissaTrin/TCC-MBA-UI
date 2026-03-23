@@ -1,6 +1,6 @@
 "use client";
 
-import { GeneralSize, ButtonVariant, Status } from "@/common/enum";
+import { GeneralSize, ButtonVariant, GeneralColor, Status } from "@/common/enum";
 import { Card, ProjectMember, Section, Comments } from "@/common/model";
 import { cardService } from "@/common/services";
 import {
@@ -14,6 +14,11 @@ import {
 } from "@/components/widgets";
 import {
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControlLabel,
   Grid,
   IconButton,
@@ -77,8 +82,10 @@ export function CardContent({
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const closeAfterSave = useRef(false);
   const [openOptions, setOpenOptions] = useState(false);
-  const [initialComments, setInitialComments] = useState<Comments[]>([]);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [comments, setComments] = useState<Comments[]>([]);
 
   const TABS = [
     { label: t("card.tabs.details"), value: 0 },
@@ -123,6 +130,7 @@ export function CardContent({
 
   const handleDeleteCard = async () => {
     if (!card) return;
+    setConfirmDeleteOpen(false);
     await cardService.delete(card.id);
     handleClose();
   };
@@ -189,7 +197,10 @@ export function CardContent({
       })),
     });
     onSaved?.(updatedCard);
-    handleClose();
+    if (closeAfterSave.current) {
+      closeAfterSave.current = false;
+      handleClose();
+    }
   };
 
   const handleClose = () => {
@@ -256,7 +267,7 @@ export function CardContent({
             })),
             blocked: loadedCard.blocked ?? false,
           });
-          setInitialComments(loadedCard.comments ?? []);
+          setComments(loadedCard.comments ?? []);
         }
 
         setLoading(false);
@@ -320,7 +331,7 @@ export function CardContent({
             <GenericButton
               label={t("card.save")}
               onClick={handleSubmit(onSubmit)}
-              disabled={isSubmitting}
+              loading={isSubmitting}
             />
             <GenericButton startIcon="more_vert" onClick={handleOptions} />
           </GenericButtonGroup>
@@ -329,12 +340,15 @@ export function CardContent({
             open={openOptions}
             onClose={handleCloseOptions}
           >
-            <MenuItem onClick={handleSubmit(onSubmit)}>
+            <MenuItem onClick={() => { closeAfterSave.current = true; handleSubmit(onSubmit)(); }}>
               {t("card.saveAndClose")}
             </MenuItem>
             <MenuItem onClick={handleClose}>{t("card.close")}</MenuItem>
             {canDeleteCard && (
-              <MenuItem onClick={handleDeleteCard} sx={{ color: "error.main" }}>
+              <MenuItem
+                onClick={() => { handleCloseOptions(); setConfirmDeleteOpen(true); }}
+                sx={{ color: "error.main" }}
+              >
                 {t("card.delete")}
               </MenuItem>
             )}
@@ -569,13 +583,40 @@ export function CardContent({
           {activeTab === 3 && (
             <CardCommentsSection
               cardId={card?.id ?? 0}
-              initialComments={initialComments}
+              comments={comments}
+              onCommentsChange={setComments}
             />
           )}
 
           {activeTab === 4 && <CardHistorySection cardId={card?.id ?? 0} />}
         </Box>
       </Box>
+
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        sx={{ zIndex: 1600 + extraZIndex }}
+      >
+        <DialogTitle>
+          {t("card.confirmDeleteTitle").replace("{name}", card?.name ?? "")}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t("card.confirmDeleteText")}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <GenericButton
+            label={t("common.cancel")}
+            variant={ButtonVariant.Text}
+            onClick={() => setConfirmDeleteOpen(false)}
+          />
+          <GenericButton
+            label={t("card.confirmDelete")}
+            variant={ButtonVariant.Contained}
+            color={GeneralColor.Error}
+            onClick={handleDeleteCard}
+          />
+        </DialogActions>
+      </Dialog>
     </GenericDrawer>
   );
 }

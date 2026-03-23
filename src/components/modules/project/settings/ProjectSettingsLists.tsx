@@ -10,6 +10,15 @@ import {
   CircularProgress,
   Typography,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +28,7 @@ import {
   newListSchema,
   NewListData,
 } from "@/common/schemas/projectSettingsSchema";
-import { ButtonVariant, GeneralSize } from "@/common/enum";
+import { ButtonVariant, GeneralSize, GeneralColor } from "@/common/enum";
 import { Section } from "@/common/model";
 import { sectionService } from "@/common/services";
 import { useTranslation } from "@/common/provider";
@@ -47,6 +56,10 @@ export function ProjectSettingsLists({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>("");
 
+  // Confirmation dialog state
+  const [pendingDelete, setPendingDelete] = useState<Section | null>(null);
+  const [targetListId, setTargetListId] = useState<string>("");
+
   const { control, handleSubmit, reset } = useForm<NewListData>({
     resolver: zodResolver(newListSchema),
     defaultValues: { name: "" },
@@ -67,12 +80,26 @@ export function ProjectSettingsLists({
     }
   };
 
-  const onDeleteList = async (sectionId: string) => {
+  const openDeleteConfirm = (section: Section) => {
+    // Pre-select natural predecessor as default target
+    const otherLists = lists.filter((s) => s.id !== section.id);
+    const predecessor = [...otherLists]
+      .filter((s) => s.order < section.order)
+      .sort((a, b) => b.order - a.order)[0];
+    setTargetListId(predecessor ? predecessor.id : (otherLists[0]?.id ?? ""));
+    setPendingDelete(section);
+  };
+
+  const onDeleteList = async () => {
+    if (!pendingDelete) return;
+    const sectionId = pendingDelete.id;
     setDeleteError(null);
     setDeletingId(sectionId);
+    setPendingDelete(null);
     try {
+      const target = targetListId ? Number(targetListId) : undefined;
       await withLoading(() =>
-        sectionService.deleteSection(projectId, Number(sectionId)),
+        sectionService.deleteSection(projectId, Number(sectionId), target),
       );
       const updated = lists
         .filter((s) => s.id !== sectionId)
@@ -227,7 +254,7 @@ export function ProjectSettingsLists({
                       <IconButton
                         size="small"
                         disabled={deletingId === section.id}
-                        onClick={() => onDeleteList(section.id)}
+                        onClick={() => openDeleteConfirm(section)}
                         aria-label={t("settings.lists.delete")}
                       >
                         {deletingId === section.id ? (
@@ -290,6 +317,55 @@ export function ProjectSettingsLists({
           />
         </Box>
       )}
+
+      {/* Delete list confirmation dialog */}
+      <Dialog open={Boolean(pendingDelete)} onClose={() => setPendingDelete(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          {t("settings.lists.confirmDeleteTitle").replace("{name}", pendingDelete?.name ?? "")}
+        </DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {lists.filter((s) => s.id !== pendingDelete?.id).length > 0 ? (
+            <>
+              <DialogContentText>
+                {t("settings.lists.confirmDeleteText")}
+              </DialogContentText>
+              <FormControl size="small" fullWidth>
+                <InputLabel>{t("settings.lists.moveCardsTo")}</InputLabel>
+                <Select
+                  value={targetListId}
+                  label={t("settings.lists.moveCardsTo")}
+                  onChange={(e) => setTargetListId(e.target.value)}
+                >
+                  {lists
+                    .filter((s) => s.id !== pendingDelete?.id)
+                    .map((s) => (
+                      <MenuItem key={s.id} value={s.id}>
+                        {s.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </>
+          ) : (
+            <DialogContentText>
+              {t("settings.lists.confirmDeleteNoCards")}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <GenericButton
+            label={t("common.cancel")}
+            variant={ButtonVariant.Text}
+            onClick={() => setPendingDelete(null)}
+          />
+          <GenericButton
+            label={t("settings.lists.confirmDelete")}
+            variant={ButtonVariant.Contained}
+            color={GeneralColor.Error}
+            onClick={onDeleteList}
+          />
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

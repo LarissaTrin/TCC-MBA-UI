@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Comments } from "@/common/model";
 import { commentService } from "@/common/services";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
@@ -11,43 +11,43 @@ import { useTranslation } from "@/common/provider";
 
 interface CardCommentsSectionProps {
   cardId: number;
-  initialComments: Comments[];
+  comments: Comments[];
+  onCommentsChange: (comments: Comments[]) => void;
 }
 
 export function CardCommentsSection({
   cardId,
-  initialComments,
+  comments,
+  onCommentsChange,
 }: CardCommentsSectionProps) {
   const { t } = useTranslation();
-  const [comments, setComments] = useState<Comments[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
 
-  useEffect(() => {
-    setComments(initialComments);
-  }, [initialComments]);
-
   const handleAdd = async () => {
     if (!newComment.trim()) return;
 
+    const tempId = Date.now();
     const optimistic: Comments = {
-      id: Date.now(),
+      id: tempId,
       description: newComment.trim(),
-      user: { id: 1, firstName: "Current", lastName: "User", email: "" },
+      user: { id: 0, firstName: "", lastName: "", email: "" },
       createdAt: dayjs(),
       updatedAt: dayjs(),
     };
-    setComments((prev) => [...prev, optimistic]);
+    onCommentsChange([...comments, optimistic]);
     setNewComment("");
 
     try {
       const created = await commentService.create(cardId, optimistic.description);
-      setComments((prev) =>
-        prev.map((c) => (c.id === optimistic.id ? created : c))
+      onCommentsChange(
+        comments
+          .filter((c) => c.id !== tempId)
+          .concat(created)
       );
     } catch {
-      setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+      onCommentsChange(comments.filter((c) => c.id !== tempId));
     }
   };
 
@@ -60,22 +60,19 @@ export function CardCommentsSection({
     const previous = comments.find((c) => c.id === commentId);
     if (!previous) return;
 
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === commentId
-          ? { ...c, description: editingText, updatedAt: dayjs() }
-          : c
-      )
+    const updated = comments.map((c) =>
+      c.id === commentId
+        ? { ...c, description: editingText, updatedAt: dayjs() }
+        : c
     );
+    onCommentsChange(updated);
     setEditingId(null);
     setEditingText("");
 
     try {
       await commentService.update(commentId, editingText);
     } catch {
-      setComments((prev) =>
-        prev.map((c) => (c.id === commentId ? previous : c))
-      );
+      onCommentsChange(comments.map((c) => (c.id === commentId ? previous : c)));
     }
   };
 
@@ -83,7 +80,7 @@ export function CardCommentsSection({
     const previous = comments.find((c) => c.id === commentId);
     if (!previous) return;
 
-    setComments((prev) => prev.filter((c) => c.id !== commentId));
+    onCommentsChange(comments.filter((c) => c.id !== commentId));
     if (editingId === commentId) {
       setEditingId(null);
       setEditingText("");
@@ -92,7 +89,7 @@ export function CardCommentsSection({
     try {
       await commentService.delete(commentId);
     } catch {
-      setComments((prev) => [...prev, previous]);
+      onCommentsChange([...comments, previous]);
     }
   };
 

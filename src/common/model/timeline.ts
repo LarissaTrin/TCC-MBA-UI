@@ -1,6 +1,7 @@
 export interface Task {
   id: number | string;
   title: string;
+  cardNumber: string;
   subtitle: string;
   startDate: string;
   endDate: string;

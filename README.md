@@ -1,4 +1,4 @@
-# Kanban Project Manager — Front-end
+# Kanban Project Manager — Front-end 
 
 Interface web do sistema de gerenciamento de projetos no estilo Kanban. Desenvolvida em Next.js 15 + React 19 + TypeScript.
 

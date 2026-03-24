@@ -394,10 +394,16 @@
   },
   "table": {
     "order": "Order",
+    "cardNumber": "Card Number",
     "title": "Title",
     "list": "List",
     "priority": "Priority",
-    "noPriority": "—"
+    "category": "Category",
+    "assignee": "Assignee",
+    "tasks": "Tasks",
+    "blocked": "Blocked",
+    "noPriority": "—",
+    "columns": "Columns"
   },
   "timeline": {
     "tasks": "Tasks",

@@ -343,8 +343,9 @@ export function BoardContent({
         onClose={() => setListsAnchorEl(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{ sx: { maxWidth: "calc(100vw - 32px)" } }}
       >
-        <Box sx={{ p: 2, width: 360 }}>
+        <Box sx={{ p: 2, width: 360, maxWidth: "calc(100vw - 32px)", overflowY: "auto", maxHeight: "80vh" }}>
           <ProjectSettingsLists
             projectId={projectId}
             sections={sections}

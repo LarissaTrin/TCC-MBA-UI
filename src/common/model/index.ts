@@ -6,6 +6,7 @@ export * from "./comments";
 export * from "./preject";
 export * from "./section";
 export * from "./tag";
+export * from "./tableView";
 export * from "./tasks";
 export * from "./timeline";
 export * from "./user";

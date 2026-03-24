@@ -186,14 +186,16 @@ export function ProjectSettingsLists({
       <Box
         component="form"
         onSubmit={handleSubmit(onCreateList)}
-        sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
+        sx={{ display: "flex", gap: 1, alignItems: "flex-start", flexWrap: "wrap" }}
       >
-        <GenericTextField
-          name="name"
-          control={control}
-          label={t("settings.lists.newListLabel")}
-          size={GeneralSize.Small}
-        />
+        <Box sx={{ flex: 1, minWidth: 140 }}>
+          <GenericTextField
+            name="name"
+            control={control}
+            label={t("settings.lists.newListLabel")}
+            size={GeneralSize.Small}
+          />
+        </Box>
         <GenericButton
           label={t("settings.lists.create")}
           type="submit"
@@ -208,6 +210,7 @@ export function ProjectSettingsLists({
         {lists.map((section, index) => (
           <ListItem
             key={section.id}
+            sx={{ paddingRight: "160px" }}
             secondaryAction={
               <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
                 {editingId === section.id ? (
@@ -295,7 +298,8 @@ export function ProjectSettingsLists({
             ) : (
               <ListItemText
                 primary={section.name}
-                secondary={section.isFinal ? t("settings.lists.finalList") : undefined}
+                secondary={index === lists.length - 1 ? t("settings.lists.finalList") : undefined}
+                sx={{ minWidth: 0, "& .MuiListItemText-primary": { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }}
               />
             )}
           </ListItem>

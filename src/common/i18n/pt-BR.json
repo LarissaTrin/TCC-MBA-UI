@@ -394,10 +394,16 @@
   },
   "table": {
     "order": "Ordem",
+    "cardNumber": "Número do Card",
     "title": "Título",
     "list": "Lista",
     "priority": "Prioridade",
-    "noPriority": "—"
+    "category": "Categoria",
+    "assignee": "Responsável",
+    "tasks": "Tarefas",
+    "blocked": "Bloqueado",
+    "noPriority": "—",
+    "columns": "Colunas"
   },
   "timeline": {
     "tasks": "Tarefas",

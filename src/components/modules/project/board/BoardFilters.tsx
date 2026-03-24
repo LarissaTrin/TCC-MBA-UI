@@ -20,6 +20,7 @@ interface BoardFiltersProps {
   isFiltered: boolean;
   onApply: () => void;
   onClear: () => void;
+  iconOnly?: boolean;
 }
 
 export function BoardFilters({
@@ -29,24 +30,37 @@ export function BoardFilters({
   isFiltered,
   onApply,
   onClear,
+  iconOnly = false,
 }: BoardFiltersProps) {
   const { t } = useTranslation();
   const { control, register } = form;
   const [tagInput, setTagInput] = useState("");
   const [memberInput, setMemberInput] = useState("");
 
+  const trigger = iconOnly ? (
+    <Badge color="primary" variant="dot" invisible={!isFiltered}>
+      <GenericButton
+        startIcon="filter_list"
+        label=""
+        variant={ButtonVariant.Outlined}
+        size={GeneralSize.Small}
+        sx={{ minWidth: 36, px: 0.5 }}
+      />
+    </Badge>
+  ) : (
+    <Badge color="primary" variant="dot" invisible={!isFiltered}>
+      <GenericButton
+        startIcon="filter_list"
+        label={t("filter.title")}
+        variant={ButtonVariant.Outlined}
+        size={GeneralSize.Small}
+      />
+    </Badge>
+  );
+
   return (
     <GenericPopover
-      reactOpenPopover={
-        <Badge color="primary" variant="dot" invisible={!isFiltered}>
-          <GenericButton
-            startIcon="filter_list"
-            label={t("filter.title")}
-            variant={ButtonVariant.Outlined}
-            size={GeneralSize.Small}
-          />
-        </Badge>
-      }
+      reactOpenPopover={trigger}
     >
       <Box sx={{ p: 3, width: 340, display: "flex", flexDirection: "column", gap: 2 }}>
         <TextField

@@ -6,7 +6,8 @@ import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { GenericTabs, GenericLoading } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
-import { Box } from "@mui/material";
+import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from "@mui/material";
+import { GenericIcon } from "@/components/widgets";
 import { DashboardContent } from "@/components/modules/project/dashboard/Dashboard";
 import { BoardContent } from "@/components/modules/project/board/Board";
 import { TimelineContent } from "@/components/modules/project/timeline/Timeline";
@@ -28,6 +29,8 @@ export default function ProjectPage() {
   const params = useParams();
   const projectId = Number(params.id);
   const { data: session } = useSession();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [cardStack, setCardStack] = useState<string[]>([]);
   const openCard = (id: string) => setCardStack((prev) => [...prev, id]);
@@ -41,6 +44,7 @@ export default function ProjectPage() {
   const [projectTitle, setProjectTitle] = useState<string>("");
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [lastUpdatedCard, setLastUpdatedCard] = useState<Card | undefined>();
+  const [deletedCardId, setDeletedCardId] = useState<number | undefined>();
 
   // Load sections only (fast — Board loads cards itself with pagination)
   useEffect(() => {
@@ -93,6 +97,7 @@ export default function ProjectPage() {
           loading={loading}
           projectId={projectId}
           lastUpdatedCard={lastUpdatedCard}
+          deletedCardId={deletedCardId}
           userRole={userRole}
           onSectionsChange={setSections}
           onCardCreated={(card) =>
@@ -101,19 +106,23 @@ export default function ProjectPage() {
         />
       ),
     },
-    {
-      label: t("project.tabs.timeline"),
-      value: "timeline",
-      content: (
-        <TimelineContent
-          setSelectCardId={(cardId: string) => openCard(cardId)}
-          sections={sections}
-          tasks={timelineTasks}
-          setTasks={setTimelineTasks}
-          loading={loading}
-        />
-      ),
-    },
+    ...(!isMobile
+      ? [
+          {
+            label: t("project.tabs.timeline"),
+            value: "timeline",
+            content: (
+              <TimelineContent
+                setSelectCardId={(cardId: string) => openCard(cardId)}
+                sections={sections}
+                tasks={timelineTasks}
+                setTasks={setTimelineTasks}
+                loading={loading}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   const selectedTabIndex = tabsConfig.findIndex(
@@ -135,16 +144,25 @@ export default function ProjectPage() {
           selectedTab={activeTabValue}
           handleChange={(_, value) => handleTabChange(value as string)}
           tabsList={tabsConfig}
+          scrollable
         />
         {["SuperAdmin", "Admin", "Leader"].includes(userRole) && (
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <GenericButton
-              startIcon="settings"
-              label={t("project.settings")}
-              variant={ButtonVariant.Outlined}
-              size={GeneralSize.Small}
-              onClick={() => setSettingsOpen(true)}
-            />
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", ml: 1, flexShrink: 0 }}>
+            {isMobile ? (
+              <Tooltip title={t("project.settings")}>
+                <IconButton size="small" onClick={() => setSettingsOpen(true)}>
+                  <GenericIcon icon="settings" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <GenericButton
+                startIcon="settings"
+                label={t("project.settings")}
+                variant={ButtonVariant.Outlined}
+                size={GeneralSize.Small}
+                onClick={() => setSettingsOpen(true)}
+              />
+            )}
           </Box>
         )}
       </Box>
@@ -166,6 +184,10 @@ export default function ProjectPage() {
                 t.id === updatedCard.id ? mapCardsToTasks([updatedCard])[0] : t,
               ),
             );
+          }}
+          onDeleted={(cardId) => {
+            setDeletedCardId(cardId);
+            setTimelineTasks((prev) => prev.filter((t) => t.id !== cardId));
           }}
           userRole={userRole}
           projectMembers={projectMembers}

@@ -65,7 +65,14 @@ export default function HomePage() {
   }
 
   return (
-    <GenericPage sx={{ height: { md: "100%" }, overflowY: { xs: "auto", md: "hidden" } }}>
+    <GenericPage
+      sx={{
+        height: { md: "100%" },
+        overflowY: { xs: "auto", md: "hidden" },
+        overflowX: "hidden",
+        px: { xs: 1.5, sm: "2rem" },
+      }}
+    >
       <Box
         display="flex"
         flexDirection="column"
@@ -92,6 +99,7 @@ export default function HomePage() {
           gap={3}
           flex={{ md: 1 }}
           minHeight={{ md: 0 }}
+          sx={{ width: "100%", minWidth: 0 }}
         >
           <GenericPanel sx={{ display: "flex", flexDirection: "column", minHeight: { xs: 400, md: 0 } }}>
             <Tabs

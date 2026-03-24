@@ -40,8 +40,14 @@ export function AssignedCardsPanel({
         justifyContent="space-between"
         alignItems="center"
         gap={1}
+        sx={{ minWidth: 0, overflow: "hidden" }}
       >
-        <Typography variant="body2" fontWeight="bold">
+        <Typography
+          variant="body2"
+          fontWeight="bold"
+          noWrap
+          sx={{ minWidth: 0, flex: 1 }}
+        >
           {card.title}
         </Typography>
         <Box display="flex" alignItems="center" gap={0.5} flexShrink={0}>

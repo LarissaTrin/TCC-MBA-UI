@@ -16,6 +16,19 @@ jest.mock("@/components/widgets/Accordion", () => ({
     <div data-testid="accordion">{children}</div>
   ),
 }));
+jest.mock("@/common/provider", () => ({
+  useTranslation: jest.fn(() => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        "board.loadMore": "Load more",
+        "board.cardPlaceholder": "Título do card",
+        "board.add": "Adicionar",
+        "board.cancel": "Cancelar",
+      };
+      return map[key] ?? key;
+    },
+  })),
+}));
 
 function renderContainer(
   props: Partial<Parameters<typeof DroppableContainer>[0]> = {}

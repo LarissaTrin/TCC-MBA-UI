@@ -275,8 +275,10 @@ function TaskRow({ index, control, onEdit, onRemove, onToggle }: TaskRowProps) {
       />
       <Typography
         variant="body2"
+        noWrap
         sx={{
           flex: 1,
+          minWidth: 0,
           cursor: "pointer",
           textDecoration: completed ? "line-through" : "none",
           color: completed ? "text.disabled" : "text.primary",

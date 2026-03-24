@@ -61,6 +61,7 @@ interface CardContentProps {
   sections: Section[];
   onClose: () => void;
   onSaved?: (card: Card) => void;
+  onDeleted?: (cardId: number) => void;
   userRole?: string;
   projectMembers?: ProjectMember[];
   projectId?: number;
@@ -75,6 +76,7 @@ export function CardContent({
   sections,
   onClose,
   onSaved,
+  onDeleted,
   userRole = "User",
   projectMembers: _projectMembers = [],
   projectId,
@@ -144,6 +146,7 @@ export function CardContent({
     if (!card) return;
     setConfirmDeleteOpen(false);
     await cardService.delete(card.id);
+    onDeleted?.(card.id);
     handleClose();
   };
 

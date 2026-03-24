@@ -21,6 +21,12 @@ export interface GenericTabsProps {
   orientation?: "vertical" | "horizontal";
 
   /**
+   * Enable horizontal scroll for overflowing tabs (useful on mobile).
+   * @default false
+   */
+  scrollable?: boolean;
+
+  /**
    * The list of tabs to render, each with a label and unique value.
    */
   tabsList: GenericTabItem[];

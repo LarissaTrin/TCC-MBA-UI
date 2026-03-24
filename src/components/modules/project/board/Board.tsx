@@ -3,7 +3,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
-import { Box, Button, Popover, Skeleton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Popover,
+  Skeleton,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { BoardCard, BoardCardProps } from "@/components/widgets/BoardCard";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { BoardFilters } from "./BoardFilters";
@@ -32,6 +42,7 @@ export function BoardContent({
   setSelectCardId,
   projectId,
   lastUpdatedCard,
+  deletedCardId,
   userRole,
   onSectionsChange,
   onCardCreated,
@@ -41,11 +52,14 @@ export function BoardContent({
   setSelectCardId: (id: string) => void;
   projectId: number;
   lastUpdatedCard?: Card;
+  deletedCardId?: number;
   userRole?: string;
   onSectionsChange?: (sections: Section[]) => void;
   onCardCreated?: (card: Card) => void;
 }) {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const canManageLists = ["SuperAdmin", "Admin", "Leader"].includes(userRole ?? "");
   const canDeleteLists = ["SuperAdmin", "Admin"].includes(userRole ?? "");
@@ -167,20 +181,52 @@ export function BoardContent({
     setContainers(result);
   }, [filteredTasks, sections]);
 
-  // Apply card update from drawer save
+  // Apply card update from drawer save (A1: section change, A2: user, A3: tasks)
   useEffect(() => {
     if (!lastUpdatedCard) return;
+    const newSid = String(lastUpdatedCard.sectionId);
     setAllLoadedCards((prev) => {
-      const sid = lastUpdatedCard.sectionId;
-      if (!prev[sid]) return prev;
-      return {
-        ...prev,
-        [sid]: prev[sid].map((c) =>
-          c.id === lastUpdatedCard.id ? lastUpdatedCard : c,
-        ),
-      };
+      // Find the section the card currently lives in
+      let foundInSid: string | null = null;
+      for (const [sid, cards] of Object.entries(prev)) {
+        if (cards.some((c) => c.id === lastUpdatedCard.id)) {
+          foundInSid = sid;
+          break;
+        }
+      }
+
+      const next: Record<string, Card[]> = {};
+      for (const [sid, cards] of Object.entries(prev)) {
+        if (sid === newSid && sid === foundInSid) {
+          // Same section: update in place (preserves position)
+          next[sid] = cards.map((c) =>
+            c.id === lastUpdatedCard.id ? lastUpdatedCard : c,
+          );
+        } else if (sid === foundInSid && sid !== newSid) {
+          // Section changed: remove from old section
+          next[sid] = cards.filter((c) => c.id !== lastUpdatedCard.id);
+        } else if (sid === newSid && sid !== foundInSid) {
+          // Section changed: add to new section
+          next[sid] = [...cards, lastUpdatedCard];
+        } else {
+          next[sid] = cards;
+        }
+      }
+      return next;
     });
   }, [lastUpdatedCard]);
+
+  // Remove card deleted from the drawer (A4)
+  useEffect(() => {
+    if (!deletedCardId) return;
+    setAllLoadedCards((prev) => {
+      const next: Record<string, Card[]> = {};
+      for (const [sid, cards] of Object.entries(prev)) {
+        next[sid] = cards.filter((c) => c.id !== deletedCardId);
+      }
+      return next;
+    });
+  }, [deletedCardId]);
 
   const handleAddCard = async (sectionId: string, title: string) => {
     const section = sections.find((s) => s.id === sectionId);
@@ -214,20 +260,30 @@ export function BoardContent({
         mb={2}
       >
         {viewMode === "board" && sections.length > 0 && (
-          <Button
-            variant="outlined"
-            onClick={() => setTriggerAddFirst(true)}
-          >
-            {t("project.addCard")}
-          </Button>
+          isMobile ? (
+            <Tooltip title={t("project.addCard")}>
+              <IconButton size="small" onClick={() => setTriggerAddFirst(true)}>
+                <GenericIcon icon="add" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Button variant="outlined" onClick={() => setTriggerAddFirst(true)}>
+              {t("project.addCard")}
+            </Button>
+          )
         )}
         {canManageLists && (
-          <Button
-            variant="outlined"
-            onClick={(e) => setListsAnchorEl(e.currentTarget)}
-          >
-            {t("board.manageLists")}
-          </Button>
+          isMobile ? (
+            <Tooltip title={t("board.manageLists")}>
+              <IconButton size="small" onClick={(e) => setListsAnchorEl(e.currentTarget)}>
+                <GenericIcon icon="view_column" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Button variant="outlined" onClick={(e) => setListsAnchorEl(e.currentTarget)}>
+              {t("board.manageLists")}
+            </Button>
+          )
         )}
         <BoardFilters
           form={filterForm}
@@ -236,17 +292,25 @@ export function BoardContent({
           isFiltered={isFiltered}
           onApply={handleApply}
           onClear={resetFilters}
+          iconOnly={isMobile}
         />
-        <Button
-          variant="contained"
-          onClick={() =>
-            setViewMode((m) => (m === "board" ? "table" : "board"))
-          }
-        >
-          {viewMode === "board"
-            ? t("project.tableView")
-            : t("project.boardView")}
-        </Button>
+        {isMobile ? (
+          <Tooltip title={viewMode === "board" ? t("project.tableView") : t("project.boardView")}>
+            <IconButton
+              size="small"
+              onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
+            >
+              <GenericIcon icon={viewMode === "board" ? "table_rows" : "view_kanban"} />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
+          >
+            {viewMode === "board" ? t("project.tableView") : t("project.boardView")}
+          </Button>
+        )}
       </Box>
 
       <Popover

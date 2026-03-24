@@ -17,6 +17,7 @@ export function GenericTabs({
   orientation = "horizontal",
   tabsList,
   handleChange,
+  scrollable = false,
 }: GenericTabsProps) {
   return (
     <Tabs
@@ -24,6 +25,8 @@ export function GenericTabs({
       value={selectedTab}
       onChange={handleChange}
       aria-label="generic tabs"
+      variant={scrollable ? "scrollable" : "standard"}
+      scrollButtons={scrollable ? "auto" : undefined}
     >
       {tabsList.map((tab) => (
         <Tab key={String(tab.value)} label={tab.label} value={tab.value} />

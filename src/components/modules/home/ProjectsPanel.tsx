@@ -1,7 +1,7 @@
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import { Project } from "@/common/model";
-import { DashboardPanel, GenericButton, GenericLoading } from "@/components";
+import { DashboardPanel, GenericButton, GenericIcon, GenericLoading } from "@/components";
 import { useState } from "react";
 import { NewProjectModal } from "./NewProjectModal";
 import { ButtonVariant } from "@/common/enum";
@@ -15,6 +15,8 @@ interface ProjectsPanelProps {
 export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
   const { navigate } = useNavigation();
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,12 +45,20 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
       <DashboardPanel
         title={t("home.myProjects")}
         headerAction={
-          <GenericButton
-            label={t("home.newProject")}
-            variant={ButtonVariant.Outlined}
-            startIcon="add"
-            onClick={() => setIsModalOpen(true)}
-          />
+          isMobile ? (
+            <Tooltip title={t("home.newProject")}>
+              <IconButton size="small" onClick={() => setIsModalOpen(true)}>
+                <GenericIcon icon="add" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <GenericButton
+              label={t("home.newProject")}
+              variant={ButtonVariant.Outlined}
+              startIcon="add"
+              onClick={() => setIsModalOpen(true)}
+            />
+          )
         }
       >
         {isLoading ? (

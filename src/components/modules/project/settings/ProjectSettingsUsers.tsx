@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   Box,
+  Grid,
   List,
   ListItem,
   ListItemText,
@@ -204,37 +205,44 @@ export function ProjectSettingsUsers({
           <Box
             component="form"
             onSubmit={handleSubmit(onAddToStaging)}
-            sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
+            sx={{ mt: 1 }}
           >
-            <GenericTextField
-              name="email"
-              control={control}
-              label={t("settings.users.emailLabel")}
-              size={GeneralSize.Small}
-            />
-            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5 }}>
-              <FormControl size="small" sx={{ minWidth: 120, mt: "4px" }}>
-                <InputLabel>{t("settings.users.roleLabel")}</InputLabel>
-                <Select
-                  value={selectedRole}
-                  label={t("settings.users.roleLabel")}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                >
-                  {INVITABLE_ROLES.map((r) => (
-                    <MenuItem key={r} value={r}>
-                      {ROLE_LABELS[r]}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <GenericButton
-              label={t("settings.users.add")}
-              type="submit"
-              variant={ButtonVariant.Outlined}
-              size={GeneralSize.Small}
-              sx={{ mt: "4px" }}
-            />
+            <Grid container spacing={1} alignItems="flex-start">
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <GenericTextField
+                  name="email"
+                  control={control}
+                  label={t("settings.users.emailLabel")}
+                  size={GeneralSize.Small}
+                />
+              </Grid>
+              <Grid size={{ xs: 7, sm: 3 }}>
+                <FormControl size="small" fullWidth sx={{ mt: "4px" }}>
+                  <InputLabel>{t("settings.users.roleLabel")}</InputLabel>
+                  <Select
+                    value={selectedRole}
+                    label={t("settings.users.roleLabel")}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                  >
+                    {INVITABLE_ROLES.map((r) => (
+                      <MenuItem key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 5, sm: 3 }}>
+                <Box sx={{ mt: "4px" }}>
+                  <GenericButton
+                    label={t("settings.users.add")}
+                    type="submit"
+                    variant={ButtonVariant.Outlined}
+                    size={GeneralSize.Small}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
           {stagingError && (
             <Alert

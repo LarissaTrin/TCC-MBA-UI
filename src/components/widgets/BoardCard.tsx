@@ -49,7 +49,7 @@ export interface BoardCardProps {
   sortOrder?: number;
   category?: Category;
   canDelete?: boolean;
-  onDelete?: (e: React.MouseEvent) => void;
+  onDelete?: () => void;
 }
 
 export function BoardCard({
@@ -80,12 +80,18 @@ export function BoardCard({
 
   const visibleTags = tags.slice(0, 3);
   const extraTagCount = tags.length - 3;
-  const categoryColor = category ? (CATEGORY_COLORS[category.name] ?? "default") : undefined;
+  const categoryColor = category
+    ? (CATEGORY_COLORS[category.name] ?? "default")
+    : undefined;
 
   return (
     <div
       ref={ref}
-      style={{ opacity: isDragging ? 0.5 : 1, cursor: "grab", marginBottom: "10px" }}
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "grab",
+        marginBottom: "10px",
+      }}
     >
       <Card
         onClick={onClick}
@@ -93,21 +99,37 @@ export function BoardCard({
           cursor: "pointer",
           "&:hover": { boxShadow: 4 },
           transition: "box-shadow 0.2s",
-          ...(blocked && { borderLeft: "3px solid", borderColor: "error.main" }),
+          ...(blocked && {
+            borderLeft: "3px solid",
+            borderColor: "error.main",
+          }),
         }}
       >
         <CardContent sx={{ p: "12px !important" }}>
-
           {/* Row 1: card number + delete */}
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 0.5,
+            }}
+          >
             <Typography variant="caption" color="text.disabled">
               #{cardNumber}
             </Typography>
             {canDelete && onDelete && (
               <IconButton
                 size="small"
-                onClick={(e) => { e.stopPropagation(); setConfirmOpen(true); }}
-                sx={{ opacity: 0.4, "&:hover": { opacity: 1, color: "error.main" }, p: 0.25 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmOpen(true);
+                }}
+                sx={{
+                  opacity: 0.4,
+                  "&:hover": { opacity: 1, color: "error.main" },
+                  p: 0.25,
+                }}
               >
                 <GenericIcon icon="delete" size={GeneralSize.Small} />
               </IconButton>
@@ -116,7 +138,14 @@ export function BoardCard({
 
           {/* Row 2: category (left) + blocked (right) */}
           {(category || blocked) && (
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.75 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 0.75,
+              }}
+            >
               <Box>
                 {category && (
                   <Chip
@@ -142,7 +171,11 @@ export function BoardCard({
           )}
 
           {/* Title */}
-          <Typography variant="body2" fontWeight={500} sx={{ mb: 1, lineHeight: 1.4 }}>
+          <Typography
+            variant="body2"
+            fontWeight={500}
+            sx={{ mb: 1, lineHeight: 1.4 }}
+          >
             {title}
           </Typography>
 
@@ -150,17 +183,41 @@ export function BoardCard({
           {tags.length > 0 && (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
               {visibleTags.map((tag) => (
-                <Chip key={tag.id} label={tag.name} size="small" sx={{ height: 20, fontSize: "0.7rem" }} />
+                <Chip
+                  key={tag.id}
+                  label={tag.name}
+                  size="small"
+                  sx={{ height: 20, fontSize: "0.7rem" }}
+                />
               ))}
               {extraTagCount > 0 && (
-                <Chip label={`+${extraTagCount}`} size="small" variant="outlined" sx={{ height: 20, fontSize: "0.7rem" }} />
+                <Chip
+                  label={`+${extraTagCount}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{ height: 20, fontSize: "0.7rem" }}
+                />
               )}
             </Box>
           )}
 
           {/* Footer: user avatar + task counter */}
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 0.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mt: 0.5,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                minWidth: 0,
+              }}
+            >
               <Avatar
                 sx={{
                   width: 20,
@@ -181,14 +238,24 @@ export function BoardCard({
                 {userDisplay ?? t("common.noUser")}
               </Typography>
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-              <GenericIcon icon="check_box" size={GeneralSize.Small} sx={{ opacity: 0.6 }} />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              <GenericIcon
+                icon="check_box"
+                size={GeneralSize.Small}
+                sx={{ opacity: 0.6 }}
+              />
               <Typography variant="caption" color="text.secondary">
                 {taskCompleted}/{taskTotal}
               </Typography>
             </Box>
           </Box>
-
         </CardContent>
       </Card>
 
@@ -210,7 +277,11 @@ export function BoardCard({
             label={t("card.confirmDelete")}
             variant={ButtonVariant.Contained}
             color={GeneralColor.Error}
-            onClick={(e) => { setConfirmOpen(false); onDelete?.(e as React.MouseEvent); }}
+            // onClick={(e) => { setConfirmOpen(false); onDelete?.(e as React.MouseEvent); }}
+            onClick={() => {
+              setConfirmOpen(false);
+              onDelete?.();
+            }}
           />
         </DialogActions>
       </Dialog>
@@ -220,7 +291,9 @@ export function BoardCard({
 
 export function StaticBoardCard({ title }: { title: string }) {
   return (
-    <Card style={{ cursor: "grabbing", boxShadow: "0 10px 20px rgba(0,0,0,0.15)" }}>
+    <Card
+      style={{ cursor: "grabbing", boxShadow: "0 10px 20px rgba(0,0,0,0.15)" }}
+    >
       <CardContent sx={{ p: "12px !important" }}>
         <Typography variant="body2" fontWeight={500}>
           {title}

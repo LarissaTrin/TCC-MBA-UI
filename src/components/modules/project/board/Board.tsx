@@ -61,7 +61,9 @@ export function BoardContent({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const canManageLists = ["SuperAdmin", "Admin", "Leader"].includes(userRole ?? "");
+  const canManageLists = ["SuperAdmin", "Admin", "Leader"].includes(
+    userRole ?? "",
+  );
   const canDeleteLists = ["SuperAdmin", "Admin"].includes(userRole ?? "");
   const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole ?? "");
 
@@ -244,7 +246,10 @@ export function BoardContent({
     await cardService.delete(Number(cardId));
     setAllLoadedCards((prev) => {
       const existing = prev[sectionId] ?? [];
-      return { ...prev, [sectionId]: existing.filter((c) => String(c.id) !== cardId) };
+      return {
+        ...prev,
+        [sectionId]: existing.filter((c) => String(c.id) !== cardId),
+      };
     });
   };
 
@@ -259,8 +264,9 @@ export function BoardContent({
         alignItems="center"
         mb={2}
       >
-        {viewMode === "board" && sections.length > 0 && (
-          isMobile ? (
+        {viewMode === "board" &&
+          sections.length > 0 &&
+          (isMobile ? (
             <Tooltip title={t("project.addCard")}>
               <IconButton size="small" onClick={() => setTriggerAddFirst(true)}>
                 <GenericIcon icon="add" />
@@ -270,21 +276,25 @@ export function BoardContent({
             <Button variant="outlined" onClick={() => setTriggerAddFirst(true)}>
               {t("project.addCard")}
             </Button>
-          )
-        )}
-        {canManageLists && (
-          isMobile ? (
+          ))}
+        {canManageLists &&
+          (isMobile ? (
             <Tooltip title={t("board.manageLists")}>
-              <IconButton size="small" onClick={(e) => setListsAnchorEl(e.currentTarget)}>
+              <IconButton
+                size="small"
+                onClick={(e) => setListsAnchorEl(e.currentTarget)}
+              >
                 <GenericIcon icon="view_column" />
               </IconButton>
             </Tooltip>
           ) : (
-            <Button variant="outlined" onClick={(e) => setListsAnchorEl(e.currentTarget)}>
+            <Button
+              variant="outlined"
+              onClick={(e) => setListsAnchorEl(e.currentTarget)}
+            >
               {t("board.manageLists")}
             </Button>
-          )
-        )}
+          ))}
         <BoardFilters
           form={filterForm}
           tagSearch={tagSearch}
@@ -295,20 +305,34 @@ export function BoardContent({
           iconOnly={isMobile}
         />
         {isMobile ? (
-          <Tooltip title={viewMode === "board" ? t("project.tableView") : t("project.boardView")}>
+          <Tooltip
+            title={
+              viewMode === "board"
+                ? t("project.tableView")
+                : t("project.boardView")
+            }
+          >
             <IconButton
               size="small"
-              onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
+              onClick={() =>
+                setViewMode((m) => (m === "board" ? "table" : "board"))
+              }
             >
-              <GenericIcon icon={viewMode === "board" ? "table_rows" : "view_kanban"} />
+              <GenericIcon
+                icon={viewMode === "board" ? "table_rows" : "view_kanban"}
+              />
             </IconButton>
           </Tooltip>
         ) : (
           <Button
             variant="contained"
-            onClick={() => setViewMode((m) => (m === "board" ? "table" : "board"))}
+            onClick={() =>
+              setViewMode((m) => (m === "board" ? "table" : "board"))
+            }
           >
-            {viewMode === "board" ? t("project.tableView") : t("project.boardView")}
+            {viewMode === "board"
+              ? t("project.tableView")
+              : t("project.boardView")}
           </Button>
         )}
       </Box>
@@ -343,157 +367,160 @@ export function BoardContent({
             }}
           >
             <GenericIcon icon="view_column" size={48} sx={{ opacity: 0.3 }} />
-            <Typography variant="body1" color="text.secondary" textAlign="center">
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              textAlign="center"
+            >
               {t("board.noSections")}
             </Typography>
           </Box>
         ) : (
-        <Box sx={{ overflow: "auto", pb: 1 }}>
-          <DragDropProvider
-            onDragOver={(event) => {
-              setContainers((prev) => {
-                const next = move(prev, event);
+          <Box sx={{ overflow: "auto", pb: 1 }}>
+            <DragDropProvider
+              onDragOver={(event) => {
+                setContainers((prev) => {
+                  const next = move(prev, event);
 
-                // move() returns the same reference when it makes no change.
-                // For empty containers the helper can silently no-op, so we
-                // handle that case manually.
-                if (next === prev) {
-                  const { source, target } = event.operation;
-                  if (source && target) {
-                    const targetId = String(target.id);
-                    if (targetId in prev && prev[targetId].length === 0) {
-                      const sourceId = String(source.id);
-                      let sourceCol: string | null = null;
-                      let sourceIdx = -1;
-                      for (const [colId, items] of Object.entries(prev)) {
-                        const idx = items.findIndex((t) => t.id === sourceId);
-                        if (idx !== -1) {
-                          sourceCol = colId;
-                          sourceIdx = idx;
-                          break;
+                  // move() returns the same reference when it makes no change.
+                  // For empty containers the helper can silently no-op, so we
+                  // handle that case manually.
+                  if (next === prev) {
+                    const { source, target } = event.operation;
+                    if (source && target) {
+                      const targetId = String(target.id);
+                      if (targetId in prev && prev[targetId].length === 0) {
+                        const sourceId = String(source.id);
+                        let sourceCol: string | null = null;
+                        let sourceIdx = -1;
+                        for (const [colId, items] of Object.entries(prev)) {
+                          const idx = items.findIndex((t) => t.id === sourceId);
+                          if (idx !== -1) {
+                            sourceCol = colId;
+                            sourceIdx = idx;
+                            break;
+                          }
                         }
-                      }
-                      if (sourceCol !== null && sourceCol !== targetId) {
-                        const item = prev[sourceCol][sourceIdx];
-                        const updated: KanbanContainers = {
-                          ...prev,
-                          [sourceCol]: prev[sourceCol].filter(
-                            (_, i) => i !== sourceIdx,
-                          ),
-                          [targetId]: [item],
-                        };
-                        containersRef.current = updated;
-                        return updated;
+                        if (sourceCol !== null && sourceCol !== targetId) {
+                          const item = prev[sourceCol][sourceIdx];
+                          const updated: KanbanContainers = {
+                            ...prev,
+                            [sourceCol]: prev[sourceCol].filter(
+                              (_, i) => i !== sourceIdx,
+                            ),
+                            [targetId]: [item],
+                          };
+                          containersRef.current = updated;
+                          return updated;
+                        }
                       }
                     }
                   }
-                }
 
-                containersRef.current = next;
-                return next;
-              });
-            }}
-            onDragEnd={async (event) => {
-              const source = event.operation.source;
-              if (!source) return;
-              const activeId = String(source.id);
-
-              let destContainerId: string | null = null;
-              let newIndex = -1;
-              for (const [containerId, items] of Object.entries(
-                containersRef.current,
-              )) {
-                const idx = items.findIndex((t) => t.id === activeId);
-                if (idx !== -1) {
-                  destContainerId = containerId;
-                  newIndex = idx;
-                  break;
-                }
-              }
-              if (!destContainerId || newIndex === -1) return;
-
-              const isLastSection =
-                sections[sections.length - 1]?.id === destContainerId;
-              try {
-                await cardService.update(Number(activeId), {
-                  listId: Number(destContainerId),
-                  sortIndex: newIndex + 1,
-                  ...(isLastSection ? { status: Status.Done } : {}),
+                  containersRef.current = next;
+                  return next;
                 });
-              } catch (error) {
-                console.error("Failed to save card position:", error);
-              }
-            }}
-          >
-            <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
-              {sections.map((section, idx) => {
-                const pagination = paginationMap[section.id];
-                const sectionCards = allLoadedCards[section.id] ?? [];
-                const isColumnEmpty =
-                  !pagination?.loading && sectionCards.length === 0;
-                return (
-                  <DroppableContainer
-                    key={section.id}
-                    id={section.id}
-                    title={section.name}
-                    activeColapsed={idx === 0 || idx === sections.length - 1}
-                    onAddCard={handleAddCard}
-                    triggerAdd={idx === 0 ? triggerAddFirst : false}
-                    forceExpand={idx === 0 ? triggerAddFirst : false}
-                    onAddTriggerHandled={
-                      idx === 0 ? () => setTriggerAddFirst(false) : undefined
-                    }
-                    hasMore={pagination?.hasMore}
-                    loadingMore={
-                      pagination?.loading && sectionCards.length > 0
-                    }
-                    onLoadMore={() =>
-                      loadCards(section, (pagination?.page ?? 1) + 1)
-                    }
-                    isEmpty={isColumnEmpty}
-                  >
-                    {pagination?.loading && sectionCards.length === 0 ? (
-                      <>
-                        {[1, 2, 3].map((i) => (
-                          <Skeleton
-                            key={i}
-                            variant="rounded"
-                            height={72}
-                            sx={{ mb: 1, borderRadius: 1 }}
+              }}
+              onDragEnd={async (event) => {
+                const source = event.operation.source;
+                if (!source) return;
+                const activeId = String(source.id);
+
+                let destContainerId: string | null = null;
+                let newIndex = -1;
+                for (const [containerId, items] of Object.entries(
+                  containersRef.current,
+                )) {
+                  const idx = items.findIndex((t) => t.id === activeId);
+                  if (idx !== -1) {
+                    destContainerId = containerId;
+                    newIndex = idx;
+                    break;
+                  }
+                }
+                if (!destContainerId || newIndex === -1) return;
+
+                const isLastSection =
+                  sections[sections.length - 1]?.id === destContainerId;
+                try {
+                  await cardService.update(Number(activeId), {
+                    listId: Number(destContainerId),
+                    sortIndex: newIndex + 1,
+                    ...(isLastSection ? { status: Status.Done } : {}),
+                  });
+                } catch (error) {
+                  console.error("Failed to save card position:", error);
+                }
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
+                {sections.map((section, idx) => {
+                  const pagination = paginationMap[section.id];
+                  const sectionCards = allLoadedCards[section.id] ?? [];
+                  const isColumnEmpty =
+                    !pagination?.loading && sectionCards.length === 0;
+                  return (
+                    <DroppableContainer
+                      key={section.id}
+                      id={section.id}
+                      title={section.name}
+                      activeColapsed={idx === 0 || idx === sections.length - 1}
+                      onAddCard={handleAddCard}
+                      triggerAdd={idx === 0 ? triggerAddFirst : false}
+                      forceExpand={idx === 0 ? triggerAddFirst : false}
+                      onAddTriggerHandled={
+                        idx === 0 ? () => setTriggerAddFirst(false) : undefined
+                      }
+                      hasMore={pagination?.hasMore}
+                      loadingMore={
+                        pagination?.loading && sectionCards.length > 0
+                      }
+                      onLoadMore={() =>
+                        loadCards(section, (pagination?.page ?? 1) + 1)
+                      }
+                      isEmpty={isColumnEmpty}
+                    >
+                      {pagination?.loading && sectionCards.length === 0 ? (
+                        <>
+                          {[1, 2, 3].map((i) => (
+                            <Skeleton
+                              key={i}
+                              variant="rounded"
+                              height={72}
+                              sx={{ mb: 1, borderRadius: 1 }}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        (containers[section.id] || []).map((task, index) => (
+                          <BoardCard
+                            key={task.id}
+                            id={task.id}
+                            cardNumber={task.cardNumber}
+                            title={task.title}
+                            columnId={section.id}
+                            index={index}
+                            priority={task.priority}
+                            onClick={() => setSelectCardId(task.id)}
+                            tags={task.tags}
+                            userDisplay={task.userDisplay}
+                            taskTotal={task.taskTotal}
+                            taskCompleted={task.taskCompleted}
+                            blocked={task.blocked}
+                            category={task.category}
+                            canDelete={canDeleteCard}
+                            onDelete={async () => {
+                              await handleDeleteCard(task.id, section.id);
+                            }}
                           />
-                        ))}
-                      </>
-                    ) : (
-                      (containers[section.id] || []).map((task, index) => (
-                        <BoardCard
-                          key={task.id}
-                          id={task.id}
-                          cardNumber={task.cardNumber}
-                          title={task.title}
-                          columnId={section.id}
-                          index={index}
-                          priority={task.priority}
-                          onClick={() => setSelectCardId(task.id)}
-                          tags={task.tags}
-                          userDisplay={task.userDisplay}
-                          taskTotal={task.taskTotal}
-                          taskCompleted={task.taskCompleted}
-                          blocked={task.blocked}
-                          category={task.category}
-                          canDelete={canDeleteCard}
-                          onDelete={async (e) => {
-                            e.stopPropagation();
-                            await handleDeleteCard(task.id, section.id);
-                          }}
-                        />
-                      ))
-                    )}
-                  </DroppableContainer>
-                );
-              })}
-            </Box>
-          </DragDropProvider>
-        </Box>
+                        ))
+                      )}
+                    </DroppableContainer>
+                  );
+                })}
+              </Box>
+            </DragDropProvider>
+          </Box>
         )
       ) : (
         <TableView

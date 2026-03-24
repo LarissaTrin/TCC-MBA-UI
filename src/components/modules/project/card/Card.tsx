@@ -340,7 +340,11 @@ export function CardContent({
           <Tooltip
             title={isFullScreen ? t("card.exitFullscreen") : t("card.expand")}
           >
-            <IconButton size="small" onClick={() => setIsFullScreen((v) => !v)}>
+            <IconButton
+              size="small"
+              onClick={() => setIsFullScreen((v) => !v)}
+              sx={{ display: { xs: "none", sm: "inline-flex" } }}
+            >
               <GenericIcon
                 icon={isFullScreen ? "fullscreen_exit" : "fullscreen"}
               />

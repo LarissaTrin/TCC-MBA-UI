@@ -24,15 +24,15 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { TaskProps } from "../widgets/Task";
+import { BoardCardProps } from "../widgets/BoardCard";
 import { Section } from "@/common/model";
 import { cardService } from "@/common/services";
 import { useTranslation } from "@/common/provider";
 
 interface TableViewProps {
-  containers: Record<string, TaskProps[]>;
+  containers: Record<string, BoardCardProps[]>;
   setContainers: React.Dispatch<
-    React.SetStateAction<Record<string, TaskProps[]>>
+    React.SetStateAction<Record<string, BoardCardProps[]>>
   >;
   sections: Section[];
   onCardClick?: (id: string) => void;
@@ -93,7 +93,7 @@ export function TableView({ containers, setContainers, sections, onCardClick }: 
       sortOrder: idx + 1,
     }));
 
-    const updatedContainers: Record<string, TaskProps[]> = {};
+    const updatedContainers: Record<string, BoardCardProps[]> = {};
     Object.keys(containers).forEach((key) => {
       updatedContainers[key] = reordered
         .filter((t) => containers[key].some((ct) => ct?.id === t?.id))
@@ -159,7 +159,7 @@ function SortableRow({
   priorityLabel,
   onCardClick,
 }: {
-  task: TaskProps & { column: string; order: number; sortOrder?: number };
+  task: BoardCardProps & { column: string; order: number; sortOrder?: number };
   globalIndex: number;
   sectionName: string;
   priorityLabel: string;

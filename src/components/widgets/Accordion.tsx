@@ -129,9 +129,21 @@ export function GenericAccordion({
         in={expanded}
         timeout="auto"
         unmountOnExit
-        sx={{ overflowY: "auto" }}
+        sx={
+          isHorizontal
+            ? {
+                flex: 1,
+                minHeight: 0,
+                overflowY: "auto",
+                "& .MuiCollapse-wrapper": { height: "100%" },
+                "& .MuiCollapse-wrapperInner": { height: "100%" },
+              }
+            : { overflowY: "auto" }
+        }
       >
-        <Box p={2}>{children}</Box>
+        <Box p={2} sx={isHorizontal ? { height: "100%", boxSizing: "border-box" } : undefined}>
+          {children}
+        </Box>
       </Collapse>
     </Box>
   );

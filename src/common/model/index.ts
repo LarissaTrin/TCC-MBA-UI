@@ -1,6 +1,7 @@
 export * from "../types";
 export * from "./approvers";
 export * from "./card";
+export * from "./category";
 export * from "./comments";
 export * from "./preject";
 export * from "./section";

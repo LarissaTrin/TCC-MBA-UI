@@ -1,10 +1,16 @@
 "use client";
 
-import { GeneralSize, ButtonVariant, GeneralColor, Status } from "@/common/enum";
+import {
+  GeneralSize,
+  ButtonVariant,
+  GeneralColor,
+  Status,
+} from "@/common/enum";
 import { Card, ProjectMember, Section, Comments } from "@/common/model";
 import { cardService } from "@/common/services";
 import {
   GenericDrawer,
+  GenericLoading,
   GenericTextField,
   GenericButton,
   GenericButtonGroup,
@@ -23,6 +29,9 @@ import {
   Grid,
   IconButton,
   MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
   Switch,
   Tab,
   Tabs,
@@ -31,13 +40,14 @@ import {
   Typography,
 } from "@mui/material";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardFormData, cardSchema } from "@/common/schemas/cardSchema";
 import { mapToOptions } from "@/common/utils/mapToOptions";
 import dayjs from "dayjs";
 import { useTranslation } from "@/common/provider";
 import { useNavigation, useProjectMemberSearch } from "@/common/hooks";
+import { categoryService, Category } from "@/common/services";
 
 import { CardApproversSection } from "./CardApproversSection";
 import { CardCommentsSection } from "./CardCommentsSection";
@@ -86,6 +96,7 @@ export function CardContent({
   const [openOptions, setOpenOptions] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [comments, setComments] = useState<Comments[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const TABS = [
     { label: t("card.tabs.details"), value: 0 },
@@ -117,6 +128,7 @@ export function CardContent({
       approvers: [],
       tags: [],
       blocked: false,
+      categoryId: "",
     },
   });
 
@@ -182,6 +194,7 @@ export function CardContent({
       listId: data.sectionId ? Number(data.sectionId) : undefined,
       userId: data.user ? Number(data.user) : undefined,
       blocked: data.blocked,
+      categoryId: data.categoryId ? Number(data.categoryId) : undefined,
       tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id, name: t.name })),
       approvers: (data.approvers ?? []).map((a) => ({
         id: a.id > 1_000_000_000 ? undefined : a.id,
@@ -216,9 +229,13 @@ export function CardContent({
     setLoading(true);
     setActiveTab(0);
 
-    cardService
-      .getById(Number(id))
-      .then((cardResponse) => {
+    Promise.all([
+      cardService.getById(Number(id)),
+      categoryService.list(),
+    ])
+      .then(([cardResponse, cats]) => {
+        setCategories(cats);
+
         const loadedCard = cardResponse ?? null;
         setCard(loadedCard);
 
@@ -266,6 +283,9 @@ export function CardContent({
               name: t.name,
             })),
             blocked: loadedCard.blocked ?? false,
+            categoryId: loadedCard.categoryId
+              ? String(loadedCard.categoryId)
+              : "",
           });
           setComments(loadedCard.comments ?? []);
         }
@@ -340,13 +360,21 @@ export function CardContent({
             open={openOptions}
             onClose={handleCloseOptions}
           >
-            <MenuItem onClick={() => { closeAfterSave.current = true; handleSubmit(onSubmit)(); }}>
+            <MenuItem
+              onClick={() => {
+                closeAfterSave.current = true;
+                handleSubmit(onSubmit)();
+              }}
+            >
               {t("card.saveAndClose")}
             </MenuItem>
             <MenuItem onClick={handleClose}>{t("card.close")}</MenuItem>
             {canDeleteCard && (
               <MenuItem
-                onClick={() => { handleCloseOptions(); setConfirmDeleteOpen(true); }}
+                onClick={() => {
+                  handleCloseOptions();
+                  setConfirmDeleteOpen(true);
+                }}
                 sx={{ color: "error.main" }}
               >
                 {t("card.delete")}
@@ -377,7 +405,7 @@ export function CardContent({
         sx={drawerSx}
         disableIcon
       >
-        <Box sx={{ padding: 2 }}>{t("card.loading")}</Box>
+        <GenericLoading fullPage />
       </GenericDrawer>
     );
   }
@@ -421,6 +449,31 @@ export function CardContent({
         <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
           {activeTab === 0 && (
             <Grid container spacing={2}>
+              <Grid size={6}>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>{t("card.details.category")}</InputLabel>
+                  <Controller
+                    name="categoryId"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        value={field.value ?? ""}
+                        label={t("card.details.category")}
+                        disabled={homeMode}
+                        MenuProps={{ sx: { zIndex: 2600 } }}
+                      >
+                        <MenuItem value="">—</MenuItem>
+                        {categories.map((cat) => (
+                          <MenuItem key={cat.id} value={String(cat.id)}>
+                            {cat.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                </FormControl>
+              </Grid>
               <Grid size={6}>
                 {homeMode ? (
                   <TextField
@@ -547,8 +600,8 @@ export function CardContent({
                   name="description"
                   label={t("card.details.description")}
                   multiline
-                  minRows={isFullScreen ? 8 : 5}
-                  maxRows={isFullScreen ? 20 : 10}
+                  minRows={isFullScreen ? 16 : 10}
+                  maxRows={isFullScreen ? 30 : 20}
                   control={form.control}
                 />
               </Grid>

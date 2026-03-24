@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
-import { Box, Button, Popover, Typography } from "@mui/material";
-import { Task, TaskProps } from "@/components/widgets/Task";
+import { Box, Button, Popover, Skeleton, Typography } from "@mui/material";
+import { BoardCard, BoardCardProps } from "@/components/widgets/BoardCard";
 import { DroppableContainer } from "@/components/widgets/DroppableContainer";
 import { BoardFilters } from "./BoardFilters";
 import { useBoardFilters } from "./useBoardFilters";
@@ -14,10 +14,9 @@ import { mapCardsToTasks } from "@/common/utils/cardMapper";
 import { TableView } from "@/components/ui";
 import { Status } from "@/common/enum";
 import { useTranslation } from "@/common/provider";
-import { GenericIcon } from "@/components/widgets";
+import { GenericIcon, GenericLoading } from "@/components/widgets";
 import { ProjectSettingsLists } from "@/components/modules/project/settings/ProjectSettingsLists";
-
-type KanbanContainers = Record<string, TaskProps[]>;
+type KanbanContainers = Record<string, BoardCardProps[]>;
 
 type ListPaginationState = {
   page: number;
@@ -50,6 +49,7 @@ export function BoardContent({
 
   const canManageLists = ["SuperAdmin", "Admin", "Leader"].includes(userRole ?? "");
   const canDeleteLists = ["SuperAdmin", "Admin"].includes(userRole ?? "");
+  const canDeleteCard = ["SuperAdmin", "Admin"].includes(userRole ?? "");
 
   // All loaded cards per section (source of truth for pagination)
   const [allLoadedCards, setAllLoadedCards] = useState<Record<string, Card[]>>(
@@ -154,6 +154,7 @@ export function BoardContent({
           taskCompleted: task.taskCompleted,
           blocked: task.blocked,
           sortOrder: task.sortOrder,
+          category: task.category,
         });
       }
     });
@@ -186,7 +187,6 @@ export function BoardContent({
     if (!section) return;
     const listId = Number(sectionId);
     const created = await cardService.create(title, listId);
-
     setAllLoadedCards((prev) => {
       const existing = prev[sectionId] ?? [];
       return { ...prev, [sectionId]: [...existing, created] };
@@ -194,7 +194,15 @@ export function BoardContent({
     onCardCreated?.(created);
   };
 
-  if (loading) return <Box>{t("common.loading")}</Box>;
+  const handleDeleteCard = async (cardId: string, sectionId: string) => {
+    await cardService.delete(Number(cardId));
+    setAllLoadedCards((prev) => {
+      const existing = prev[sectionId] ?? [];
+      return { ...prev, [sectionId]: existing.filter((c) => String(c.id) !== cardId) };
+    });
+  };
+
+  if (loading) return <GenericLoading fullPage />;
 
   return (
     <Box>
@@ -276,7 +284,7 @@ export function BoardContent({
             </Typography>
           </Box>
         ) : (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ overflow: "auto", pb: 1 }}>
           <DragDropProvider
             onDragOver={(event) => {
               setContainers((prev) => {
@@ -356,6 +364,9 @@ export function BoardContent({
             <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
               {sections.map((section, idx) => {
                 const pagination = paginationMap[section.id];
+                const sectionCards = allLoadedCards[section.id] ?? [];
+                const isColumnEmpty =
+                  !pagination?.loading && sectionCards.length === 0;
                 return (
                   <DroppableContainer
                     key={section.id}
@@ -370,40 +381,46 @@ export function BoardContent({
                     }
                     hasMore={pagination?.hasMore}
                     loadingMore={
-                      pagination?.loading &&
-                      (allLoadedCards[section.id]?.length ?? 0) > 0
+                      pagination?.loading && sectionCards.length > 0
                     }
                     onLoadMore={() =>
                       loadCards(section, (pagination?.page ?? 1) + 1)
                     }
+                    isEmpty={isColumnEmpty}
                   >
-                    {pagination?.loading &&
-                    (allLoadedCards[section.id]?.length ?? 0) === 0 ? (
-                      <Box
-                        sx={{
-                          p: 1,
-                          opacity: 0.5,
-                          fontSize: "0.8rem",
-                          textAlign: "center",
-                        }}
-                      >
-                        {t("common.loading")}
-                      </Box>
+                    {pagination?.loading && sectionCards.length === 0 ? (
+                      <>
+                        {[1, 2, 3].map((i) => (
+                          <Skeleton
+                            key={i}
+                            variant="rounded"
+                            height={72}
+                            sx={{ mb: 1, borderRadius: 1 }}
+                          />
+                        ))}
+                      </>
                     ) : (
                       (containers[section.id] || []).map((task, index) => (
-                        <Task
+                        <BoardCard
                           key={task.id}
                           id={task.id}
                           cardNumber={task.cardNumber}
                           title={task.title}
                           columnId={section.id}
                           index={index}
+                          priority={task.priority}
                           onClick={() => setSelectCardId(task.id)}
                           tags={task.tags}
                           userDisplay={task.userDisplay}
                           taskTotal={task.taskTotal}
                           taskCompleted={task.taskCompleted}
                           blocked={task.blocked}
+                          category={task.category}
+                          canDelete={canDeleteCard}
+                          onDelete={async (e) => {
+                            e.stopPropagation();
+                            await handleDeleteCard(task.id, section.id);
+                          }}
                         />
                       ))
                     )}

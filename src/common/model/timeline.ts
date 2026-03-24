@@ -1,3 +1,6 @@
+import { Category } from "./category";
+import { Tag } from "./tag";
+
 export interface Task {
   id: number | string;
   title: string;
@@ -10,12 +13,13 @@ export interface Task {
   index: number;
   priority?: number;
   userId?: number;
-  tags?: { id: number; name: string }[];
+  tags?: Tag[];
   userDisplay?: string;
   taskTotal?: number;
   taskCompleted?: number;
   blocked?: boolean;
   sortOrder?: number;
+  category?: Category;
 }
 
 export interface Month {

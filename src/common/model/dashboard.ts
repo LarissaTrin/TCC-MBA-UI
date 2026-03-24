@@ -1,3 +1,6 @@
+import { Category } from "./category";
+import { User } from "./user";
+
 export interface DashboardCard {
   id: number;
   cardNumber: number;
@@ -9,12 +12,8 @@ export interface DashboardCard {
   listName: string;
   projectId: number;
   projectTitle: string;
-  user?: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  user?: User;
+  category?: Category;
 }
 
 export interface MyDayResponse {

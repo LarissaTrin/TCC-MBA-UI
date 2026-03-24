@@ -30,6 +30,8 @@ function mapCard(card: CardApiResponse): Card {
     sortIndex: card.cardNumber ?? 0,
     sortOrder: card.sortOrder,
     blocked: card.blocked ?? false,
+    categoryId: card.categoryId,
+    category: card.category,
     user: card.user,
     tags: card.tagCards
       ?.filter((tc) => tc.tag)
@@ -104,6 +106,7 @@ export const cardService = {
       tagCards?: { tagId?: number; name?: string }[];
       approvers?: { id?: number; environment?: string; userId?: number }[];
       tasksCard?: { id?: number; title?: string; date?: string; completed?: boolean; userId?: number }[];
+      categoryId?: number;
     },
   ): Promise<Card> {
     const data = await apiClient.put<CardApiResponse>(

@@ -2,6 +2,15 @@
 
 import { Box, Chip, Divider, Typography } from "@mui/material";
 
+const CATEGORY_COLORS: Record<string, "error" | "success" | "warning" | "primary" | "info" | "secondary" | "default"> = {
+  Bug: "error",
+  Feature: "success",
+  Issue: "warning",
+  Task: "primary",
+  Enhancement: "info",
+  Improvement: "secondary",
+};
+
 import { DashboardCard } from "@/common/model/dashboard";
 import { GenericLoading, DashboardPanel } from "@/components";
 import { useTranslation } from "@/common/provider";
@@ -29,11 +38,19 @@ function CardRow({ card, locale, onClick }: { card: DashboardCard; locale: strin
           {card.projectTitle}
         </Typography>
       </Box>
-      <Box display="flex" alignItems="center" gap={1} flexShrink={0}>
+      <Box display="flex" alignItems="center" gap={0.5} flexShrink={0}>
         {formattedDate && (
           <Typography variant="caption" color="text.secondary">
             {formattedDate}
           </Typography>
+        )}
+        {card.category && (
+          <Chip
+            label={card.category.name}
+            size="small"
+            color={CATEGORY_COLORS[card.category.name] ?? "default"}
+            sx={{ height: 18, fontSize: "0.65rem" }}
+          />
         )}
         <Chip label={card.listName} size="small" variant="outlined" />
       </Box>

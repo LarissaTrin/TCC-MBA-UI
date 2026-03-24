@@ -5,12 +5,16 @@ import { Box, Chip, Typography } from "@mui/material";
 
 import { cardService, CardHistoryEntry } from "@/common/services";
 import { useTranslation } from "@/common/provider";
+import { GenericLoading } from "@/components/widgets";
 
 const ACTION_COLOR: Record<string, "default" | "primary" | "warning" | "info" | "success"> = {
+  created: "success",
+  edited: "info",
   moved: "primary",
   assigned: "info",
   priority_changed: "warning",
   due_date_changed: "default",
+  task_added: "default",
   dependency_added: "success",
   dependency_removed: "default",
 };
@@ -25,10 +29,13 @@ export function CardHistorySection({ cardId }: CardHistorySectionProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   const ACTION_LABEL: Record<string, string> = {
+    created: t("card.history.actions.created"),
+    edited: t("card.history.actions.edited"),
     moved: t("card.history.actions.moved"),
     assigned: t("card.history.actions.assigned"),
     priority_changed: t("card.history.actions.priorityChanged"),
     due_date_changed: t("card.history.actions.dateChanged"),
+    task_added: t("card.history.actions.taskAdded"),
     dependency_added: t("card.history.actions.dependencyAdded"),
     dependency_removed: t("card.history.actions.dependencyRemoved"),
   };
@@ -42,7 +49,7 @@ export function CardHistorySection({ cardId }: CardHistorySectionProps) {
   }, [cardId]);
 
   if (isLoading) {
-    return <Typography variant="body2" color="text.secondary">{t("card.history.loading")}</Typography>;
+    return <GenericLoading />;
   }
 
   if (history.length === 0) {

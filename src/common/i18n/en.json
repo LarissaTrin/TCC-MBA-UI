@@ -232,7 +232,8 @@
       "endDate": "End Date",
       "storyPoints": "Story Points",
       "priority": "Priority",
-      "description": "Description"
+      "description": "Description",
+      "category": "Category"
     },
     "approvers": {
       "title": "Approvers",
@@ -255,6 +256,8 @@
       "add": "Add Task",
       "titlePlaceholder": "Task title",
       "assignedUser": "Assigned user",
+      "date": "Date",
+      "modalTitle": "Task",
       "none": "No tasks yet."
     },
     "comments": {
@@ -272,7 +275,10 @@
         "priorityChanged": "Priority changed",
         "dateChanged": "Date changed",
         "dependencyAdded": "Dependency added",
-        "dependencyRemoved": "Dependency removed"
+        "dependencyRemoved": "Dependency removed",
+        "created": "Created",
+        "edited": "Title edited",
+        "taskAdded": "Task added"
       }
     }
   },

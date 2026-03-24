@@ -37,6 +37,7 @@ export const cardSchema = z.object({
   approvers: z.array(approverItemSchema),
   tags: z.array(tagItemSchema),
   blocked: z.boolean(),
+  categoryId: z.string().optional(),
 });
 
 export type CardFormData = z.infer<typeof cardSchema>;

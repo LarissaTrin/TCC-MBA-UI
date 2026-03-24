@@ -22,6 +22,7 @@ interface ColumnProps {
   hasMore?: boolean;
   loadingMore?: boolean;
   onLoadMore?: () => void;
+  isEmpty?: boolean;
 }
 
 export function DroppableContainer({
@@ -36,12 +37,15 @@ export function DroppableContainer({
   hasMore,
   loadingMore,
   onLoadMore,
+  isEmpty = false,
 }: ColumnProps) {
   const { ref } = useDroppable({
     id,
     type: "column",
     accept: ["item"],
-    collisionPriority: CollisionPriority.Low,
+    // Use Normal priority for empty columns so cards can be dropped into them
+    // even when adjacent columns have sortable items with higher priority
+    collisionPriority: isEmpty ? CollisionPriority.Normal : CollisionPriority.Low,
   });
 
   const { t } = useTranslation();

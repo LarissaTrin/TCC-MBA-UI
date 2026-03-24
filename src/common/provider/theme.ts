@@ -46,6 +46,28 @@ export function createAppTheme(
       secondary: {
         main: isLight ? "#7C3AED" : "#A78BFA",
       },
+      error: {
+        main: "#EF4444",
+        light: "#FCA5A5",
+        dark: "#DC2626",
+        contrastText: "#ffffff",
+      },
+      warning: {
+        main: "#F59E0B",
+        light: "#FCD34D",
+        dark: "#D97706",
+        contrastText: "#ffffff",
+      },
+      success: {
+        main: "#10B981",
+        light: "#6EE7B7",
+        dark: "#059669",
+        contrastText: "#ffffff",
+      },
+      info: {
+        main: primaryColor,
+        contrastText: "#ffffff",
+      },
       background: {
         default: isLight ? SLATE[100] : SLATE[900],
         paper:   isLight ? "#ffffff"  : SLATE[800],
@@ -83,32 +105,43 @@ export function createAppTheme(
       // ── Button ─────────────────────────────────────────────────────────────
       MuiButton: {
         styleOverrides: {
-          root: {
+          root: ({ theme, ownerState }) => ({
             borderRadius: 8,
             padding: "7px 16px",
             boxShadow: "none",
             "&:hover": { boxShadow: "none" },
-          },
-          contained: ({ theme }) => ({
-            background: `linear-gradient(145deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`,
-            "&:hover": {
-              background: `linear-gradient(145deg, ${alpha(theme.palette.primary.light, 0.9)} 0%, ${alpha(theme.palette.primary.dark, 0.9)} 100%)`,
+            // Disabled: fade the whole button, not just the text
+            "&.Mui-disabled": {
+              opacity: 0.45,
+              ...(ownerState.variant === "contained" && {
+                color: "#ffffff",
+              }),
             },
+            // Primary contained gradient
+            ...(ownerState.variant === "contained" &&
+              (!ownerState.color || ownerState.color === "primary") && {
+                background: `linear-gradient(145deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`,
+                "&:hover": {
+                  background: `linear-gradient(145deg, ${alpha(theme.palette.primary.light, 0.9)} 0%, ${alpha(theme.palette.primary.dark, 0.9)} 100%)`,
+                },
+              }),
+            // Outlined
+            ...(ownerState.variant === "outlined" && {
+              borderColor: isLight ? SLATE[300] : SLATE[600],
+              color: isLight ? SLATE[700] : SLATE[200],
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.06),
+              },
+            }),
+            // Text
+            ...(ownerState.variant === "text" && {
+              color: isLight ? SLATE[600] : SLATE[300],
+              "&:hover": {
+                backgroundColor: isLight ? SLATE[100] : SLATE[700],
+              },
+            }),
           }),
-          outlined: ({ theme }) => ({
-            borderColor: isLight ? SLATE[300] : SLATE[600],
-            color: isLight ? SLATE[700] : SLATE[200],
-            "&:hover": {
-              borderColor: theme.palette.primary.main,
-              backgroundColor: alpha(theme.palette.primary.main, 0.06),
-            },
-          }),
-          text: {
-            color: isLight ? SLATE[600] : SLATE[300],
-            "&:hover": {
-              backgroundColor: isLight ? SLATE[100] : SLATE[700],
-            },
-          },
         },
       },
 

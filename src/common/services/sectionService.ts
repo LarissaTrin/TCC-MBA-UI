@@ -33,6 +33,8 @@ function mapCardFromList(
     sortIndex: card.cardNumber ?? 0,
     sortOrder: card.sortOrder,
     blocked: card.blocked ?? false,
+    categoryId: card.categoryId,
+    category: card.category,
     user: card.user,
     tags: card.tagCards
       ?.filter((tc) => tc.tag)

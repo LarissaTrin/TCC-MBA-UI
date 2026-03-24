@@ -1,9 +1,11 @@
 import { Status } from "../enum";
 import { Approvers } from "./approvers";
+import { Category } from "./category";
 import { Comments } from "./comments";
 import { Tag } from "./tag";
 import { TaskCard } from "./tasks";
 import { User } from "./user";
+
 export interface Card {
   id: number;
   cardNumber: number;
@@ -26,6 +28,8 @@ export interface Card {
   comments?: Comments[];
   tags?: Tag[];
   blocked?: boolean;
+  categoryId?: number;
+  category?: Category;
 }
 
 export interface CardHistoryEntry {

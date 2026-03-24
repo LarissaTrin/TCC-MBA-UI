@@ -1,6 +1,6 @@
 import { apiClient } from "./apiClient";
 import { AutocompleteOption } from "../types/AutoComplete";
-import { InviteUsersResponse, Project, ProjectDetail, ProjectMember, ProjectMemberSearchItem } from "../model";
+import { InviteUsersResponse, Project, ProjectDetail, ProjectMember, ProjectMemberSearchItem, ProjectRole, User } from "../model";
 
 /** Backend ProjectSchemaBase response (camelCase via alias_generator) */
 interface ProjectApiResponse {
@@ -14,8 +14,8 @@ interface ProjectDetailApiResponse extends ProjectApiResponse {
     id: number;
     userId: number;
     roleId: number;
-    user: { id: number; firstName: string; lastName: string; email: string };
-    role: { id: number; name: string };
+    user: User;
+    role: ProjectRole;
   }>;
 }
 

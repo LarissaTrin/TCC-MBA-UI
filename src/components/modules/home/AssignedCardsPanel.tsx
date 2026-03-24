@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 
 import { GeneralColor, GeneralSize } from "@/common/enum";
 import { DashboardCard } from "@/common/model/dashboard";
@@ -9,6 +9,15 @@ import {
   DashboardPanel,
 } from "@/components";
 import { useTranslation } from "@/common/provider";
+
+const CATEGORY_COLORS: Record<string, "error" | "success" | "warning" | "primary" | "info" | "secondary" | "default"> = {
+  Bug: "error",
+  Feature: "success",
+  Issue: "warning",
+  Task: "primary",
+  Enhancement: "info",
+  Improvement: "secondary",
+};
 
 interface AssignedCardsPanelProps {
   cards: DashboardCard[];
@@ -35,11 +44,21 @@ export function AssignedCardsPanel({
         <Typography variant="body2" fontWeight="bold">
           {card.title}
         </Typography>
-        <GenericChip
-          label={card.listName}
-          size={GeneralSize.Small}
-          color={GeneralColor.Primary}
-        />
+        <Box display="flex" alignItems="center" gap={0.5} flexShrink={0}>
+          {card.category && (
+            <Chip
+              label={card.category.name}
+              size="small"
+              color={CATEGORY_COLORS[card.category.name] ?? "default"}
+              sx={{ height: 18, fontSize: "0.65rem" }}
+            />
+          )}
+          <GenericChip
+            label={card.listName}
+            size={GeneralSize.Small}
+            color={GeneralColor.Primary}
+          />
+        </Box>
       </Box>
     );
   }

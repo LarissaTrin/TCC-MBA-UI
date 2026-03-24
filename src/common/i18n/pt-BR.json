@@ -232,7 +232,8 @@
       "endDate": "Data de Fim",
       "storyPoints": "Story Points",
       "priority": "Prioridade",
-      "description": "Descrição"
+      "description": "Descrição",
+      "category": "Categoria"
     },
     "approvers": {
       "title": "Aprovadores",
@@ -255,6 +256,8 @@
       "add": "Adicionar Tarefa",
       "titlePlaceholder": "Título da tarefa",
       "assignedUser": "Usuário responsável",
+      "date": "Data",
+      "modalTitle": "Tarefa",
       "none": "Nenhuma tarefa ainda."
     },
     "comments": {
@@ -272,7 +275,10 @@
         "priorityChanged": "Prioridade alterada",
         "dateChanged": "Data alterada",
         "dependencyAdded": "Dependência adicionada",
-        "dependencyRemoved": "Dependência removida"
+        "dependencyRemoved": "Dependência removida",
+        "created": "Criado",
+        "edited": "Título editado",
+        "taskAdded": "Tarefa adicionada"
       }
     }
   },

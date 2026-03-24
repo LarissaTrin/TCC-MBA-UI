@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, UseFormReturn, useWatch, Control } from "react-hook-form";
 import { CardFormData } from "@/common/schemas/cardSchema";
 import { GeneralSize, ButtonVariant } from "@/common/enum";
@@ -10,6 +10,10 @@ import {
   Box,
   Checkbox,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   TextField,
   Typography,
@@ -17,72 +21,122 @@ import {
 import { useTranslation } from "@/common/provider";
 import { useProjectMemberSearch } from "@/common/hooks";
 
-// ─── Sub-component: isolated user search per row ─────────────────────────────
+// ─── Modal de edição/criação de task ─────────────────────────────────────────
 
-interface TaskUserFieldProps {
-  index: number;
-  control: Control<CardFormData>;
-  projectId?: number;
-  initialUserId: string;
-  initialUserName: string;
-  onUserChange: (userId: string, userName: string) => void;
+interface TaskModalState {
+  title: string;
+  date: string;
+  userId: string;
+  userName: string;
 }
 
-function TaskUserField({
-  index,
-  control,
-  projectId,
-  initialUserId,
-  initialUserName,
-  onUserChange,
-}: TaskUserFieldProps) {
+interface TaskItemModalProps {
+  open: boolean;
+  initial: TaskModalState;
+  projectId?: number;
+  onClose: () => void;
+  onSave: (data: TaskModalState) => void;
+}
+
+function TaskItemModal({ open, initial, projectId, onClose, onSave }: TaskItemModalProps) {
   const { t } = useTranslation();
+  const [title, setTitle] = useState(initial.title);
+  const [date, setDate] = useState(initial.date);
+  const [userId, setUserId] = useState(initial.userId);
+  const [userName, setUserName] = useState(initial.userName);
+
   const { options, loading, search, seedOption } = useProjectMemberSearch(projectId);
-  const userId = useWatch({ control, name: `tasks.${index}.userId` });
 
   useEffect(() => {
-    if (initialUserId && initialUserName) {
-      seedOption({ value: initialUserId, label: initialUserName });
+    if (open) {
+      setTitle(initial.title);
+      setDate(initial.date);
+      setUserId(initial.userId);
+      setUserName(initial.userName);
+      if (initial.userId && initial.userName) {
+        seedOption({ value: initial.userId, label: initial.userName });
+      }
     }
-    // run only on mount to seed the option without re-triggering
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [open]);
+
+  const handleSave = () => {
+    if (!title.trim()) return;
+    onSave({ title: title.trim(), date, userId, userName });
+  };
 
   return (
-    <Autocomplete
-      size="small"
-      options={options}
-      value={options.find((o) => o.value === (userId ?? "")) ?? null}
-      loading={loading}
-      filterOptions={(x) => x}
-      onInputChange={(_, value, reason) => {
-        if (reason === "input") search(value);
-      }}
-      onChange={(_, newValue) => {
-        onUserChange(newValue?.value ?? "", newValue?.label ?? "");
-      }}
-      getOptionLabel={(option) => option.label}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-      renderInput={(params) => (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth sx={{ zIndex: 2000 }}>
+      <DialogTitle>{t("card.tasks.modalTitle")}</DialogTitle>
+      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: "16px !important" }}>
         <TextField
-          {...params}
-          placeholder={t("card.tasks.assignedUser")}
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? <CircularProgress color="inherit" size={16} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            },
-          }}
+          autoFocus
+          label={t("card.tasks.titlePlaceholder")}
+          fullWidth
+          size="small"
+          multiline
+          rows={3}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
-      )}
-      sx={{ width: 160 }}
-      slotProps={{ popper: { sx: { zIndex: 3000 } } }}
-    />
+        <Autocomplete
+          size="small"
+          options={options}
+          value={options.find((o) => o.value === userId) ?? null}
+          loading={loading}
+          filterOptions={(x) => x}
+          onInputChange={(_, value, reason) => {
+            if (reason === "input") search(value);
+          }}
+          onChange={(_, newValue) => {
+            setUserId(newValue?.value ?? "");
+            setUserName(newValue?.label ?? "");
+          }}
+          getOptionLabel={(option) => option.label}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={t("card.tasks.assignedUser")}
+              slotProps={{
+                input: {
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {loading ? <CircularProgress color="inherit" size={16} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                },
+              }}
+            />
+          )}
+          slotProps={{ popper: { sx: { zIndex: 3000 } } }}
+        />
+        <TextField
+          label={t("card.tasks.date")}
+          type="date"
+          size="small"
+          fullWidth
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <GenericButton
+          label={t("common.cancel")}
+          variant={ButtonVariant.Text}
+          onClick={onClose}
+        />
+        <GenericButton
+          label={t("common.save")}
+          variant={ButtonVariant.Contained}
+          onClick={handleSave}
+          disabled={!title.trim()}
+        />
+      </DialogActions>
+    </Dialog>
   );
 }
 
@@ -95,11 +149,53 @@ interface CardTasksSectionProps {
 
 export function CardTasksSection({ form, projectId }: CardTasksSectionProps) {
   const { t } = useTranslation();
-  const { control, register, setValue } = form;
+  const { control, setValue } = form;
   const { fields, append, remove } = useFieldArray({ control, name: "tasks" });
 
-  const handleAdd = () => {
-    append({ id: Date.now(), title: "", date: "", completed: false, userName: "", userId: "" });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [modalInitial, setModalInitial] = useState<TaskModalState>({
+    title: "",
+    date: "",
+    userId: "",
+    userName: "",
+  });
+
+  const openNew = () => {
+    setEditingIndex(null);
+    setModalInitial({ title: "", date: "", userId: "", userName: "" });
+    setModalOpen(true);
+  };
+
+  const openEdit = (index: number) => {
+    const field = fields[index];
+    setEditingIndex(index);
+    setModalInitial({
+      title: field.title ?? "",
+      date: field.date ?? "",
+      userId: field.userId ?? "",
+      userName: field.userName ?? "",
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = (data: TaskModalState) => {
+    if (editingIndex !== null) {
+      setValue(`tasks.${editingIndex}.title`, data.title);
+      setValue(`tasks.${editingIndex}.date`, data.date);
+      setValue(`tasks.${editingIndex}.userId`, data.userId);
+      setValue(`tasks.${editingIndex}.userName`, data.userName);
+    } else {
+      append({
+        id: Date.now(),
+        title: data.title,
+        date: data.date,
+        completed: false,
+        userName: data.userName,
+        userId: data.userId,
+      });
+    }
+    setModalOpen(false);
   };
 
   return (
@@ -113,7 +209,7 @@ export function CardTasksSection({ form, projectId }: CardTasksSectionProps) {
           startIcon="add"
           size={GeneralSize.Small}
           variant={ButtonVariant.Outlined}
-          onClick={handleAdd}
+          onClick={openNew}
         />
       </Box>
 
@@ -122,12 +218,9 @@ export function CardTasksSection({ form, projectId }: CardTasksSectionProps) {
           key={field.id}
           index={index}
           control={control}
-          projectId={projectId}
-          initialUserId={field.userId ?? ""}
-          initialUserName={field.userName ?? ""}
-          register={register}
-          setValue={setValue}
+          onEdit={() => openEdit(index)}
           onRemove={() => remove(index)}
+          onToggle={(checked) => setValue(`tasks.${index}.completed`, checked)}
         />
       ))}
 
@@ -136,68 +229,67 @@ export function CardTasksSection({ form, projectId }: CardTasksSectionProps) {
           {t("card.tasks.none")}
         </Typography>
       )}
+
+      <TaskItemModal
+        open={modalOpen}
+        initial={modalInitial}
+        projectId={projectId}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSave}
+      />
     </Box>
   );
 }
 
-// ─── Row component ────────────────────────────────────────────────────────────
+// ─── Row minimalista ──────────────────────────────────────────────────────────
 
 interface TaskRowProps {
   index: number;
   control: Control<CardFormData>;
-  projectId?: number;
-  initialUserId: string;
-  initialUserName: string;
-  register: UseFormReturn<CardFormData>["register"];
-  setValue: UseFormReturn<CardFormData>["setValue"];
+  onEdit: () => void;
   onRemove: () => void;
+  onToggle: (checked: boolean) => void;
 }
 
-function TaskRow({
-  index,
-  control,
-  projectId,
-  initialUserId,
-  initialUserName,
-  register,
-  setValue,
-  onRemove,
-}: TaskRowProps) {
-  const { t } = useTranslation();
+function TaskRow({ index, control, onEdit, onRemove, onToggle }: TaskRowProps) {
   const completed = useWatch({ control, name: `tasks.${index}.completed` });
+  const title = useWatch({ control, name: `tasks.${index}.title` });
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        mb: 0.5,
+        p: 0.5,
+        borderRadius: 1,
+        "&:hover": { bgcolor: "action.hover" },
+      }}
+    >
       <Checkbox
         checked={!!completed}
-        onChange={(e) => setValue(`tasks.${index}.completed`, e.target.checked)}
+        onChange={(e) => onToggle(e.target.checked)}
         size="small"
+        sx={{ p: 0.5 }}
       />
-      <TextField
-        size="small"
-        placeholder={t("card.tasks.titlePlaceholder")}
-        sx={{ flex: 1 }}
-        {...register(`tasks.${index}.title`)}
-      />
-      <TaskUserField
-        index={index}
-        control={control}
-        projectId={projectId}
-        initialUserId={initialUserId}
-        initialUserName={initialUserName}
-        onUserChange={(userId, userName) => {
-          setValue(`tasks.${index}.userId`, userId);
-          setValue(`tasks.${index}.userName`, userName);
+      <Typography
+        variant="body2"
+        sx={{
+          flex: 1,
+          cursor: "pointer",
+          textDecoration: completed ? "line-through" : "none",
+          color: completed ? "text.disabled" : "text.primary",
         }}
-      />
-      <TextField
-        size="small"
-        type="date"
-        sx={{ width: 150 }}
-        {...register(`tasks.${index}.date`)}
-      />
-      <IconButton size="small" color="error" onClick={onRemove}>
-        <GenericIcon icon="delete" size={20} />
+        onClick={onEdit}
+      >
+        {title || <span style={{ opacity: 0.4 }}>—</span>}
+      </Typography>
+      <IconButton size="small" onClick={onEdit} sx={{ opacity: 0.5, "&:hover": { opacity: 1 } }}>
+        <GenericIcon icon="edit" size={GeneralSize.Small} />
+      </IconButton>
+      <IconButton size="small" color="error" onClick={onRemove} sx={{ opacity: 0.5, "&:hover": { opacity: 1 } }}>
+        <GenericIcon icon="delete" size={GeneralSize.Small} />
       </IconButton>
     </Box>
   );

@@ -21,8 +21,6 @@ import { GenericButton } from "./Button";
 import { GenericIcon } from "./Icon";
 import { GenericIconProps } from "@/common/model";
 
-// ─── Painel principal ─────────────────────────────────────────────────────────
-
 export function ThemePicker() {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
@@ -39,8 +37,6 @@ export function ThemePicker() {
     </>
   );
 }
-
-// ─── Drawer ───────────────────────────────────────────────────────────────────
 
 function ThemePickerDrawer({
   open,
@@ -105,7 +101,6 @@ function ThemePickerDrawer({
         </IconButton>
       </Box>
 
-      {/* Badge demonstração */}
       <Box sx={{ px: 2.5, pt: 2, flexShrink: 0 }}>
         <Chip
           label={`✦ ${t("theme.demoMode")}`}
@@ -122,9 +117,7 @@ function ThemePickerDrawer({
         />
       </Box>
 
-      {/* Conteúdo com scroll */}
       <Box sx={{ flex: 1, overflowY: "auto", px: 2.5, pb: 3 }}>
-        {/* Aparência */}
         <SectionTitle>{t("theme.appearance")}</SectionTitle>
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
           <ModeCard
@@ -143,7 +136,6 @@ function ThemePickerDrawer({
 
         <Divider sx={{ my: 2.5 }} />
 
-        {/* Cor primária */}
         <SectionTitle>{t("theme.primaryColor")}</SectionTitle>
         <Box
           sx={{
@@ -178,8 +170,6 @@ function ThemePickerDrawer({
     </Drawer>
   );
 }
-
-// ─── Card de modo (claro / escuro) ────────────────────────────────────────────
 
 function ModeCard({
   label,
@@ -234,8 +224,6 @@ function ModeCard({
   );
 }
 
-// ─── Swatch de cor ────────────────────────────────────────────────────────────
-
 function ColorSwatch({
   color,
   name,
@@ -280,8 +268,6 @@ function ColorSwatch({
     </Tooltip>
   );
 }
-
-// ─── Input de cor customizada ─────────────────────────────────────────────────
 
 function CustomColorInput({
   value,
@@ -346,8 +332,6 @@ function CustomColorInput({
   );
 }
 
-// ─── Preview de componentes ───────────────────────────────────────────────────
-
 function ComponentPreview() {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -406,8 +390,6 @@ function ComponentPreview() {
     </Stack>
   );
 }
-
-// ─── Helper ───────────────────────────────────────────────────────────────────
 
 function SectionTitle({ children }: { children: string }) {
   return (

@@ -21,8 +21,6 @@ import {
 import { useTranslation } from "@/common/provider";
 import { useProjectMemberSearch } from "@/common/hooks";
 
-// ─── Modal de edição/criação de task ─────────────────────────────────────────
-
 interface TaskModalState {
   title: string;
   date: string;
@@ -140,8 +138,6 @@ function TaskItemModal({ open, initial, projectId, onClose, onSave }: TaskItemMo
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 interface CardTasksSectionProps {
   form: UseFormReturn<CardFormData>;
   projectId?: number;
@@ -240,8 +236,6 @@ export function CardTasksSection({ form, projectId }: CardTasksSectionProps) {
     </Box>
   );
 }
-
-// ─── Row minimalista ──────────────────────────────────────────────────────────
 
 interface TaskRowProps {
   index: number;

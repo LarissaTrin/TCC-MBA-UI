@@ -4,6 +4,7 @@ import {
   CardHistoryEntry,
   CardDependenciesResponse,
   CardSearchResult,
+  CardUpdate,
 } from "../model/card";
 import { CardApiResponse } from "../model/api/cardApiResponse";
 import { Status } from "../enum";
@@ -59,7 +60,7 @@ function mapCard(card: CardApiResponse): Card {
 }
 
 // Re-export from model for backward compatibility
-export type { CardHistoryEntry, CardDependencyItem, CardDependenciesResponse, CardSearchResult } from "../model/card";
+export type { CardHistoryEntry, CardDependencyItem, CardDependenciesResponse, CardSearchResult, CardUpdate, CardUpdateTagPayload, CardUpdateApproverPayload, CardUpdateTaskPayload } from "../model/card";
 
 export const cardService = {
   /**
@@ -89,26 +90,7 @@ export const cardService = {
    * Update a card and its relationships.
    * PUT /api/cards/{cardId}
    */
-  async update(
-    cardId: number,
-    updates: {
-      title?: string;
-      description?: string;
-      priority?: number;
-      storyPoints?: number;
-      date?: string;
-      startDate?: string;
-      endDate?: string;
-      listId?: number;
-      userId?: number;
-      sortIndex?: number;
-      blocked?: boolean;
-      tagCards?: { tagId?: number; name?: string }[];
-      approvers?: { id?: number; environment?: string; userId?: number }[];
-      tasksCard?: { id?: number; title?: string; date?: string; completed?: boolean; userId?: number }[];
-      categoryId?: number;
-    },
-  ): Promise<Card> {
+  async update(cardId: number, updates: CardUpdate): Promise<Card> {
     const data = await apiClient.put<CardApiResponse>(
       `/cards/${cardId}`,
       updates,

@@ -13,8 +13,6 @@ import {
 } from "react";
 import { createAppTheme, DEFAULT_PRIMARY } from "./theme";
 
-// ─── Context ──────────────────────────────────────────────────────────────────
-
 interface ThemeModeContextType {
   mode: "light" | "dark";
   toggleMode: () => void;
@@ -32,8 +30,6 @@ const ThemeModeContext = createContext<ThemeModeContextType>({
 export function useThemeMode() {
   return useContext(ThemeModeContext);
 }
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<"light" | "dark">("light");

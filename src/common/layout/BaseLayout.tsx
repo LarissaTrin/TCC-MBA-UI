@@ -7,7 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { setAuthToken } from "@/common/utils/tokenStore";
 
@@ -32,6 +32,11 @@ export function BaseLayout({ children }: BaseLayoutProps) {
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("md"),
   );
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) setSidebarOpen(false);
+  }, [pathname, isMobile]);
 
   if (isLoginPage) {
     return (

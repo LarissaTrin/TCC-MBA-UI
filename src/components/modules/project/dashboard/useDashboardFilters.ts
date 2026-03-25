@@ -10,13 +10,13 @@ export interface DashboardFilterValues {
 }
 
 export function useDashboardFilters() {
-  // Estado confirmado — usado pelas queries
+  // Committed state used by queries
   const [applied, setApplied] = useState<DashboardFilterValues>({
     start: getDefaultStart(),
     end: getDefaultEnd(),
   });
 
-  // Estado rascunho — vive dentro do popover antes de confirmar
+  // Draft state that lives in the popover before the user confirms
   const [draft, setDraft] = useState<DashboardFilterValues>({
     start: getDefaultStart(),
     end: getDefaultEnd(),

@@ -44,6 +44,7 @@ export function ProjectsPanel({ projects, isLoading }: ProjectsPanelProps) {
     <>
       <DashboardPanel
         title={t("home.myProjects")}
+        sx={{ maxHeight: { xs: 420, md: "none" } }}
         headerAction={
           isMobile ? (
             <Tooltip title={t("home.newProject")}>

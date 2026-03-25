@@ -45,6 +45,7 @@ export default function ProjectPage() {
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [lastUpdatedCard, setLastUpdatedCard] = useState<Card | undefined>();
   const [deletedCardId, setDeletedCardId] = useState<number | undefined>();
+  const [tabSwitching, setTabSwitching] = useState(false);
 
   // Load sections only (fast — Board loads cards itself with pagination)
   useEffect(() => {
@@ -129,7 +130,13 @@ export default function ProjectPage() {
     (tab) => tab.value === activeTabValue,
   );
 
+  // Clear tab-switching loading state as soon as the URL reflects the new tab
+  useEffect(() => {
+    setTabSwitching(false);
+  }, [activeTabValue]);
+
   const handleTabChange = (newValue: string) => {
+    if (newValue !== activeTabValue) setTabSwitching(true);
     router.push(`?tab=${newValue}`);
   };
 
@@ -168,7 +175,7 @@ export default function ProjectPage() {
       </Box>
 
       <Box sx={{ p: 2, flexGrow: 1 }}>
-        {tabsConfig[selectedTabIndex]?.content}
+        {tabSwitching ? <GenericLoading fullPage /> : tabsConfig[selectedTabIndex]?.content}
       </Box>
 
       {cardStack.map((cardId, idx) => (

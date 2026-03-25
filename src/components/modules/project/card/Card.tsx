@@ -99,6 +99,7 @@ export function CardContent({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [comments, setComments] = useState<Comments[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
 
   const TABS = [
     { label: t("card.tabs.details"), value: 0 },
@@ -136,7 +137,7 @@ export function CardContent({
 
   const {
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = form;
 
   const handleOptions = () => setOpenOptions((prev) => !prev);
@@ -195,7 +196,7 @@ export function CardContent({
       startDate: data.startDate || undefined,
       endDate: data.endDate || undefined,
       listId: data.sectionId ? Number(data.sectionId) : undefined,
-      userId: data.user ? Number(data.user) : undefined,
+      userId: data.user ? Number(data.user) : null,
       blocked: data.blocked,
       categoryId: data.categoryId ? Number(data.categoryId) : undefined,
       tagCards: (data.tags ?? []).map((t) => ({ tagId: t.id, name: t.name })),
@@ -213,6 +214,8 @@ export function CardContent({
       })),
     });
     onSaved?.(updatedCard);
+    // Reset form to the saved values so isDirty becomes false
+    form.reset(data);
     if (closeAfterSave.current) {
       closeAfterSave.current = false;
       handleClose();
@@ -220,6 +223,17 @@ export function CardContent({
   };
 
   const handleClose = () => {
+    if (isDirty) {
+      setConfirmCloseOpen(true);
+      return;
+    }
+    handleCloseOptions();
+    setIsDrawerOpen(false);
+    onClose();
+  };
+
+  const handleForceClose = () => {
+    setConfirmCloseOpen(false);
     handleCloseOptions();
     setIsDrawerOpen(false);
     onClose();
@@ -350,6 +364,11 @@ export function CardContent({
               />
             </IconButton>
           </Tooltip>
+          <Tooltip title={t("card.close")}>
+            <IconButton size="small" onClick={handleClose}>
+              <GenericIcon icon="close" />
+            </IconButton>
+          </Tooltip>
           <GenericButtonGroup
             size={GeneralSize.Small}
             variant={ButtonVariant.Outlined}
@@ -375,7 +394,6 @@ export function CardContent({
             >
               {t("card.saveAndClose")}
             </MenuItem>
-            <MenuItem onClick={handleClose}>{t("card.close")}</MenuItem>
             {canDeleteCard && (
               <MenuItem
                 onClick={() => {
@@ -624,7 +642,6 @@ export function CardContent({
               <CardApproversSection
                 form={form}
                 projectId={projectId}
-                readOnly={homeMode}
               />
               <Box>
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
@@ -634,7 +651,6 @@ export function CardContent({
                   cardId={card?.id ?? 0}
                   projectId={projectId}
                   onOpenCard={onOpenCard}
-                  readOnly={homeMode}
                 />
               </Box>
             </Box>
@@ -651,6 +667,30 @@ export function CardContent({
           {activeTab === 4 && <CardHistorySection cardId={card?.id ?? 0} />}
         </Box>
       </Box>
+
+      <Dialog
+        open={confirmCloseOpen}
+        onClose={() => setConfirmCloseOpen(false)}
+        sx={{ zIndex: 1600 + extraZIndex }}
+      >
+        <DialogTitle>{t("card.unsavedChangesTitle")}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t("card.unsavedChangesText")}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <GenericButton
+            label={t("common.cancel")}
+            variant={ButtonVariant.Text}
+            onClick={() => setConfirmCloseOpen(false)}
+          />
+          <GenericButton
+            label={t("card.discardAndClose")}
+            variant={ButtonVariant.Contained}
+            color={GeneralColor.Error}
+            onClick={handleForceClose}
+          />
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={confirmDeleteOpen}

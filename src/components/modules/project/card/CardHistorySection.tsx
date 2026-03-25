@@ -60,19 +60,28 @@ export function CardHistorySection({ cardId }: CardHistorySectionProps) {
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
       {history.map((entry) => (
         <Box key={entry.id} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Chip
               label={ACTION_LABEL[entry.action] ?? entry.action}
               size="small"
               color={ACTION_COLOR[entry.action] ?? "default"}
             />
+            {entry.user && (
+              <Typography variant="caption" fontWeight={500}>
+                {`${entry.user.firstName} ${entry.user.lastName}`.trim()}
+              </Typography>
+            )}
             <Typography variant="caption" color="text.secondary">
               {new Date(entry.createdAt).toLocaleString(locale)}
             </Typography>
           </Box>
 
           {(entry.oldValue || entry.newValue) && (
-            <Typography variant="body2" color="text.secondary" sx={{ pl: 0.5 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ pl: 0.5, wordBreak: "break-word", overflowWrap: "anywhere" }}
+            >
               {entry.oldValue}
               {entry.oldValue && entry.newValue && " → "}
               {entry.newValue}

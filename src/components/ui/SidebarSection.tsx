@@ -8,7 +8,6 @@ import { Task, Section } from "../../common/model";
 import { TIMELINE_CONFIG } from "../../common/constants/timeline";
 import { useTranslation } from "@/common/provider";
 
-// --- Sub-componente: Item ---
 function SortableSidebarItem({ task }: { task: Task }) {
   const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
@@ -60,7 +59,6 @@ function SortableSidebarItem({ task }: { task: Task }) {
   );
 }
 
-// --- Componente: Seção ---
 interface SidebarSectionProps {
     section: Section;
     tasks: Task[];

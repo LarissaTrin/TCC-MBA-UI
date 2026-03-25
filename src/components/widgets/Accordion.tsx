@@ -44,7 +44,6 @@ export function GenericAccordion({
 
   const isHorizontal = orientation === "horizontal";
 
-  // Se disableCollapse mudar, força sempre expanded
   useEffect(() => {
     if (disableCollapse) {
       setExpanded(true);

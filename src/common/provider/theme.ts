@@ -1,7 +1,5 @@
 import { createTheme, alpha } from "@mui/material/styles";
 
-// ─── Cores estáticas de estrutura (não mudam com a cor primária) ─────────────
-
 const SLATE = {
   50: "#F8FAFC",
   100: "#F1F5F9",
@@ -14,8 +12,6 @@ const SLATE = {
   800: "#1E293B",
   900: "#0F172A",
 };
-
-// ─── Presets de cor disponíveis ───────────────────────────────────────────────
 
 export const COLOR_PRESETS = [
   { name: "Azul",      value: "#2563EB" },
@@ -30,8 +26,6 @@ export const COLOR_PRESETS = [
 ] as const;
 
 export const DEFAULT_PRIMARY = COLOR_PRESETS[0].value;
-
-// ─── Factory: cria o tema com modo + cor primária dinâmicos ──────────────────
 
 export function createAppTheme(
   mode: "light" | "dark",

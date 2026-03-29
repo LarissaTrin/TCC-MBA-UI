@@ -13,7 +13,6 @@ export const registerSchema = z
   .object({
     firstName: z.string().min(1, "Primeiro nome é obrigatório."),
     lastName: z.string().min(1, "Sobrenome é obrigatório."),
-    username: z.string().min(3, "O nome de usuário deve ter no mínimo 3 caracteres."),
     email: z.string().email("Por favor, insira um email válido."),
     password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
     confirmPassword: z.string().min(1, "Confirmação de senha é obrigatória."),

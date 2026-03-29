@@ -8,7 +8,7 @@ Feature: Seção de sub-tarefas do card
   Scenario: Adiciona nova sub-tarefa ao clicar no botão adicionar
     Given um formulário de card sem sub-tarefas
     When o botão de adicionar sub-tarefa é clicado
-    Then deve aparecer um campo para o título da sub-tarefa
+    Then deve aparecer o modal com campo para o título da sub-tarefa
     And a mensagem de lista vazia não deve ser exibida
 
   Scenario: Remove sub-tarefa ao clicar no botão deletar
@@ -18,5 +18,5 @@ Feature: Seção de sub-tarefas do card
 
   Scenario: Permite adicionar múltiplas sub-tarefas
     Given um formulário de card sem sub-tarefas
-    When o botão de adicionar sub-tarefa é clicado 3 vezes
-    Then devem aparecer 3 campos de título de sub-tarefa
+    When 3 sub-tarefas são adicionadas via modal
+    Then devem aparecer 3 sub-tarefas na lista

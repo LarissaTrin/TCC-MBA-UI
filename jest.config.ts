@@ -18,7 +18,10 @@ const config: Config = {
         },
       },
     ],
+    "^.+\\.js$": ["ts-jest", { tsconfig: { esModuleInterop: true } }],
   },
+  // until-async (MSW dependency) is published as pure ESM — allow ts-jest to transform it.
+  transformIgnorePatterns: ["/node_modules/(?!(until-async)/)"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
     "\\.css$": "identity-obj-proxy",

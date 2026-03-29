@@ -7,10 +7,23 @@ const feature = loadFeature(path.join(__dirname, "DroppableContainer.feature"));
 
 jest.mock("@dnd-kit/react", () => ({
   useDroppable: jest.fn(() => ({ ref: { current: null } })),
+  useDraggable: jest.fn(() => ({ ref: { current: null }, isDragging: false })),
+  DragDropProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+jest.mock("@dnd-kit/react/sortable", () => ({
+  useSortable: jest.fn(() => ({
+    ref: { current: null },
+    isDragging: false,
+    attributes: {},
+    listeners: {},
+  })),
+  SortableContext: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  arrayMove: jest.fn((arr: unknown[]) => arr),
 }));
 jest.mock("@dnd-kit/abstract", () => ({
-  CollisionPriority: { Low: 0 },
+  CollisionPriority: { Low: 0, Normal: 1, High: 2 },
 }));
+jest.mock("@dnd-kit/dom", () => ({}));
 jest.mock("@/components/widgets/Accordion", () => ({
   GenericAccordion: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="accordion">{children}</div>

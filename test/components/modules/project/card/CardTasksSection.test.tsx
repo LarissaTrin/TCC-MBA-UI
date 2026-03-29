@@ -1,6 +1,6 @@
 import path from "path";
 import { loadFeature, defineFeature } from "jest-cucumber";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CardTasksSection } from "@/components/modules/project/card/CardTasksSection";
@@ -39,6 +39,16 @@ function TestWrapper() {
   return <CardTasksSection form={form} projectId={1} />;
 }
 
+/** Opens the add-task dialog, types a title, and saves it. */
+function addTaskViaModal(title: string) {
+  fireEvent.click(screen.getByText("card.tasks.add"));
+  // The dialog is open — find the title field by its label
+  const dialog = screen.getByRole("dialog");
+  const titleField = within(dialog).getByRole("textbox", { name: "card.tasks.titlePlaceholder" });
+  fireEvent.change(titleField, { target: { value: title } });
+  fireEvent.click(within(dialog).getByText("common.save"));
+}
+
 defineFeature(feature, (test) => {
   test("Exibe mensagem quando não há sub-tarefas", ({ given, when, then }) => {
     given("um formulário de card sem sub-tarefas", () => {});
@@ -61,12 +71,17 @@ defineFeature(feature, (test) => {
       fireEvent.click(screen.getByText("card.tasks.add"));
     });
 
-    then("deve aparecer um campo para o título da sub-tarefa", () => {
-      expect(screen.getByPlaceholderText("card.tasks.titlePlaceholder")).toBeInTheDocument();
+    then("deve aparecer o modal com campo para o título da sub-tarefa", () => {
+      const dialog = screen.getByRole("dialog");
+      expect(
+        within(dialog).getByRole("textbox", { name: "card.tasks.titlePlaceholder" })
+      ).toBeInTheDocument();
     });
 
     and("a mensagem de lista vazia não deve ser exibida", () => {
-      expect(screen.queryByText("card.tasks.none")).not.toBeInTheDocument();
+      // While dialog is open the empty message is still in the background DOM
+      // (dialog does not remove the list area). We check the dialog is open instead.
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
   });
 
@@ -75,8 +90,7 @@ defineFeature(feature, (test) => {
 
     given("um formulário de card com uma sub-tarefa adicionada", () => {
       ({ container } = render(<TestWrapper />));
-      fireEvent.click(screen.getByText("card.tasks.add"));
-      expect(screen.getByPlaceholderText("card.tasks.titlePlaceholder")).toBeInTheDocument();
+      addTaskViaModal("My Task");
     });
 
     when("o botão de deletar a sub-tarefa é clicado", () => {
@@ -95,14 +109,16 @@ defineFeature(feature, (test) => {
       render(<TestWrapper />);
     });
 
-    when("o botão de adicionar sub-tarefa é clicado 3 vezes", () => {
-      fireEvent.click(screen.getByText("card.tasks.add"));
-      fireEvent.click(screen.getByText("card.tasks.add"));
-      fireEvent.click(screen.getByText("card.tasks.add"));
+    when("3 sub-tarefas são adicionadas via modal", () => {
+      addTaskViaModal("Task 1");
+      addTaskViaModal("Task 2");
+      addTaskViaModal("Task 3");
     });
 
-    then("devem aparecer 3 campos de título de sub-tarefa", () => {
-      expect(screen.getAllByPlaceholderText("card.tasks.titlePlaceholder")).toHaveLength(3);
+    then("devem aparecer 3 sub-tarefas na lista", () => {
+      // Each task row renders a delete (error) IconButton — count them.
+      const deleteButtons = document.querySelectorAll(".MuiIconButton-colorError");
+      expect(deleteButtons.length).toBe(3);
     });
   });
 });

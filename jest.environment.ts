@@ -33,6 +33,7 @@ export default class FixedJSDomEnvironment extends TestEnvironment {
       "FormData",
       "Blob",
       "File",
+      "BroadcastChannel",
     ];
 
     for (const key of fetchGlobals) {

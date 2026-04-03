@@ -14,6 +14,7 @@ import {
 } from "@/common/utils/dashboardUtils";
 import { useTranslation } from "@/common/provider";
 import { useLoading } from "@/common/context/LoadingContext";
+import { Skeleton } from "@mui/material";
 
 import dynamic from "next/dynamic";
 import { DashboardFilters } from "./DashboardFilters";
@@ -54,7 +55,27 @@ export function DashboardContent({ projectId }: DashboardContentProps) {
       .finally(() => setBurndownLoading(false));
   }, [projectId, applied.start, applied.end]);
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Grid container spacing={2}>
+          {[0, 1, 2].map((i) => (
+            <Grid size={{ xs: 12, md: 4 }} key={i}>
+              <Skeleton variant="rounded" height={90} />
+            </Grid>
+          ))}
+        </Grid>
+        <Grid container spacing={2}>
+          {[0, 1, 2].map((i) => (
+            <Grid size={{ xs: 12, md: 4 }} key={i}>
+              <Skeleton variant="rounded" height={90} />
+            </Grid>
+          ))}
+        </Grid>
+        <Skeleton variant="rounded" height={260} />
+      </Box>
+    );
+  }
 
   const completed = stats.byList
     .filter((l) => l.isFinal)

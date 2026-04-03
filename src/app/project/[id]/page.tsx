@@ -140,10 +140,6 @@ export default function ProjectPage() {
     router.push(`?tab=${newValue}`);
   };
 
-  if (loading) {
-    return <GenericLoading fullPage />;
-  }
-
   return (
     <GenericPage sx={{ display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

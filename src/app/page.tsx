@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 
 import { useHomePageData } from "@/common/hooks";
-import { GenericLoading, GenericPanel } from "@/components";
+import { GenericPanel } from "@/components";
 import { GenericPage } from "@/components/widgets/Page";
 import {
   AssignedCardsPanel,
@@ -55,14 +55,6 @@ export default function HomePage() {
     { label: t("home.tabs.myDay"), value: 1 },
     { label: t("home.tabs.pendingApprovals"), value: 2 },
   ];
-
-  if (isLoading) {
-    return <GenericLoading fullPage />;
-  }
-
-  if (error) {
-    return <Typography color="error">{error}</Typography>;
-  }
 
   return (
     <GenericPage

@@ -48,6 +48,7 @@ export function NotesPanel() {
         rows={4}
         value={notes}
         onChange={(value) => setNotes(value)}
+        slotProps={{ htmlInput: { 'aria-label': t('home.notes.title') } }}
       />
     </GenericPanel>
   );

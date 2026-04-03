@@ -7,6 +7,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import React from "react";
 import { GenericIcon, GenericLoading } from "./";
 
 export function GenericList({ items, loading, collapsed }: GenericListProps) {
@@ -19,8 +20,8 @@ export function GenericList({ items, loading, collapsed }: GenericListProps) {
       )}
 
       {items?.map((item, index) => (
-        <div key={index}>
-          {item.dividerAbove && <Divider />}
+        <React.Fragment key={index}>
+          {item.dividerAbove && <Divider component="li" />}
 
           <ListItem disablePadding>
             <ListItemButton
@@ -40,8 +41,8 @@ export function GenericList({ items, loading, collapsed }: GenericListProps) {
             </ListItemButton>
           </ListItem>
 
-          {item.dividerBelow && <Divider />}
-        </div>
+          {item.dividerBelow && <Divider component="li" />}
+        </React.Fragment>
       ))}
     </List>
   );

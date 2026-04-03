@@ -15,6 +15,7 @@ export const GenericPage: React.FC<BoxProps> & {
   const { sx, ...otherProps } = props
   return (
     <Box
+      component="main"
       sx={{
         display: 'flex',
         flexDirection: 'column',
